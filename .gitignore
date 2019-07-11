@@ -1,4 +1,6 @@
 .vs/
+.idea
+/build
 ExportedObj/
 *.csproj
 *.unityproj
