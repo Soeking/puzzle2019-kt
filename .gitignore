@@ -29,4 +29,14 @@ ehthumbs.db
 Thumbs.db
 *.log
 *.pyc
-*.properties
+local.properties
+*.iml
+*.jks
+/*/build/
+/*/local.properties
+/*/out
+/*/*/build
+/*/*/production
+*.jar
+*.war
+*.ear
