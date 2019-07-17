@@ -10,6 +10,6 @@ class AndroidLauncher : AndroidApplication() {
         super.onCreate(savedInstanceState)
         val config = AndroidApplicationConfiguration()
         config.useImmersiveMode = true
-        initialize(Game(), config)
+        initialize(Title(), config)
     }
 }
