@@ -7,26 +7,22 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
-class Title(private val game: Core) : Screen {
+class GameMain(private val game:Core) : Screen {
     val batch: SpriteBatch
     val font: BitmapFont
 
     init {
         batch = SpriteBatch()
         font = BitmapFont()
-        font.color = Color.WHITE
+        font.color = Color.BLACK
         font.data.setScale(10f)
     }
 
     override fun render(delta: Float) {
-        if (Gdx.input.justTouched()) {
-            game.screen=GameMain(game)
-        }
-
         batch.begin()
-        Gdx.gl.glClearColor(0.1f, 0.25f, 0.2f, 0f)
+        Gdx.gl.glClearColor(0.9f, 0.1f, 0.5f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        font.draw(batch, "TITLE", Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        font.draw(batch, "GAME", Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         batch.end()
     }
 
@@ -38,7 +34,7 @@ class Title(private val game: Core) : Screen {
 
     }
 
-    override fun resize(width: Int, height: Int) {
+    override fun pause() {
 
     }
 
@@ -46,12 +42,11 @@ class Title(private val game: Core) : Screen {
 
     }
 
-    override fun dispose() {
-        batch.dispose()
-        font.dispose()
+    override fun resize(width: Int, height: Int) {
+
     }
 
-    override fun pause() {
+    override fun dispose() {
 
     }
 }
