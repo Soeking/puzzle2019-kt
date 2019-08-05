@@ -8,8 +8,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
 class Title(private val game: Core) : Screen {
-    val batch: SpriteBatch
-    val font: BitmapFont
+    private val batch: SpriteBatch
+    private val font: BitmapFont
 
     init {
         batch = SpriteBatch()
