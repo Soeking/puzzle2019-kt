@@ -24,7 +24,7 @@ class GameMain(private val game: Core) : Screen {
         font = BitmapFont()
         font.color = Color.BLACK
         font.data.setScale(10f)
-        button = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("sprites/play.png")))))
+        button = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/play.png")))))
         button.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         button.setScale(10f)
         stage.addActor(button)
