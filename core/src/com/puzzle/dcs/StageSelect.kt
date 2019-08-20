@@ -6,7 +6,15 @@ import com.badlogic.gdx.graphics.GL20
 
 class StageSelect(private val game: Core) : Screen {
 
+    init {
+
+    }
+
     override fun render(delta: Float) {
+        if (true){
+            game.screen=Stage(game,"kari.json")
+        }
+
         Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
     }
