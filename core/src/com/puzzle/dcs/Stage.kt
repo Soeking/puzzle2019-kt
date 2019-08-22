@@ -10,7 +10,7 @@ class Stage(private val game: Core, private val fileName: String) : Screen {
     lateinit var stageData: StageData
 
     init {
-        Gdx.app.log("Ori", "${file.readString()}")
+        Gdx.app.log("Json", "${file.readString()}")
         stageData = json.fromJson(stageData::class.java, file.readString())
     }
 
