@@ -1,5 +1,16 @@
 {
   "wall": [
-
+  ],
+  "square": [
+  ],
+  "triangle": [
+  ],
+  "ladder": [
+  ],
+  "start": 0,
+  "goal": 0,
+  "grav_ch": [
+  ],
+  "switch": [
   ]
 }
