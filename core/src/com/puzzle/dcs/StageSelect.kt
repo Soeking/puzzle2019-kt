@@ -12,7 +12,7 @@ class StageSelect(private val game: Core) : Screen {
 
     override fun render(delta: Float) {
         if (true){
-            game.screen=Stage(game,"kari.json")
+            game.screen=PlayScreen(game,"kari.json")
         }
 
         Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)

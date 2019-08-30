@@ -3,20 +3,26 @@ package com.puzzle.dcs
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.files.FileHandle
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.utils.Json
 
-class Stage(private val game: Core, private val fileName: String) : Screen, InputProcessor {
-    private val file = Gdx.files.internal("stages/$fileName")
-    private val json = Json()
-    lateinit var stageData: StageData
+class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
+    private val file: FileHandle
+    private val json: Json
+    private lateinit var stageData: StageData
 
     init {
+        file = Gdx.files.internal("stages/$fileName")
+        json = Json()
+
         Gdx.app.log("Json", "${file.readString()}")
         stageData = json.fromJson(stageData::class.java, file.readString())
     }
 
     override fun render(delta: Float) {
-
+        Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
