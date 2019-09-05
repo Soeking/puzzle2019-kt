@@ -5,19 +5,21 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.utils.Json
+import com.google.gson.Gson
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
     private val file: FileHandle
-    private val json: Json
+    private val json = Gson()
     private lateinit var stageData: StageData
 
     init {
         file = Gdx.files.internal("stages/$fileName")
-        json = Json()
 
-        Gdx.app.log("Json", "${file.readString()}")
-        stageData = json.fromJson(stageData::class.java, file.readString())
+        if (file.exists()) {
+            Gdx.app.log("Json", "${file.readString()}")
+            stageData = json.fromJson(file.readString(), StageData::class.java)
+            Gdx.app.log("Json", "${stageData.start}")
+        }
     }
 
     override fun render(delta: Float) {
