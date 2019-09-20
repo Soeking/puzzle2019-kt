@@ -1,10 +1,10 @@
 package com.puzzle.dcs
 
 data class StageData(
-        val wall: List<Wall>,
-        val square: List<Square>,
-        val triangle: List<Triangle>,
-        val ladder: List<Ladder>,
+        val wall: MutableList<Wall>,
+        val square: MutableList<Square>,
+        val triangle: MutableList<Triangle>,
+        val ladder: MutableList<Ladder>,
         val start: Start,
         val goal: Goal,
         val gravityChange: List<Int>,

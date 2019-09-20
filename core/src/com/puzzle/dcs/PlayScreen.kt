@@ -11,6 +11,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val file: FileHandle
     private val json = Gson()
     private lateinit var stageData: StageData
+    private val gridSize = Gdx.graphics.width / 10f
 
     init {
         file = Gdx.files.internal("stages/$fileName")
@@ -18,10 +19,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
 
-            stageData.wall.forEach {  }
-            stageData.square.forEach {  }
-            stageData.triangle.forEach {  }
-            stageData.ladder.forEach {  }
+            stageData.wall.forEach { }
+            stageData.square.forEach { }
+            stageData.triangle.forEach { }
+            stageData.ladder.forEach { }
         }
     }
 

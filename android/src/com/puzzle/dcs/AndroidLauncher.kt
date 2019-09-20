@@ -10,6 +10,8 @@ class AndroidLauncher : AndroidApplication() {
         super.onCreate(savedInstanceState)
         val config = AndroidApplicationConfiguration()
         config.useImmersiveMode = true
+        config.useAccelerometer = false
+        config.useCompass = false
         initialize(Core(), config)
     }
 }
