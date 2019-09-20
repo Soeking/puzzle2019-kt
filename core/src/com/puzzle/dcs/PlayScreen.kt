@@ -16,9 +16,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         file = Gdx.files.internal("stages/$fileName")
 
         if (file.exists()) {
-            Gdx.app.log("Json", "${file.readString()}")
             stageData = json.fromJson(file.readString(), StageData::class.java)
-            Gdx.app.log("Json", "${stageData.start}")
+
+            stageData.wall.forEach {  }
+            stageData.square.forEach {  }
+            stageData.triangle.forEach {  }
+            stageData.ladder.forEach {  }
         }
     }
 
