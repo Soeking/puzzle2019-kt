@@ -69,10 +69,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         goalSprite.setScale(gridSize / goalSprite.width)
         // moveArrow.setOrigin(moveArrow.width / 2, moveArrow.height / 2)
         // moveArrow.setScale(gridSize / moveArrow.width / 1.0f)
-        button = arrayOf(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow.png"))))))
+        button = arrayOf(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))))
         for (i in 0..3) {
             button[i].setScale(gridSize / goalSprite.width)
             button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
+            button[i].setPosition(Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
             //button[i].rotation(0.0f)
         }
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
