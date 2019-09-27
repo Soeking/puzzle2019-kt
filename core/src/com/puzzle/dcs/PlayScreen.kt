@@ -8,11 +8,16 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
+import jdk.nashorn.internal.objects.NativeArray.forEach
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
     private val spriteBatch = SpriteBatch()
@@ -27,6 +32,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
+    // private val moveArrow: Sprite
+    private val button: Array<ImageButton>
     private val dynamicDef = BodyDef()
     private val staticDef = BodyDef()
     private val kinematicDef = BodyDef()
@@ -46,6 +53,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder.png")))
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
+        // moveArrow = Sprite(Texture(Gdx.files.internal("images/Arrow.png")))
 
         wallSprite.setOrigin(0f, 0f)
         wallSprite.setScale(gridSize / wallSprite.width)
@@ -59,6 +67,16 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         playerSprite.setScale(gridSize / playerSprite.width / 1.5f)
         goalSprite.setOrigin(0f, 0f)
         goalSprite.setScale(gridSize / goalSprite.width)
+        // moveArrow.setOrigin(moveArrow.width / 2, moveArrow.height / 2)
+        // moveArrow.setScale(gridSize / moveArrow.width / 1.0f)
+        button = arrayOf(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow.png"))))))
+        for (i in 0..3) {
+            button[i].setScale(gridSize / goalSprite.width)
+            button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
+            //button[i].rotation(0.0f)
+        }
+        //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        //button[0].setScale(gridSize / goalSprite.width)
 
         dynamicDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.position.set(0f, 0f)
@@ -139,9 +157,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         spriteBatch.begin()
         drawSprites()
+        drawUI()
         spriteBatch.end()
 
         world.step(Gdx.graphics.deltaTime, 0, 0)
+    }
+
+    fun drawUI() {
+        /* val sprite = moveArrow
+        sprite.setPosition(Gdx.graphics.width / 15.0f, Gdx.graphics.height / 10.0f)
+        sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, 0.3f)
+        sprite.draw(spriteBatch) */
+
     }
 
     fun drawSprites() {
@@ -175,9 +202,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             sprite.setPosition(it.position.x, it.position.y)
             sprite.draw(spriteBatch)
         }
+
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+
         return true
     }
 
