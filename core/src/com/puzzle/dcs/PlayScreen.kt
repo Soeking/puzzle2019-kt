@@ -5,22 +5,23 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.Body
-import com.badlogic.gdx.physics.box2d.BodyDef
-import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.physics.box2d.*
 import com.google.gson.Gson
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
+    private val camera:OrthographicCamera
     private val spriteBatch = SpriteBatch()
     private val file: FileHandle
     private val json = Gson()
     private lateinit var stageData: StageData
     private val gridSize = Gdx.graphics.width / 10f
     private val world: World
+    private val renderer:Box2DDebugRenderer
     private val wallSprite: Sprite
     private val squareSprite: Sprite
     private val triangleSprite: Sprite
@@ -38,7 +39,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val goalBody: Body
 
     init {
+        Box2D.init()
+        camera= OrthographicCamera()
         world = World(Vector2(0f, -8f), true)
+        renderer= Box2DDebugRenderer()
         file = Gdx.files.internal("stages/$fileName")
         wallSprite = Sprite(Texture(Gdx.files.internal("images/wall.png")))
         squareSprite = Sprite(Texture(Gdx.files.internal("images/square.png")))
@@ -141,7 +145,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         drawSprites()
         spriteBatch.end()
 
+        camera.update()
         world.step(Gdx.graphics.deltaTime, 0, 0)
+        renderer.render(world,camera.combined)
     }
 
     fun drawSprites() {
