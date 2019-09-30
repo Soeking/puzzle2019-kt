@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
@@ -23,7 +24,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val file: FileHandle
     private val json = Gson()
     private lateinit var stageData: StageData
-    private val gridSize = Gdx.graphics.width / 10f
+    private val gridSize = Gdx.graphics.width / 20f
     private val halfGrid = gridSize / 2f
     private val world: World
     private val renderer: Box2DDebugRenderer
@@ -49,6 +50,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val playerFixtureDef = FixtureDef()
     private val wallFixtureDef = FixtureDef()
     private val playerFixture: Fixture
+    private var stage: Stage
 
     init {
         Box2D.init()
@@ -80,11 +82,17 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         goalSprite.setScale(gridSize / goalSprite.width)
         // moveArrow.setOrigin(moveArrow.width / 2, moveArrow.height / 2)
         // moveArrow.setScale(gridSize / moveArrow.width / 1.0f)
+
+        stage = Stage()
         button = arrayOf(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))))
         for (i in 0..3) {
-            button[i].setScale(gridSize / goalSprite.width)
+            button[i].image.setScale(Gdx.graphics.width / 10.0f / button[i].width)
+            button[i].image.setColor(button[i].image.color.r, button[i].image.color.g, button[i].image.color.b, 0.5f)
+            button[i].setScale(Gdx.graphics.width / 10.0f / button[i].width / 1f)
             button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
-            button[i].setPosition(Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
+            //button[i].setPosition(Gdx.graphics.width / 12.0f * 3.0f + Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 8.0f * 3.0f + Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
+            button[i].setPosition(Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (Math.sin(Math.PI * i / 2.0).toFloat()))
+            stage.addActor(button[i])
             //button[i].rotation(0.0f)
         }
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
@@ -223,6 +231,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, 0.3f)
         sprite.draw(spriteBatch) */
 
+        stage.act(Gdx.graphics.deltaTime)
+        stage.draw()
     }
 
     private fun drawSprites() {
