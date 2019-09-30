@@ -238,29 +238,39 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         renderer.render(world, camera.combined)
     }
 
-    private val SPEED = gridSize / 2.0f
+    private val SPEED = gridSize * 2.0f
 
     private fun button() {
         //Gdx.app.log("TEST", "A")
 
+        var temp = 0
+
         for (i in 0..3) {
             if (button[i].isPressed) {
-                Gdx.app.log("pressed", "${i}")
+                temp++
+                //Gdx.app.log("pressed", "${i} , ${Gdx.graphics.deltaTime}")
                 when (i) {
                     Left -> {
-                        playerBody.position.set(playerBody.position.x - SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
+                        //playerBody.position.set(playerBody.position.x - SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
+                        playerBody.setLinearVelocity(-SPEED, playerBody.linearVelocity.y)
                     }
                     Up -> {
-                        playerBody.position.set(playerBody.position.x, playerBody.position.y + SPEED * Gdx.graphics.deltaTime)
+                        //playerBody.position.set(playerBody.position.x, playerBody.position.y + SPEED * Gdx.graphics.deltaTime)
+                        playerBody.setLinearVelocity(playerBody.linearVelocity.x, SPEED)
                     }
                     Right -> {
-                        playerBody.position.set(playerBody.position.x + SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
+                        //playerBody.position.set(playerBody.position.x + SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
+                        playerBody.setLinearVelocity(SPEED, playerBody.linearVelocity.y)
                     }
                     Down -> {
-                        playerBody.position.set(playerBody.position.x, playerBody.position.y - SPEED * Gdx.graphics.deltaTime)
+                        //playerBody.position.set(playerBody.position.x, playerBody.position.y - SPEED * Gdx.graphics.deltaTime)
+                        playerBody.setLinearVelocity(playerBody.linearVelocity.x, -SPEED)
                     }
                 }
             }
+        }
+        if (temp == 0) {
+            playerBody.setLinearVelocity(0.0f, 0.0f)
         }
     }
 
