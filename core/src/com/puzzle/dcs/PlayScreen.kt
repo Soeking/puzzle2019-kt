@@ -4,14 +4,20 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.files.FileHandle
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
+import jdk.nashorn.internal.objects.NativeArray.forEach
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
     private val camera: OrthographicCamera
@@ -19,7 +25,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val file: FileHandle
     private val json = Gson()
     private lateinit var stageData: StageData
-    private val gridSize = Gdx.graphics.width / 10f
+    private val gridSize = Gdx.graphics.width / 20f
     private val halfGrid = gridSize / 2f
     private val world: World
     private val renderer: Box2DDebugRenderer
@@ -29,6 +35,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
+    // private val moveArrow: Sprite
+    private val button: Array<ImageButton>
     private val dynamicDef = BodyDef()
     private val staticDef = BodyDef()
     private val kinematicDef = BodyDef()
@@ -43,6 +51,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val playerFixtureDef = FixtureDef()
     private val wallFixtureDef = FixtureDef()
     private val playerFixture: Fixture
+    private var stage: Stage
+
+    private val Left = 0
+    private val Up = 1
+    private val Right = 2
+    private val Down = 3
 
     init {
         Box2D.init()
@@ -58,6 +72,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder.png")))
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
+        // moveArrow = Sprite(Texture(Gdx.files.internal("images/Arrow.png")))
 
         wallSprite.setOrigin(0f, 0f)
         wallSprite.setScale(gridSize / wallSprite.width)
@@ -71,6 +86,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         playerSprite.setScale(gridSize / playerSprite.width / 1.5f)
         goalSprite.setOrigin(0f, 0f)
         goalSprite.setScale(gridSize / goalSprite.width)
+        // moveArrow.setOrigin(moveArrow.width / 2, moveArrow.height / 2)
+        // moveArrow.setScale(gridSize / moveArrow.width / 1.0f)
 
         dynamicDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.position.set(0f, 0f)
@@ -158,6 +175,26 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             goalBody.userData = sprite
             goalBody.setTransform(it.x, it.y, 0f)
         }
+
+        stage = Stage()
+        button = arrayOf(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))), ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))), ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))), ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))))
+        for (i in 0..3) {
+            button[i].image.setScale(Gdx.graphics.width / 10.0f / button[i].width)
+            button[i].image.setColor(button[i].image.color.r, button[i].image.color.g, button[i].image.color.b, 0.5f)
+            button[i].setScale(Gdx.graphics.width / 10.0f / button[i].width / 1f)
+            //button[i].setScale(10f)
+            //button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
+            button[i].setOrigin(0.0f, 0.0f)
+            //button[i].setPosition(Gdx.graphics.width / 12.0f * 3.0f + Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 8.0f * 3.0f + Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
+            button[i].setPosition(Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (Math.sin(Math.PI * i / 2.0).toFloat()))
+            button[i].color.set(Color.BLACK)
+            stage.addActor(button[i])
+            //button[i].rotation(0.0f)
+            Gdx.app.log("button", "${button[i].x},${button[i].y},${button[i].width},${button[i].height}")
+        }
+        Gdx.input.inputProcessor = stage
+        //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        //button[0].setScale(gridSize / goalSprite.width)
     }
 
     private fun createCollision() {
@@ -181,6 +218,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     }
 
     override fun render(delta: Float) {
+        //button()
+
         Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         if (world.contactCount > 0) {
@@ -191,11 +230,58 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         spriteBatch.begin()
         drawSprites()
+        drawUI()
         spriteBatch.end()
 
         camera.update()
         world.step(Gdx.graphics.deltaTime, 0, 0)
         renderer.render(world, camera.combined)
+    }
+
+    private val SPEED = gridSize * 2.0f
+
+    private fun button() {
+        //Gdx.app.log("TEST", "A")
+
+        var temp = 0
+
+        for (i in 0..3) {
+            if (button[i].isPressed) {
+                temp++
+                //Gdx.app.log("pressed", "${i} , ${Gdx.graphics.deltaTime}")
+                when (i) {
+                    Left -> {
+                        //playerBody.position.set(playerBody.position.x - SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
+                        playerBody.setLinearVelocity(-SPEED, playerBody.linearVelocity.y)
+                    }
+                    Up -> {
+                        //playerBody.position.set(playerBody.position.x, playerBody.position.y + SPEED * Gdx.graphics.deltaTime)
+                        playerBody.setLinearVelocity(playerBody.linearVelocity.x, SPEED)
+                    }
+                    Right -> {
+                        //playerBody.position.set(playerBody.position.x + SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
+                        playerBody.setLinearVelocity(SPEED, playerBody.linearVelocity.y)
+                    }
+                    Down -> {
+                        //playerBody.position.set(playerBody.position.x, playerBody.position.y - SPEED * Gdx.graphics.deltaTime)
+                        playerBody.setLinearVelocity(playerBody.linearVelocity.x, -SPEED)
+                    }
+                }
+            }
+        }
+        if (temp == 0) {
+            playerBody.setLinearVelocity(0.0f, 0.0f)
+        }
+    }
+
+    private fun drawUI() {
+        /* val sprite = moveArrow
+        sprite.setPosition(Gdx.graphics.width / 15.0f, Gdx.graphics.height / 10.0f)
+        sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, 0.3f)
+        sprite.draw(spriteBatch) */
+
+        stage.act(Gdx.graphics.deltaTime)
+        stage.draw()
     }
 
     private fun drawSprites() {
@@ -206,17 +292,17 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         }
         squareBodies.forEach {
             val sprite = squareSprite
-            sprite.setPosition(it.position.x-halfGrid, it.position.y-halfGrid)
+            sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
             sprite.draw(spriteBatch)
         }
         triangleBodies.forEach {
             val sprite = triangleSprite
-            sprite.setPosition(it.position.x-halfGrid, it.position.y-halfGrid)
+            sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
             sprite.draw(spriteBatch)
         }
         ladderBodies.forEach {
             val sprite = ladderSprite
-            sprite.setPosition(it.position.x-halfGrid, it.position.y-halfGrid)
+            sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
             sprite.draw(spriteBatch)
         }
         playerBody.let {
@@ -226,12 +312,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         }
         goalBody.let {
             val sprite = goalSprite
-            sprite.setPosition(it.position.x-halfGrid, it.position.y-halfGrid)
+            sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
             sprite.draw(spriteBatch)
         }
+
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+
         return true
     }
 
