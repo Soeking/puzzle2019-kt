@@ -25,7 +25,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val file: FileHandle
     private val json = Gson()
     private lateinit var stageData: StageData
-    private val gridSize = Gdx.graphics.width / 20f
+    private val gridSize = Gdx.graphics.width / 10f
     private val halfGrid = gridSize / 2f
     private val world: World
     private val renderer: Box2DDebugRenderer
@@ -118,12 +118,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         stageData.wall.forEach {
             it.x *= gridSize
             it.y *= gridSize
+            staticDef.position.set(it.x, it.y)
             val body = world.createBody(staticDef)
             val sprite = wallSprite
             //sprite.setPosition(it.x, it.y)
             body.userData = sprite
-            body.setTransform(it.x, it.y, 0f)
+            //body.setTransform(it.x, it.y, 0f)
             body.createFixture(wallFixtureDef)
+            body.userData=it
             wallBodies.add(body)
         }
         stageData.square.forEach {
@@ -134,6 +136,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //sprite.setPosition(it.x, it.y)
             body.userData = sprite
             body.setTransform(it.x, it.y, 0f)
+            body.userData=it
             squareBodies.add(body)
         }
         stageData.triangle.forEach {
@@ -144,6 +147,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //sprite.setPosition(it.x, it.y)
             body.userData = sprite
             body.setTransform(it.x, it.y, 0f)
+            body.userData=it
             triangleBodies.add(body)
         }
         stageData.ladder.forEach {
@@ -154,17 +158,21 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //sprite.setPosition(it.x, it.y)
             body.userData = sprite
             body.setTransform(it.x, it.y, 0f)
+            body.userData=it
             ladderBodies.add(body)
         }
         stageData.start.let {
             it.x *= gridSize
             it.y *= gridSize
+            dynamicDef.position.set(it.x, it.y + 5)
             val sprite = playerSprite
             //sprite.setPosition(it.x, it.y)
             playerBody = world.createBody(dynamicDef)
             playerBody.userData = sprite
-            playerBody.setTransform(it.x, it.y + 10, 0f)
+            //playerBody.setTransform(it.x, it.y + 10, 0f)
             playerFixture = playerBody.createFixture(playerFixtureDef)
+            playerBody.resetMassData()
+            playerBody.userData=it
         }
         stageData.goal.let {
             it.x *= gridSize
@@ -174,6 +182,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             goalBody = world.createBody(staticDef)
             goalBody.userData = sprite
             goalBody.setTransform(it.x, it.y, 0f)
+            goalBody.userData=it
         }
 
         stage = Stage()
@@ -195,6 +204,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         Gdx.input.inputProcessor = stage
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         //button[0].setScale(gridSize / goalSprite.width)
+
+        circleShape.dispose()
+        boxShape.dispose()
     }
 
     private fun createCollision() {
