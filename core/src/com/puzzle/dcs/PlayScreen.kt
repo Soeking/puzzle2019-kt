@@ -47,8 +47,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val goalBody: Body
     private val circleShape: CircleShape
     private val boxShape: PolygonShape
+    private val triangleShape: PolygonShape
     private val playerFixtureDef = FixtureDef()
-    private val wallFixtureDef = FixtureDef()
+    private val squareFixtureDef = FixtureDef()
+    private val triangleFixtureDef = FixtureDef()
     private val playerFixture: Fixture
     private var stage: Stage
 
@@ -97,14 +99,20 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         circleShape.radius = gridSize / 3f
         boxShape = PolygonShape()
         boxShape.setAsBox(gridSize / 2f, gridSize / 2f)
+        triangleShape = PolygonShape()
+        triangleShape.set(arrayOf(Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid)))
         playerFixtureDef.shape = circleShape
-        playerFixtureDef.isSensor = true
+        playerFixtureDef.isSensor = false
         playerFixtureDef.friction = 0.5f
         playerFixtureDef.restitution = 0.1f
-        wallFixtureDef.shape = boxShape
-        wallFixtureDef.isSensor = true
-        wallFixtureDef.friction = 1f
-        wallFixtureDef.restitution = 0f
+        squareFixtureDef.shape = boxShape
+        squareFixtureDef.isSensor = false
+        squareFixtureDef.friction = 1f
+        squareFixtureDef.restitution = 0f
+        triangleFixtureDef.shape = triangleShape
+        triangleFixtureDef.isSensor = false
+        triangleFixtureDef.friction = 1f
+        triangleFixtureDef.restitution = 0f
 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
@@ -121,7 +129,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //sprite.setPosition(it.x, it.y)
             //body.userData = sprite
             //body.setTransform(it.x, it.y, 0f)
-            body.createFixture(wallFixtureDef)
+            body.createFixture(squareFixtureDef)
             body.userData = it
             wallBodies.add(body)
         }
@@ -135,7 +143,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //body.userData = sprite
             //body.setTransform(it.x, it.y, 0f)
             body.userData = it
-            body.createFixture(wallFixtureDef)
+            body.createFixture(squareFixtureDef)
             squareBodies.add(body)
         }
         stageData.triangle.forEach {
@@ -148,6 +156,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //body.userData = sprite
             //body.setTransform(it.x, it.y, 0f)
             body.userData = it
+            body.createFixture(triangleFixtureDef)
             triangleBodies.add(body)
         }
         stageData.ladder.forEach {
@@ -160,6 +169,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //body.userData = sprite
             //body.setTransform(it.x, it.y, 0f)
             body.userData = it
+            body.createFixture(squareFixtureDef)
             ladderBodies.add(body)
         }
         stageData.start.let {
@@ -183,9 +193,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //sprite.setPosition(it.x, it.y)
             goalBody = world.createBody(staticDef)
             goalBody.userData = sprite
-            goalBody.setTransform(it.x, it.y, 0f)
+            //goalBody.setTransform(it.x, it.y, 0f)
             goalBody.userData = it
-            goalBody.createFixture(wallFixtureDef)
+            goalBody.createFixture(squareFixtureDef)
         }
 
         stage = Stage()
@@ -214,9 +224,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         circleShape.dispose()
         boxShape.dispose()
-        squareBodies.forEach {
-            it.setLinearVelocity(0f, -20f)
-        }
     }
 
     private fun createCollision() {
