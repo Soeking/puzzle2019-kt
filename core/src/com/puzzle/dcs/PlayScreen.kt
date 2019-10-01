@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
-import jdk.nashorn.internal.objects.NativeArray.forEach
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
     private val camera: OrthographicCamera
