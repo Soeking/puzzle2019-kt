@@ -230,6 +230,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         circleShape.dispose()
         boxShape.dispose()
+        ladderShape.dispose()
+        triangleShape.dispose()
     }
 
     private fun createCollision() {
