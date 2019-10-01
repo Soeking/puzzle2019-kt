@@ -218,7 +218,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     }
 
     override fun render(delta: Float) {
-        //button()
+        button()
 
         Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
@@ -239,6 +239,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     }
 
     private val SPEED = gridSize * 2.0f
+    private var No = false
 
     private fun button() {
         //Gdx.app.log("TEST", "A")
@@ -247,6 +248,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         for (i in 0..3) {
             if (button[i].isPressed) {
+                No = true
                 temp++
                 //Gdx.app.log("pressed", "${i} , ${Gdx.graphics.deltaTime}")
                 when (i) {
@@ -269,9 +271,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
                 }
             }
         }
-        if (temp == 0) {
+        if (temp == 0 && No) {
+            No = false
             playerBody.setLinearVelocity(0.0f, 0.0f)
         }
+
+        /*if (button[Left].isPressed) {
+            Gdx.app.log("TEST", "${playerBody.position.y}, ${playerBody.linearVelocity.y}")
+        }*/
     }
 
     private fun drawUI() {
