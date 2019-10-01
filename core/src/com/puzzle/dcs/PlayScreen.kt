@@ -47,9 +47,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val goalBody: Body
     private val circleShape: CircleShape
     private val boxShape: PolygonShape
+    private val ladderShape:PolygonShape
     private val triangleShape: PolygonShape
     private val playerFixtureDef = FixtureDef()
     private val squareFixtureDef = FixtureDef()
+    private val ladderFixtureDef=FixtureDef()
     private val triangleFixtureDef = FixtureDef()
     private val playerFixture: Fixture
     private var stage: Stage
@@ -98,7 +100,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         circleShape = CircleShape()
         circleShape.radius = gridSize / 3f
         boxShape = PolygonShape()
-        boxShape.setAsBox(gridSize / 2f, gridSize / 2f)
+        boxShape.setAsBox(halfGrid,halfGrid)
+        ladderShape= PolygonShape()
+        ladderShape.setAsBox(halfGrid,halfGrid)
         triangleShape = PolygonShape()
         triangleShape.set(arrayOf(Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid)))
         playerFixtureDef.shape = circleShape
@@ -109,6 +113,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         squareFixtureDef.isSensor = false
         squareFixtureDef.friction = 1f
         squareFixtureDef.restitution = 0f
+        ladderFixtureDef.shape=ladderShape
+        ladderFixtureDef.isSensor=true
         triangleFixtureDef.shape = triangleShape
         triangleFixtureDef.isSensor = false
         triangleFixtureDef.friction = 1f
@@ -169,7 +175,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //body.userData = sprite
             //body.setTransform(it.x, it.y, 0f)
             body.userData = it
-            body.createFixture(squareFixtureDef)
+            body.createFixture(ladderFixtureDef)
             ladderBodies.add(body)
         }
         stageData.start.let {
