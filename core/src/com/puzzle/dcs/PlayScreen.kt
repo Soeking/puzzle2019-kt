@@ -90,9 +90,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         // moveArrow.setScale(gridSize / moveArrow.width / 1.0f)
 
         dynamicDef.type = BodyDef.BodyType.DynamicBody
+        dynamicDef.awake = true
         dynamicDef.position.set(0f, 0f)
         staticDef.type = BodyDef.BodyType.StaticBody
         staticDef.position.set(0f, 0f)
+        staticDef.awake = true
         kinematicDef.type = BodyDef.BodyType.KinematicBody
         kinematicDef.position.set(0f, 0f)
 
@@ -255,18 +257,23 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
                     Left -> {
                         //playerBody.position.set(playerBody.position.x - SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
                         playerBody.setLinearVelocity(-SPEED, playerBody.linearVelocity.y)
+                        //playerBody.linearVelocity.x = -SPEED
                     }
                     Up -> {
                         //playerBody.position.set(playerBody.position.x, playerBody.position.y + SPEED * Gdx.graphics.deltaTime)
                         playerBody.setLinearVelocity(playerBody.linearVelocity.x, SPEED)
+                        //playerBody.linearVelocity.y = SPEED
                     }
                     Right -> {
                         //playerBody.position.set(playerBody.position.x + SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
                         playerBody.setLinearVelocity(SPEED, playerBody.linearVelocity.y)
+                        //playerBody.linearVelocity.set(SPEED, playerBody.linearVelocity.y)
+                        //playerBody.linearVelocity.x = SPEED
                     }
                     Down -> {
                         //playerBody.position.set(playerBody.position.x, playerBody.position.y - SPEED * Gdx.graphics.deltaTime)
                         playerBody.setLinearVelocity(playerBody.linearVelocity.x, -SPEED)
+                        //playerBody.linearVelocity.y = -SPEED
                     }
                 }
             }
@@ -279,6 +286,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         /*if (button[Left].isPressed) {
             Gdx.app.log("TEST", "${playerBody.position.y}, ${playerBody.linearVelocity.y}")
         }*/
+        //Gdx.app.log("TEST", "PO:${playerBody.position.y}, SPE:${playerBody.linearVelocity.y}")
     }
 
     private fun drawUI() {
