@@ -218,7 +218,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     }
 
     override fun render(delta: Float) {
-        button()
+        //button()
 
         Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
