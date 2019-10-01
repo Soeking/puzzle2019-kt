@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
-import jdk.nashorn.internal.objects.NativeArray.forEach
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
     private val camera: OrthographicCamera
@@ -60,8 +59,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
     init {
         Box2D.init()
-        camera = OrthographicCamera()
-        world = World(Vector2(0f, -8f), true)
+        camera = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
+        camera.translate(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        world = World(Vector2(0f, -16f), true)
         renderer = Box2DDebugRenderer()
         createCollision()
 
@@ -90,11 +90,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         // moveArrow.setScale(gridSize / moveArrow.width / 1.0f)
 
         dynamicDef.type = BodyDef.BodyType.DynamicBody
-        dynamicDef.position.set(0f, 0f)
         staticDef.type = BodyDef.BodyType.StaticBody
-        staticDef.position.set(0f, 0f)
         kinematicDef.type = BodyDef.BodyType.KinematicBody
-        kinematicDef.position.set(0f, 0f)
 
         circleShape = CircleShape()
         circleShape.radius = gridSize / 3f
@@ -122,43 +119,47 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             val body = world.createBody(staticDef)
             val sprite = wallSprite
             //sprite.setPosition(it.x, it.y)
-            body.userData = sprite
+            //body.userData = sprite
             //body.setTransform(it.x, it.y, 0f)
             body.createFixture(wallFixtureDef)
-            body.userData=it
+            body.userData = it
             wallBodies.add(body)
         }
         stageData.square.forEach {
             it.x *= gridSize
             it.y *= gridSize
+            kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             val sprite = squareSprite
             //sprite.setPosition(it.x, it.y)
-            body.userData = sprite
-            body.setTransform(it.x, it.y, 0f)
-            body.userData=it
+            //body.userData = sprite
+            //body.setTransform(it.x, it.y, 0f)
+            body.userData = it
+            body.createFixture(wallFixtureDef)
             squareBodies.add(body)
         }
         stageData.triangle.forEach {
             it.x *= gridSize
             it.y *= gridSize
+            kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             val sprite = triangleSprite
             //sprite.setPosition(it.x, it.y)
-            body.userData = sprite
-            body.setTransform(it.x, it.y, 0f)
-            body.userData=it
+            //body.userData = sprite
+            //body.setTransform(it.x, it.y, 0f)
+            body.userData = it
             triangleBodies.add(body)
         }
         stageData.ladder.forEach {
             it.x *= gridSize
             it.y *= gridSize
+            kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             val sprite = ladderSprite
             //sprite.setPosition(it.x, it.y)
-            body.userData = sprite
-            body.setTransform(it.x, it.y, 0f)
-            body.userData=it
+            //body.userData = sprite
+            //body.setTransform(it.x, it.y, 0f)
+            body.userData = it
             ladderBodies.add(body)
         }
         stageData.start.let {
@@ -172,21 +173,27 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //playerBody.setTransform(it.x, it.y + 10, 0f)
             playerFixture = playerBody.createFixture(playerFixtureDef)
             playerBody.resetMassData()
-            playerBody.userData=it
+            playerBody.userData = it
         }
         stageData.goal.let {
             it.x *= gridSize
             it.y *= gridSize
+            staticDef.position.set(it.x, it.y)
             val sprite = goalSprite
             //sprite.setPosition(it.x, it.y)
             goalBody = world.createBody(staticDef)
             goalBody.userData = sprite
             goalBody.setTransform(it.x, it.y, 0f)
-            goalBody.userData=it
+            goalBody.userData = it
+            goalBody.createFixture(wallFixtureDef)
         }
 
         stage = Stage()
-        button = arrayOf(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))), ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))), ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))), ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))))
+        button = arrayOf(
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))))
         for (i in 0..3) {
             button[i].image.setScale(Gdx.graphics.width / 10.0f / button[i].width)
             button[i].image.setColor(button[i].image.color.r, button[i].image.color.g, button[i].image.color.b, 0.5f)
@@ -207,6 +214,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         circleShape.dispose()
         boxShape.dispose()
+        squareBodies.forEach {
+            it.setLinearVelocity(0f, -20f)
+        }
     }
 
     private fun createCollision() {
