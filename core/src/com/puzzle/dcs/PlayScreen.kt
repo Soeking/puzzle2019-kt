@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
-import jdk.nashorn.internal.objects.NativeArray.forEach
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
     private val camera: OrthographicCamera
@@ -25,7 +24,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val file: FileHandle
     private val json = Gson()
     private lateinit var stageData: StageData
-    private val gridSize = Gdx.graphics.width / 20f
+    private val gridSize = Gdx.graphics.width / 10f
     private val halfGrid = gridSize / 2f
     private val world: World
     private val renderer: Box2DDebugRenderer
@@ -48,8 +47,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val goalBody: Body
     private val circleShape: CircleShape
     private val boxShape: PolygonShape
+    private val ladderShape:PolygonShape
+    private val triangleShape: PolygonShape
     private val playerFixtureDef = FixtureDef()
-    private val wallFixtureDef = FixtureDef()
+    private val squareFixtureDef = FixtureDef()
+    private val ladderFixtureDef=FixtureDef()
+    private val triangleFixtureDef = FixtureDef()
     private val playerFixture: Fixture
     private var stage: Stage
 
@@ -60,8 +63,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
     init {
         Box2D.init()
-        camera = OrthographicCamera()
-        world = World(Vector2(0f, -8f), true)
+        camera = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
+        camera.translate(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        world = World(Vector2(0f, -16f), true)
         renderer = Box2DDebugRenderer()
         createCollision()
 
@@ -90,24 +94,31 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         // moveArrow.setScale(gridSize / moveArrow.width / 1.0f)
 
         dynamicDef.type = BodyDef.BodyType.DynamicBody
-        dynamicDef.position.set(0f, 0f)
         staticDef.type = BodyDef.BodyType.StaticBody
-        staticDef.position.set(0f, 0f)
         kinematicDef.type = BodyDef.BodyType.KinematicBody
-        kinematicDef.position.set(0f, 0f)
 
         circleShape = CircleShape()
         circleShape.radius = gridSize / 3f
         boxShape = PolygonShape()
-        boxShape.setAsBox(gridSize / 2f, gridSize / 2f)
+        boxShape.setAsBox(halfGrid,halfGrid)
+        ladderShape= PolygonShape()
+        ladderShape.setAsBox(halfGrid,halfGrid)
+        triangleShape = PolygonShape()
+        triangleShape.set(arrayOf(Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid)))
         playerFixtureDef.shape = circleShape
-        playerFixtureDef.isSensor = true
+        playerFixtureDef.isSensor = false
         playerFixtureDef.friction = 0.5f
         playerFixtureDef.restitution = 0.1f
-        wallFixtureDef.shape = boxShape
-        wallFixtureDef.isSensor = true
-        wallFixtureDef.friction = 1f
-        wallFixtureDef.restitution = 0f
+        squareFixtureDef.shape = boxShape
+        squareFixtureDef.isSensor = false
+        squareFixtureDef.friction = 1f
+        squareFixtureDef.restitution = 0f
+        ladderFixtureDef.shape=ladderShape
+        ladderFixtureDef.isSensor=true
+        triangleFixtureDef.shape = triangleShape
+        triangleFixtureDef.isSensor = false
+        triangleFixtureDef.friction = 1f
+        triangleFixtureDef.restitution = 0f
 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
@@ -118,66 +129,87 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         stageData.wall.forEach {
             it.x *= gridSize
             it.y *= gridSize
+            staticDef.position.set(it.x, it.y)
             val body = world.createBody(staticDef)
             val sprite = wallSprite
             //sprite.setPosition(it.x, it.y)
-            body.userData = sprite
-            body.setTransform(it.x, it.y, 0f)
-            body.createFixture(wallFixtureDef)
+            //body.userData = sprite
+            //body.setTransform(it.x, it.y, 0f)
+            body.createFixture(squareFixtureDef)
+            body.userData = it
             wallBodies.add(body)
         }
         stageData.square.forEach {
             it.x *= gridSize
             it.y *= gridSize
+            kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             val sprite = squareSprite
             //sprite.setPosition(it.x, it.y)
-            body.userData = sprite
-            body.setTransform(it.x, it.y, 0f)
+            //body.userData = sprite
+            //body.setTransform(it.x, it.y, 0f)
+            body.userData = it
+            body.createFixture(squareFixtureDef)
             squareBodies.add(body)
         }
         stageData.triangle.forEach {
             it.x *= gridSize
             it.y *= gridSize
+            kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             val sprite = triangleSprite
             //sprite.setPosition(it.x, it.y)
-            body.userData = sprite
-            body.setTransform(it.x, it.y, 0f)
+            //body.userData = sprite
+            //body.setTransform(it.x, it.y, 0f)
+            body.userData = it
+            body.createFixture(triangleFixtureDef)
             triangleBodies.add(body)
         }
         stageData.ladder.forEach {
             it.x *= gridSize
             it.y *= gridSize
+            kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             val sprite = ladderSprite
             //sprite.setPosition(it.x, it.y)
-            body.userData = sprite
-            body.setTransform(it.x, it.y, 0f)
+            //body.userData = sprite
+            //body.setTransform(it.x, it.y, 0f)
+            body.userData = it
+            body.createFixture(ladderFixtureDef)
             ladderBodies.add(body)
         }
         stageData.start.let {
             it.x *= gridSize
             it.y *= gridSize
+            dynamicDef.position.set(it.x, it.y + 5)
             val sprite = playerSprite
             //sprite.setPosition(it.x, it.y)
             playerBody = world.createBody(dynamicDef)
             playerBody.userData = sprite
-            playerBody.setTransform(it.x, it.y + 10, 0f)
+            //playerBody.setTransform(it.x, it.y + 10, 0f)
             playerFixture = playerBody.createFixture(playerFixtureDef)
+            playerBody.resetMassData()
+            playerBody.userData = it
         }
         stageData.goal.let {
             it.x *= gridSize
             it.y *= gridSize
+            staticDef.position.set(it.x, it.y)
             val sprite = goalSprite
             //sprite.setPosition(it.x, it.y)
             goalBody = world.createBody(staticDef)
             goalBody.userData = sprite
-            goalBody.setTransform(it.x, it.y, 0f)
+            //goalBody.setTransform(it.x, it.y, 0f)
+            goalBody.userData = it
+            goalBody.createFixture(squareFixtureDef)
         }
 
         stage = Stage()
-        button = arrayOf(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))), ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))), ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))), ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))))
+        button = arrayOf(
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))))
         for (i in 0..3) {
             button[i].image.setScale(Gdx.graphics.width / 10.0f / button[i].width)
             button[i].image.setColor(button[i].image.color.r, button[i].image.color.g, button[i].image.color.b, 0.5f)
@@ -195,6 +227,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         Gdx.input.inputProcessor = stage
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         //button[0].setScale(gridSize / goalSprite.width)
+
+        circleShape.dispose()
+        boxShape.dispose()
+        ladderShape.dispose()
+        triangleShape.dispose()
     }
 
     private fun createCollision() {
