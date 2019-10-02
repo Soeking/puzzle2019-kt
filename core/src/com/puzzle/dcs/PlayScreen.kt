@@ -114,14 +114,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         playerFixtureDef.restitution = 1.0f     //返還
         squareFixtureDef.shape = boxShape
         squareFixtureDef.isSensor = false
-        squareFixtureDef.friction = 1f
-        squareFixtureDef.restitution = 0f
+        squareFixtureDef.friction = 1.0f
+        squareFixtureDef.restitution = 1.0f
         ladderFixtureDef.shape = ladderShape
         ladderFixtureDef.isSensor = true
         triangleFixtureDef.shape = triangleShape
         triangleFixtureDef.isSensor = false
-        triangleFixtureDef.friction = 1f
-        triangleFixtureDef.restitution = 0f
+        triangleFixtureDef.friction = 1.0f
+        triangleFixtureDef.restitution = 1.0f
 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
