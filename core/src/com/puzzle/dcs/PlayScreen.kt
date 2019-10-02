@@ -36,7 +36,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
-    // private val moveArrow: Sprite
     private val button: Array<ImageButton>
     private val dynamicDef = BodyDef()
     private val staticDef = BodyDef()
@@ -51,10 +50,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val boxShape: PolygonShape
     private val ladderShape: PolygonShape
     private val triangleShape: PolygonShape
+    private val goalShape: PolygonShape
     private val playerFixtureDef = FixtureDef()
     private val squareFixtureDef = FixtureDef()
     private val ladderFixtureDef = FixtureDef()
     private val triangleFixtureDef = FixtureDef()
+    private val goalFixtureDef=FixtureDef()
     private val playerFixture: Fixture
     private var stage: Stage
 
@@ -107,6 +108,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         ladderShape.setAsBox(halfGrid, halfGrid)
         triangleShape = PolygonShape()
         triangleShape.set(arrayOf(Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid)))
+        goalShape = PolygonShape()
+        goalShape.set(arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid)))
         playerFixtureDef.shape = circleShape
         playerFixtureDef.isSensor = false
         playerFixtureDef.density = 0.05f // 仮    //密度
@@ -122,6 +125,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         triangleFixtureDef.isSensor = false
         triangleFixtureDef.friction = 1f
         triangleFixtureDef.restitution = 0f
+        goalFixtureDef.shape=goalShape
 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
@@ -180,7 +184,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             staticDef.position.set(it.x, it.y)
             goalBody = world.createBody(staticDef)
             goalBody.userData = it
-            goalBody.createFixture(squareFixtureDef)
+            goalBody.createFixture(goalFixtureDef)
         }
 
         stage = Stage()
@@ -212,6 +216,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         boxShape.dispose()
         ladderShape.dispose()
         triangleShape.dispose()
+        squareBodies.forEach {
+            it.setLinearVelocity(20f, 0f)
+        }
     }
 
     private fun createCollision() {
@@ -354,11 +361,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
             sprite.draw(spriteBatch)
         }
-
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-
         return true
     }
 
