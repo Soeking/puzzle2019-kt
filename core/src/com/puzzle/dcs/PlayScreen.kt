@@ -109,9 +109,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         triangleShape.set(arrayOf(Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid)))
         playerFixtureDef.shape = circleShape
         playerFixtureDef.isSensor = false
-        playerFixtureDef.density = 0.05f // 仮    //密度
-        playerFixtureDef.friction = 1f         //摩擦
-        playerFixtureDef.restitution = 1f     //返還
+        playerFixtureDef.density = 1.0f // 仮    //密度
+        playerFixtureDef.friction = 1.0f         //摩擦
+        playerFixtureDef.restitution = 1.0f     //返還
         squareFixtureDef.shape = boxShape
         squareFixtureDef.isSensor = false
         squareFixtureDef.friction = 1f
@@ -235,7 +235,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     }
 
     override fun render(delta: Float) {
-        button()
+        //button()
 
         Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
@@ -248,6 +248,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         spriteBatch.begin()
         drawSprites()
         drawUI()
+        button()
         spriteBatch.end()
 
         camera.update()
@@ -255,11 +256,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         renderer.render(world, camera.combined)
     }
 
-    private val speed = 100000000.0f
+    private val speed = 100000.0f
     private var no = false
 
     private fun button() {
         //Gdx.app.log("TEST", "A")
+        //Gdx.app.log("Gravity", "${playerBody.linearVelocity.x}, ${playerBody.linearVelocity.y}")
 
         var temp = 0
 
@@ -273,30 +275,52 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
                         //playerBody.position.set(playerBody.position.x - SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
                         //playerBody.setLinearVelocity(-SPEED, playerBody.linearVelocity.y)
                         //playerBody.setLinearVelocity(playerBody.linearVelocity.add(Vector2(-SPEED, 0.0f)))
-                        playerBody.applyForceToCenter(-speed, 0.0f, true)
-                        //playerBody.applyLinearImpulse(-SPEED, 0.0f, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyForceToCenter(Vector2(-speed, 0.0f), true)
+                        playerBody.applyLinearImpulse(-speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.x = -SPEED
+
+                        /*
+                        // compute the aiming direction
+                        //var direction = Vector2(diff.x / dist, diff.y / dist)
+
+                        // get the current missile velocity because we will apply a force to compensate this.
+                        var currentVelocity = playerBody.linearVelocity
+
+                        // the missile ideal velocity is the direction to the target multiplied by the max speed
+                        var desireVelocity = Vector2 (1.0f * speed, 0.0f * speed);
+
+                        // compensate the current missile velocity by the desired velocity, based on the control factor
+
+                        var finalVelocity = Vector2(desireVelocity.x - currentVelocity.x, desireVelocity.y - currentVelocity.y);
+
+                        // transform our velocity into an impulse (get rid of the time and mass factor)
+                        var temp = (playerBody.mass / 1.0f)
+
+                        var finalForce = Vector2 (finalVelocity.x * temp, finalVelocity.y * temp);
+
+                        playerBody.applyForce(finalForce, playerBody.worldCenter, true);
+                        */
                     }
                     up -> {
                         //playerBody.position.set(playerBody.position.x, playerBody.position.y + SPEED * Gdx.graphics.deltaTime)
                         //playerBody.setLinearVelocity(playerBody.linearVelocity.x, SPEED)
-                        playerBody.applyForceToCenter(0.0f, speed, true)
-                        //playerBody.applyLinearImpulse(0.0f, SPEED, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyForceToCenter(0.0f, speed, true)
+                        playerBody.applyLinearImpulse(0.0f, speed, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.y = SPEED
                     }
                     right -> {
                         //playerBody.position.set(playerBody.position.x + SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
                         //playerBody.setLinearVelocity(SPEED, playerBody.linearVelocity.y)
-                        playerBody.applyForceToCenter(speed, 0.0f, true)
-                        //playerBody.applyLinearImpulse(SPEED, 0.0f, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyForceToCenter(speed, 0.0f, true)
+                        playerBody.applyLinearImpulse(speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.set(SPEED, playerBody.linearVelocity.y)
                         //playerBody.linearVelocity.x = SPEED
                     }
                     down -> {
                         //playerBody.position.set(playerBody.position.x, playerBody.position.y - SPEED * Gdx.graphics.deltaTime)
                         //playerBody.setLinearVelocity(playerBody.linearVelocity.x, -SPEED)
-                        playerBody.applyForceToCenter(0.0f, -speed, true)
-                        //playerBody.applyLinearImpulse(0.0f, -SPEED, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyForceToCenter(0.0f, -speed, true)
+                        playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.y = -SPEED
                     }
                 }
