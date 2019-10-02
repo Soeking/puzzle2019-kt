@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
-import com.badlogic.gdx.math.Interpolation.circle
 import com.badlogic.gdx.physics.box2d.FixtureDef
 
 
@@ -59,10 +58,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val playerFixture: Fixture
     private var stage: Stage
 
-    private val Left = 0
-    private val Up = 1
-    private val Right = 2
-    private val Down = 3
+    private val left = 0
+    private val up = 1
+    private val right = 2
+    private val down = 3
 
     init {
         Box2D.init()
@@ -97,19 +96,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         // moveArrow.setScale(gridSize / moveArrow.width / 1.0f)
 
         dynamicDef.type = BodyDef.BodyType.DynamicBody
-        /*
-<<<<<<< HEAD
-        dynamicDef.awake = true
-        dynamicDef.position.set(0f, 0f)
         staticDef.type = BodyDef.BodyType.StaticBody
-        staticDef.position.set(0f, 0f)
-        staticDef.awake = true
-=======
-        */
-        staticDef.type = BodyDef.BodyType.StaticBody
-        /*
->>>>>>> master
-        */
         kinematicDef.type = BodyDef.BodyType.KinematicBody
 
         circleShape = CircleShape()
@@ -123,8 +110,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         playerFixtureDef.shape = circleShape
         playerFixtureDef.isSensor = false
         playerFixtureDef.density = 0.05f // 仮    //密度
-        playerFixtureDef.friction = 0.5f         //摩擦
-        playerFixtureDef.restitution = 0.1f     //返還
+        playerFixtureDef.friction = 1f         //摩擦
+        playerFixtureDef.restitution = 1f     //返還
         squareFixtureDef.shape = boxShape
         squareFixtureDef.isSensor = false
         squareFixtureDef.friction = 1f
@@ -147,10 +134,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             it.y *= gridSize
             staticDef.position.set(it.x, it.y)
             val body = world.createBody(staticDef)
-            val sprite = wallSprite
-            //sprite.setPosition(it.x, it.y)
-            //body.userData = sprite
-            //body.setTransform(it.x, it.y, 0f)
             body.createFixture(squareFixtureDef)
             body.userData = it
             wallBodies.add(body)
@@ -160,10 +143,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             it.y *= gridSize
             kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
-            val sprite = squareSprite
-            //sprite.setPosition(it.x, it.y)
-            //body.userData = sprite
-            //body.setTransform(it.x, it.y, 0f)
             body.userData = it
             body.createFixture(squareFixtureDef)
             squareBodies.add(body)
@@ -173,10 +152,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             it.y *= gridSize
             kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
-            val sprite = triangleSprite
-            //sprite.setPosition(it.x, it.y)
-            //body.userData = sprite
-            //body.setTransform(it.x, it.y, 0f)
             body.userData = it
             body.createFixture(triangleFixtureDef)
             triangleBodies.add(body)
@@ -186,10 +161,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             it.y *= gridSize
             kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
-            val sprite = ladderSprite
-            //sprite.setPosition(it.x, it.y)
-            //body.userData = sprite
-            //body.setTransform(it.x, it.y, 0f)
             body.userData = it
             body.createFixture(ladderFixtureDef)
             ladderBodies.add(body)
@@ -198,11 +169,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             it.x *= gridSize
             it.y *= gridSize
             dynamicDef.position.set(it.x, it.y + 5)
-            val sprite = playerSprite
-            //sprite.setPosition(it.x, it.y)
             playerBody = world.createBody(dynamicDef)
-            playerBody.userData = sprite
-            //playerBody.setTransform(it.x, it.y + 10, 0f)
             playerFixture = playerBody.createFixture(playerFixtureDef)
             playerBody.resetMassData()
             playerBody.userData = it
@@ -211,11 +178,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             it.x *= gridSize
             it.y *= gridSize
             staticDef.position.set(it.x, it.y)
-            val sprite = goalSprite
-            //sprite.setPosition(it.x, it.y)
             goalBody = world.createBody(staticDef)
-            goalBody.userData = sprite
-            //goalBody.setTransform(it.x, it.y, 0f)
             goalBody.userData = it
             goalBody.createFixture(squareFixtureDef)
         }
@@ -226,19 +189,20 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
                 ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
                 ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
                 ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))))
-        for (i in 0..3) {
-            button[i].image.setScale(Gdx.graphics.width / 10.0f / button[i].width)
-            button[i].image.setColor(button[i].image.color.r, button[i].image.color.g, button[i].image.color.b, 0.5f)
-            button[i].setScale(Gdx.graphics.width / 10.0f / button[i].width / 1f)
+        repeat(4) {
+            button[it].image.setScale(Gdx.graphics.width / 10.0f / button[it].width)
+            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b, 0.5f)
+            button[it].setScale(Gdx.graphics.width / 10.0f / button[it].width / 1f)
             //button[i].setScale(10f)
             //button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
-            button[i].setOrigin(0.0f, 0.0f)
+            button[it].setOrigin(0.0f, 0.0f)
             //button[i].setPosition(Gdx.graphics.width / 12.0f * 3.0f + Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 8.0f * 3.0f + Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
-            button[i].setPosition(Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (Math.sin(Math.PI * i / 2.0).toFloat()))
-            button[i].color.set(Color.BLACK)
-            stage.addActor(button[i])
+            button[it].setPosition(Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-Math.cos(Math.PI * it / 2.0).toFloat()),
+                    Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (Math.sin(Math.PI * it / 2.0).toFloat()))
+            button[it].color.set(Color.BLACK)
+            stage.addActor(button[it])
             //button[i].rotation(0.0f)
-            Gdx.app.log("button", "${button[i].x},${button[i].y},${button[i].width},${button[i].height}")
+            Gdx.app.log("button", "${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
         }
         Gdx.input.inputProcessor = stage
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
@@ -291,55 +255,55 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         renderer.render(world, camera.combined)
     }
 
-    private val SPEED = 100000000.0f
-    private var No = false
+    private val speed = 100000000.0f
+    private var no = false
 
     private fun button() {
         //Gdx.app.log("TEST", "A")
 
         var temp = 0
 
-        for (i in 0..3) {
-            if (button[i].isPressed) {
-                No = true
+        repeat(4) {
+            if (button[it].isPressed) {
+                no = true
                 temp++
                 //Gdx.app.log("pressed", "${i} , ${Gdx.graphics.deltaTime}")
-                when (i) {
-                    Left -> {
+                when (it) {
+                    left -> {
                         //playerBody.position.set(playerBody.position.x - SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
                         //playerBody.setLinearVelocity(-SPEED, playerBody.linearVelocity.y)
                         //playerBody.setLinearVelocity(playerBody.linearVelocity.add(Vector2(-SPEED, 0.0f)))
-                        playerBody.applyForceToCenter(-SPEED, 0.0f, true)
+                        playerBody.applyForceToCenter(-speed, 0.0f, true)
                         //playerBody.applyLinearImpulse(-SPEED, 0.0f, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.x = -SPEED
                     }
-                    Up -> {
+                    up -> {
                         //playerBody.position.set(playerBody.position.x, playerBody.position.y + SPEED * Gdx.graphics.deltaTime)
                         //playerBody.setLinearVelocity(playerBody.linearVelocity.x, SPEED)
-                        playerBody.applyForceToCenter(0.0f, SPEED, true)
+                        playerBody.applyForceToCenter(0.0f, speed, true)
                         //playerBody.applyLinearImpulse(0.0f, SPEED, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.y = SPEED
                     }
-                    Right -> {
+                    right -> {
                         //playerBody.position.set(playerBody.position.x + SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
                         //playerBody.setLinearVelocity(SPEED, playerBody.linearVelocity.y)
-                        playerBody.applyForceToCenter(SPEED, 0.0f, true)
+                        playerBody.applyForceToCenter(speed, 0.0f, true)
                         //playerBody.applyLinearImpulse(SPEED, 0.0f, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.set(SPEED, playerBody.linearVelocity.y)
                         //playerBody.linearVelocity.x = SPEED
                     }
-                    Down -> {
+                    down -> {
                         //playerBody.position.set(playerBody.position.x, playerBody.position.y - SPEED * Gdx.graphics.deltaTime)
                         //playerBody.setLinearVelocity(playerBody.linearVelocity.x, -SPEED)
-                        playerBody.applyForceToCenter(0.0f, -SPEED, true)
+                        playerBody.applyForceToCenter(0.0f, -speed, true)
                         //playerBody.applyLinearImpulse(0.0f, -SPEED, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.y = -SPEED
                     }
                 }
             }
         }
-        if (temp == 0 && No) {
-            No = false
+        if (temp == 0 && no) {
+            no = false
             //playerBody.setLinearVelocity(0.0f, 0.0f)
         }
 
