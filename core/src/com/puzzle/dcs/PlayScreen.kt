@@ -8,9 +8,11 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -62,6 +64,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val up = 1
     private val right = 2
     private val down = 3
+
+    private val fontGenerator: FreeTypeFontGenerator
+    private val bitmapFont: BitmapFont
 
     init {
         Box2D.init()
@@ -208,6 +213,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         //button[0].setScale(gridSize / goalSprite.width)
 
+        //フォント生成
+        var file = Gdx.files.internal("fonts/Roboto-Black.ttf")
+        fontGenerator = FreeTypeFontGenerator(file)
+        var param = FreeTypeFontGenerator.FreeTypeFontParameter()
+        param.size = 25
+        param.color = Color.RED
+        param.incremental = true
+        bitmapFont = fontGenerator.generateFont(param)
+        //bitmapFont = BitmapFont()
+        //bitmapFont.color = Color.WHITE
+        //bitmapFont.data.setScale(10f)
+
         circleShape.dispose()
         boxShape.dispose()
         ladderShape.dispose()
@@ -247,9 +264,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         spriteBatch.begin()
         drawSprites()
+        bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
+        spriteBatch.end()
+
         drawUI()
         button()
-        spriteBatch.end()
 
         camera.update()
         world.step(Gdx.graphics.deltaTime, 0, 0)
