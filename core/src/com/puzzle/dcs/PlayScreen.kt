@@ -20,6 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
@@ -38,7 +40,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
-    // private val moveArrow: Sprite
     private val button: Array<ImageButton>
     private val dynamicDef = BodyDef()
     private val staticDef = BodyDef()
@@ -53,10 +54,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val boxShape: PolygonShape
     private val ladderShape: PolygonShape
     private val triangleShape: PolygonShape
+    private val goalShape: PolygonShape
     private val playerFixtureDef = FixtureDef()
     private val squareFixtureDef = FixtureDef()
     private val ladderFixtureDef = FixtureDef()
     private val triangleFixtureDef = FixtureDef()
+    private val goalFixtureDef = FixtureDef()
     private val playerFixture: Fixture
     private var stage: Stage
 
@@ -72,7 +75,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         Box2D.init()
         camera = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         camera.translate(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
-        world = World(Vector2(0f, -16f), true)
+        world = World(Vector2(0f, -8f), true)
         renderer = Box2DDebugRenderer()
         createCollision()
 
@@ -112,21 +115,21 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         ladderShape.setAsBox(halfGrid, halfGrid)
         triangleShape = PolygonShape()
         triangleShape.set(arrayOf(Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid)))
+        goalShape = PolygonShape()
+        goalShape.set(arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid)))
         playerFixtureDef.shape = circleShape
-        playerFixtureDef.isSensor = false
         playerFixtureDef.density = 1.0f // 仮    //密度
         playerFixtureDef.friction = 1.0f         //摩擦
         playerFixtureDef.restitution = 1.0f     //返還
         squareFixtureDef.shape = boxShape
-        squareFixtureDef.isSensor = false
         squareFixtureDef.friction = 1.0f
         squareFixtureDef.restitution = 1.0f
         ladderFixtureDef.shape = ladderShape
         ladderFixtureDef.isSensor = true
         triangleFixtureDef.shape = triangleShape
-        triangleFixtureDef.isSensor = false
         triangleFixtureDef.friction = 1.0f
         triangleFixtureDef.restitution = 1.0f
+        goalFixtureDef.shape = goalShape
 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
@@ -185,7 +188,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             staticDef.position.set(it.x, it.y)
             goalBody = world.createBody(staticDef)
             goalBody.userData = it
-            goalBody.createFixture(squareFixtureDef)
+            goalBody.createFixture(goalFixtureDef)
         }
 
         stage = Stage()
@@ -202,8 +205,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             //button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
             button[it].setOrigin(0.0f, 0.0f)
             //button[i].setPosition(Gdx.graphics.width / 12.0f * 3.0f + Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 8.0f * 3.0f + Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
-            button[it].setPosition(Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-Math.cos(Math.PI * it / 2.0).toFloat()),
-                    Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (Math.sin(Math.PI * it / 2.0).toFloat()))
+            button[it].setPosition(Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
+                    Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat()))
             button[it].color.set(Color.BLACK)
             stage.addActor(button[it])
             //button[i].rotation(0.0f)
@@ -258,7 +261,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         if (world.contactCount > 0) {
             world.contactList.forEach {
-                //Gdx.app.log("contact", "${it.fixtureA.body.position},${it.fixtureB.body.position}")
+                Gdx.app.log("contact", "${it.fixtureA.body.position},${it.fixtureB.body.position}")
             }
         }
 
@@ -397,11 +400,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
             sprite.draw(spriteBatch)
         }
-
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-
         return true
     }
 
