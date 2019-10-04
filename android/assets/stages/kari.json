@@ -19,6 +19,22 @@
     {
       "x": 5,
       "y": 1
+    },
+    {
+      "x": 6,
+      "y": 1
+    },
+    {
+      "x": 7,
+      "y": 1
+    },
+    {
+      "x": 8,
+      "y": 1
+    },
+    {
+      "x": 9,
+      "y": 1
     }
   ],
   "square": [
@@ -39,22 +55,28 @@
       "y": 3,
       "gravityID": 1,
       "gravity": 0
+    },
+    {
+      "x": 6,
+      "y": 3,
+      "gravityID": 2,
+      "gravity": 0
     }
   ],
   "triangle": [
     {
       "x": 5,
       "y": 3,
-      "gravityID": 1,
+      "gravityID": 2,
       "gravity": 0,
-      "rotate": 0
+      "rotate": 1
     },
     {
       "x": 5,
       "y": 4,
-      "gravityID": 1,
+      "gravityID": 2,
       "gravity": 0,
-      "rotate": 2
+      "rotate": 3
     }
   ],
   "ladder": [
@@ -78,7 +100,7 @@
     "y": 2
   },
   "goal": {
-    "x": 5,
+    "x": 9,
     "y": 2
   },
   "gravityChange": [

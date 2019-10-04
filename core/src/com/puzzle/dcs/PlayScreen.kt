@@ -18,6 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -49,6 +51,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val ladderBodies = mutableListOf<Body>()
     private val playerBody: Body
     private val goalBody: Body
+    private val dynamicWalls = mutableListOf<Body>()
     private val circleShape: CircleShape
     private val boxShape: PolygonShape
     private val ladderShape: PolygonShape
@@ -61,6 +64,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val goalFixtureDef = FixtureDef()
     private val playerFixture: Fixture
     private var stage: Stage
+    private val revoluteJointDef = RevoluteJointDef()
+    private val revoluteJoints = mutableListOf<RevoluteJoint>()
 
     private val topList = arrayOf(Vector2(halfGrid, halfGrid), Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid))
     private val left = 0
@@ -103,7 +108,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         dynamicDef.type = BodyDef.BodyType.DynamicBody
         staticDef.type = BodyDef.BodyType.StaticBody
-        kinematicDef.type = BodyDef.BodyType.KinematicBody
+        kinematicDef.type = BodyDef.BodyType.DynamicBody
+        kinematicDef.gravityScale = 0f
+        dynamicDef.gravityScale=0f
 
         circleShape = CircleShape()
         circleShape.radius = gridSize / 3f
@@ -139,10 +146,16 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             it.x *= gridSize
             it.y *= gridSize
             staticDef.position.set(it.x, it.y)
+            dynamicDef.position.set(it.x, it.y)
             val body = world.createBody(staticDef)
             body.createFixture(squareFixtureDef)
             body.userData = it
             wallBodies.add(body)
+            val b = world.createBody(dynamicDef)
+            b.createFixture(squareFixtureDef)
+            revoluteJointDef.initialize(body, b, body.position)
+            val r = world.createJoint(revoluteJointDef) as RevoluteJoint
+            revoluteJoints.add(r)
         }
         stageData.square.forEach {
             it.x *= gridSize
@@ -216,6 +229,13 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         //button[0].setScale(gridSize / goalSprite.width)
 
+        squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
+            it.setLinearVelocity(0f, -10f)
+        }
+        triangleBodies.filter { (it.userData as Triangle).gravityID == 2 }.forEach {
+            it.setLinearVelocity(0f, -10f)
+        }
+
         circleShape.dispose()
         boxShape.dispose()
         ladderShape.dispose()
@@ -256,11 +276,22 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         if (world.contactCount > 0) {
             world.contactList.forEach {
                 Gdx.app.log("contact", "${it.fixtureA.body.type},${it.fixtureB.body.type}")
+                /**
+                if (it.fixtureA.body != playerBody && (it.fixtureA.body.type == BodyDef.BodyType.DynamicBody && it.fixtureB.body.type == BodyDef.BodyType.StaticBody)) {
+                    val id = (it.fixtureA.body.userData as Triangle).gravityID
+                    squareBodies.filter { (it.userData as Square).gravityID == id }.forEach {
+                        it.setLinearVelocity(0f, 0f)
+                    }
+                    triangleBodies.filter { (it.userData as Triangle).gravityID == id }.forEach {
+                        it.setLinearVelocity(0f, 0f)
+                    }
+                }
+                */
             }
         }
 
         spriteBatch.begin()
-        drawSprites()
+        //drawSprites()
         drawUI()
         spriteBatch.end()
 
