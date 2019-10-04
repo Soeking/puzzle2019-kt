@@ -18,8 +18,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
+import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
+import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -42,6 +43,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val playerSprite: Sprite
     private val goalSprite: Sprite
     private val button: Array<ImageButton>
+    private val playerDef = BodyDef()
     private val dynamicDef = BodyDef()
     private val staticDef = BodyDef()
     private val kinematicDef = BodyDef()
@@ -51,7 +53,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val ladderBodies = mutableListOf<Body>()
     private val playerBody: Body
     private val goalBody: Body
-    private val dynamicWalls = mutableListOf<Body>()
+    //private val dynamicWalls = mutableListOf<Body>()
     private val circleShape: CircleShape
     private val boxShape: PolygonShape
     private val ladderShape: PolygonShape
@@ -64,8 +66,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val goalFixtureDef = FixtureDef()
     private val playerFixture: Fixture
     private var stage: Stage
-    private val revoluteJointDef = RevoluteJointDef()
-    private val revoluteJoints = mutableListOf<RevoluteJoint>()
+    private val distanceJointDef = DistanceJointDef()
+    private val wallJoints = mutableListOf<DistanceJoint>()
+    private val squareJoints = mutableListOf<DistanceJoint>()
+    private val triangleJoints = mutableListOf<DistanceJoint>()
+    private val ladderJoints = mutableListOf<DistanceJoint>()
 
     private val topList = arrayOf(Vector2(halfGrid, halfGrid), Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid))
     private val left = 0
@@ -106,11 +111,13 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         // moveArrow.setOrigin(moveArrow.width / 2, moveArrow.height / 2)
         // moveArrow.setScale(gridSize / moveArrow.width / 1.0f)
 
+
+        playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.DynamicBody
         staticDef.type = BodyDef.BodyType.StaticBody
-        kinematicDef.type = BodyDef.BodyType.DynamicBody
+        kinematicDef.type = BodyDef.BodyType.KinematicBody
         kinematicDef.gravityScale = 0f
-        dynamicDef.gravityScale=0f
+        dynamicDef.gravityScale = 0f
 
         circleShape = CircleShape()
         circleShape.radius = gridSize / 3f
@@ -153,44 +160,62 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             wallBodies.add(body)
             val b = world.createBody(dynamicDef)
             b.createFixture(squareFixtureDef)
-            revoluteJointDef.initialize(body, b, body.position)
-            val r = world.createJoint(revoluteJointDef) as RevoluteJoint
-            revoluteJoints.add(r)
+            distanceJointDef.initialize(body, b, Vector2(0f,0f), Vector2(0f,0f))
+            val dis = world.createJoint(distanceJointDef) as DistanceJoint
+            wallJoints.add(dis)
         }
         stageData.square.forEach {
             it.x *= gridSize
             it.y *= gridSize
             kinematicDef.position.set(it.x, it.y)
+            dynamicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             body.userData = it
             body.createFixture(squareFixtureDef)
             squareBodies.add(body)
+            val b = world.createBody(dynamicDef)
+            b.createFixture(squareFixtureDef)
+            distanceJointDef.initialize(body, b, Vector2(0f,0f), Vector2(0f,0f))
+            val dis = world.createJoint(distanceJointDef) as DistanceJoint
+            wallJoints.add(dis)
         }
         stageData.triangle.forEach {
             it.x *= gridSize
             it.y *= gridSize
             kinematicDef.position.set(it.x, it.y)
+            dynamicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             body.userData = it
             triangleShape.set(createTriangleShape(it.rotate))
             triangleFixtureDef.shape = triangleShape
             body.createFixture(triangleFixtureDef)
             triangleBodies.add(body)
+            val b = world.createBody(dynamicDef)
+            b.createFixture(triangleFixtureDef)
+            distanceJointDef.initialize(body, b, Vector2(0f,0f), Vector2(0f,0f))
+            val dis = world.createJoint(distanceJointDef) as DistanceJoint
+            wallJoints.add(dis)
         }
         stageData.ladder.forEach {
             it.x *= gridSize
             it.y *= gridSize
             kinematicDef.position.set(it.x, it.y)
+            dynamicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             body.userData = it
             body.createFixture(ladderFixtureDef)
             ladderBodies.add(body)
+            val b = world.createBody(dynamicDef)
+            b.createFixture(ladderFixtureDef)
+            distanceJointDef.initialize(body, b, Vector2(0f,0f), Vector2(0f,0f))
+            val dis = world.createJoint(distanceJointDef) as DistanceJoint
+            wallJoints.add(dis)
         }
         stageData.start.let {
             it.x *= gridSize
             it.y *= gridSize
-            dynamicDef.position.set(it.x, it.y + 5)
-            playerBody = world.createBody(dynamicDef)
+            playerDef.position.set(it.x, it.y + 2)
+            playerBody = world.createBody(playerDef)
             playerFixture = playerBody.createFixture(playerFixtureDef)
             playerBody.resetMassData()
             playerBody.userData = it
@@ -229,11 +254,13 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         //button[0].setScale(gridSize / goalSprite.width)
 
-        squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
-            it.setLinearVelocity(0f, -10f)
+        squareJoints.filter { (it.bodyA.userData as Square).gravityID == 2 }.forEach {
+            it.bodyA.setLinearVelocity(0f, -12f)
+            it.bodyB.setLinearVelocity(0f, -12f)
         }
-        triangleBodies.filter { (it.userData as Triangle).gravityID == 2 }.forEach {
-            it.setLinearVelocity(0f, -10f)
+        triangleJoints.filter { (it.bodyA.userData as Triangle).gravityID == 2 }.forEach {
+            it.bodyA.setLinearVelocity(0f, -12f)
+            it.bodyB.setLinearVelocity(0f, -12f)
         }
 
         circleShape.dispose()
@@ -277,13 +304,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             world.contactList.forEach {
                 Gdx.app.log("contact", "${it.fixtureA.body.type},${it.fixtureB.body.type}")
                 /**
-                if (it.fixtureA.body != playerBody && (it.fixtureA.body.type == BodyDef.BodyType.DynamicBody && it.fixtureB.body.type == BodyDef.BodyType.StaticBody)) {
-                    val id = (it.fixtureA.body.userData as Triangle).gravityID
-                    squareBodies.filter { (it.userData as Square).gravityID == id }.forEach {
-                        it.setLinearVelocity(0f, 0f)
+                if (it.fixtureA.body != playerBody && it.fixtureA.body.type != BodyDef.BodyType.StaticBody) {
+                    if (it.fixtureB.body != playerBody) {
+                        it.fixtureA.body.setLinearVelocity(0f, 0f)
                     }
-                    triangleBodies.filter { (it.userData as Triangle).gravityID == id }.forEach {
-                        it.setLinearVelocity(0f, 0f)
+                }
+                if (it.fixtureB.body != playerBody && it.fixtureB.body.type != BodyDef.BodyType.StaticBody) {
+                    if (it.fixtureA.body != playerBody) {
+                        it.fixtureB.body.setLinearVelocity(0f, 0f)
                     }
                 }
                 */
@@ -296,7 +324,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         spriteBatch.end()
 
         camera.update()
-        world.step(Gdx.graphics.deltaTime, 0, 0)
+        world.step(Gdx.graphics.deltaTime, 1, 0)
         renderer.render(world, camera.combined)
     }
 

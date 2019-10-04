@@ -72,11 +72,11 @@
       "rotate": 1
     },
     {
-      "x": 5,
-      "y": 4,
+      "x": 7,
+      "y": 3,
       "gravityID": 2,
       "gravity": 0,
-      "rotate": 3
+      "rotate": 0
     }
   ],
   "ladder": [
