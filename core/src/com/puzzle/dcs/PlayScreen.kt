@@ -35,6 +35,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val wallSprite: Sprite
     private val squareSprite: Sprite
     private val triangleSprite: Sprite
+    private val triangleSprites = mutableListOf<Sprite>()
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
@@ -61,6 +62,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val playerFixture: Fixture
     private var stage: Stage
 
+    private val topList = arrayOf(Vector2(halfGrid, halfGrid), Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid))
     private val left = 0
     private val up = 1
     private val right = 2
@@ -89,6 +91,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         squareSprite.setScale(gridSize / squareSprite.width)
         triangleSprite.setOrigin(0f, 0f)
         triangleSprite.setScale(gridSize / triangleSprite.width)
+        repeat(4) { triangleSprites.add(triangleSprite) }
         ladderSprite.setOrigin(0f, 0f)
         ladderSprite.setScale(gridSize / ladderSprite.width)
         playerSprite.setOrigin(0f, 0f)
@@ -109,7 +112,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         ladderShape = PolygonShape()
         ladderShape.setAsBox(halfGrid, halfGrid)
         triangleShape = PolygonShape()
-        triangleShape.set(arrayOf(Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid)))
+        //triangleShape.set(arrayOf(Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid)))
         goalShape = PolygonShape()
         goalShape.set(arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid)))
         playerFixtureDef.shape = circleShape
@@ -156,6 +159,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             kinematicDef.position.set(it.x, it.y)
             val body = world.createBody(kinematicDef)
             body.userData = it
+            triangleShape.set(createTriangleShape(it.rotate))
+            triangleFixtureDef.shape = triangleShape
             body.createFixture(triangleFixtureDef)
             triangleBodies.add(body)
         }
@@ -237,6 +242,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         })
     }
 
+    private fun createTriangleShape(rotate: Int): Array<Vector2> {
+        val list = mutableListOf<Vector2>()
+        list.addAll(topList.filter { it != topList[rotate] })
+        return list.toTypedArray()
+    }
+
     override fun render(delta: Float) {
         button()
 
@@ -244,7 +255,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         if (world.contactCount > 0) {
             world.contactList.forEach {
-                Gdx.app.log("contact", "${it.fixtureA.body.position},${it.fixtureB.body.position}")
+                Gdx.app.log("contact", "${it.fixtureA.body.type},${it.fixtureB.body.type}")
             }
         }
 
@@ -338,7 +349,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
             sprite.draw(spriteBatch)
         }
         triangleBodies.forEach {
-            val sprite = triangleSprite
+            val sprite = triangleSprites[(it.userData as Triangle).rotate]
             sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
             sprite.draw(spriteBatch)
         }
