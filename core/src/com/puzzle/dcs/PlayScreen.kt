@@ -18,8 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
-import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
-import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -65,7 +63,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val playerFixture: Fixture
     private var stage: Stage
 
-    private val topList = arrayOf(Vector2(halfGrid, halfGrid), Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid))
+    private val topList = arrayOf(
+        Vector2(halfGrid, halfGrid),
+        Vector2(-halfGrid, halfGrid),
+        Vector2(-halfGrid, -halfGrid),
+        Vector2(halfGrid, -halfGrid)
+    )
     private val left = 0
     private val up = 1
     private val right = 2
@@ -118,7 +121,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         ladderShape.setAsBox(halfGrid, halfGrid)
         triangleShape = PolygonShape()
         goalShape = PolygonShape()
-        goalShape.set(arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid)))
+        goalShape.set(
+            arrayOf(
+                Vector2(halfGrid / 2, halfGrid),
+                Vector2(-halfGrid / 2, halfGrid),
+                Vector2(-halfGrid / 2, -halfGrid),
+                Vector2(halfGrid / 2, -halfGrid)
+            )
+        )
         playerFixtureDef.shape = circleShape
         playerFixtureDef.density = 0.05f // 仮    //密度
         playerFixtureDef.friction = 1f         //摩擦
@@ -202,24 +212,27 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         stage = Stage()
         button = arrayOf(
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))))
+            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
+            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
+            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
+            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png")))))
+        )
         repeat(4) {
             button[it].image.setScale(Gdx.graphics.width / 10.0f / button[it].width)
-            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b, 0.5f)
+            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b,0.5f)
             button[it].setScale(Gdx.graphics.width / 10.0f / button[it].width / 1f)
             //button[i].setScale(10f)
             //button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
             button[it].setOrigin(0.0f, 0.0f)
             //button[i].setPosition(Gdx.graphics.width / 12.0f * 3.0f + Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 8.0f * 3.0f + Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
-            button[it].setPosition(Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
-                    Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat()))
+            button[it].setPosition(
+                Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
+                Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
+            )
             button[it].color.set(Color.BLACK)
             stage.addActor(button[it])
             //button[i].rotation(0.0f)
-            Gdx.app.log("button", "${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
+            Gdx.app.log("button","${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
         }
         Gdx.input.inputProcessor = stage
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
@@ -268,22 +281,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
         Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        if (world.contactCount > 0) {
-            world.contactList.forEach {
-                Gdx.app.log("contact", "${it.fixtureA.body.type},${it.fixtureB.body.type}")
-                /**
-                if (it.fixtureA.body != playerBody && it.fixtureA.body.type != BodyDef.BodyType.StaticBody) {
-                    if (it.fixtureB.body != playerBody) {
-                        it.fixtureA.body.setLinearVelocity(0f, 0f)
-                    }
-                }
-                if (it.fixtureB.body != playerBody && it.fixtureB.body.type != BodyDef.BodyType.StaticBody) {
-                    if (it.fixtureA.body != playerBody) {
-                        it.fixtureB.body.setLinearVelocity(0f, 0f)
-                    }
-                }
-                */
-            }
+        world.contactList.forEach {
+            collisionAction(it.fixtureA.body, it.fixtureB.body)
         }
 
         spriteBatch.begin()
@@ -294,6 +293,16 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         camera.update()
         world.step(Gdx.graphics.deltaTime, 1, 0)
         renderer.render(world, camera.combined)
+    }
+
+    private fun collisionAction(a: Body, b: Body) {
+        if (a == playerBody) {
+
+        } else if (b == playerBody) {
+
+        } else {
+
+        }
     }
 
     private val speed = 100000000.0f
