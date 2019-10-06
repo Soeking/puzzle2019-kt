@@ -22,7 +22,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 
-class PlayScreen(private val game: Core, private val fileName: String) : Screen, InputProcessor {
+class PlayScreen(private val game: Core, private val fileName: String) : Screen {
     private val camera: OrthographicCamera
     private val spriteBatch = SpriteBatch()
     private val file: FileHandle
@@ -43,7 +43,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
     private val playerDef = BodyDef()
     private val dynamicDef = BodyDef()
     private val staticDef = BodyDef()
-    private val kinematicDef = BodyDef()
     private val wallBodies = mutableListOf<Body>()
     private val squareBodies = mutableListOf<Body>()
     private val triangleBodies = mutableListOf<Body>()
@@ -109,8 +108,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.DynamicBody
         staticDef.type = BodyDef.BodyType.StaticBody
-        kinematicDef.type = BodyDef.BodyType.DynamicBody
-        kinematicDef.gravityScale = 0f
         dynamicDef.gravityScale = 0f
 
         circleShape = CircleShape()
@@ -163,9 +160,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         stageData.square.forEach {
             it.x *= gridSize
             it.y *= gridSize
-            kinematicDef.position.set(it.x, it.y)
             dynamicDef.position.set(it.x, it.y)
-            val body = world.createBody(kinematicDef)
+            dynamicDef.position.set(it.x, it.y)
+            val body = world.createBody(dynamicDef)
             body.userData = it
             body.createFixture(squareFixtureDef)
             squareBodies.add(body)
@@ -173,9 +170,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         stageData.triangle.forEach {
             it.x *= gridSize
             it.y *= gridSize
-            kinematicDef.position.set(it.x, it.y)
             dynamicDef.position.set(it.x, it.y)
-            val body = world.createBody(kinematicDef)
+            dynamicDef.position.set(it.x, it.y)
+            val body = world.createBody(dynamicDef)
             body.userData = it
             triangleShape.set(createTriangleShape(it.rotate))
             triangleFixtureDef.shape = triangleShape
@@ -185,9 +182,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         stageData.ladder.forEach {
             it.x *= gridSize
             it.y *= gridSize
-            kinematicDef.position.set(it.x, it.y)
             dynamicDef.position.set(it.x, it.y)
-            val body = world.createBody(kinematicDef)
+            dynamicDef.position.set(it.x, it.y)
+            val body = world.createBody(dynamicDef)
             body.userData = it
             body.createFixture(ladderFixtureDef)
             ladderBodies.add(body)
@@ -406,18 +403,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
         }
     }
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return true
-    }
-
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        return true
-    }
-
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return true
-    }
-
     override fun resize(width: Int, height: Int) {
 
     }
@@ -440,25 +425,5 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen,
 
     override fun dispose() {
 
-    }
-
-    override fun keyDown(keycode: Int): Boolean {
-        return false
-    }
-
-    override fun keyTyped(character: Char): Boolean {
-        return false
-    }
-
-    override fun keyUp(keycode: Int): Boolean {
-        return false
-    }
-
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
-        return false
-    }
-
-    override fun scrolled(amount: Int): Boolean {
-        return false
     }
 }
