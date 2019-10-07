@@ -30,8 +30,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val file: FileHandle
     private val json = Gson()
     private lateinit var stageData: StageData
-    private val gridSize = Gdx.graphics.width / 10f
-    private val halfGrid = gridSize / 2f
+    private val gridSize = 5.0f//Gdx.graphics.width / 10f
+    private val halfGrid = gridSize / 2.0f
+    private val gridSize2 = Gdx.graphics.width / 10.0f
+    private val halfGrid2 = gridSize2 / 2.0f
     private val world: World
     private val renderer: Box2DDebugRenderer
     private val wallSprite: Sprite
@@ -80,8 +82,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     init {
         Box2D.init()
-        camera = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-        camera.translate(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        camera = OrthographicCamera(50.0f, 50.0f / Gdx.graphics.width.toFloat() * Gdx.graphics.height.toFloat())
+        camera.translate(25.0f, 25.0f / Gdx.graphics.width.toFloat() * Gdx.graphics.height)
         world = World(Vector2(0f, -8f), true)
         renderer = Box2DDebugRenderer()
         createCollision()
@@ -96,18 +98,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         // moveArrow = Sprite(Texture(Gdx.files.internal("images/Arrow.png")))
 
         wallSprite.setOrigin(0f, 0f)
-        wallSprite.setScale(gridSize / wallSprite.width)
+        wallSprite.setScale(gridSize2 / wallSprite.width)
         squareSprite.setOrigin(0f, 0f)
-        squareSprite.setScale(gridSize / squareSprite.width)
+        squareSprite.setScale(gridSize2 / squareSprite.width)
         triangleSprite.setOrigin(0f, 0f)
-        triangleSprite.setScale(gridSize / triangleSprite.width)
+        triangleSprite.setScale(gridSize2 / triangleSprite.width)
         repeat(4) { triangleSprites.add(triangleSprite) }
         ladderSprite.setOrigin(0f, 0f)
-        ladderSprite.setScale(gridSize / ladderSprite.width)
+        ladderSprite.setScale(gridSize2 / ladderSprite.width)
         playerSprite.setOrigin(0f, 0f)
-        playerSprite.setScale(gridSize / playerSprite.width / 1.5f)
+        playerSprite.setScale(gridSize2 / playerSprite.width / 1.5f)
         goalSprite.setOrigin(0f, 0f)
-        goalSprite.setScale(gridSize / goalSprite.width)
+        goalSprite.setScale(gridSize2 / goalSprite.width)
 
 
         playerDef.type = BodyDef.BodyType.DynamicBody
@@ -134,15 +136,15 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         playerFixtureDef.shape = circleShape
         playerFixtureDef.density = 1.0f // 仮    //密度
         playerFixtureDef.friction = 1.0f         //摩擦
-        playerFixtureDef.restitution = 1.0f     //返還
+        playerFixtureDef.restitution = 0.6f     //返還
         squareFixtureDef.shape = boxShape
         squareFixtureDef.friction = 1.0f
-        squareFixtureDef.restitution = 1.0f
+        squareFixtureDef.restitution = 0.3f
         ladderFixtureDef.shape = ladderShape
         ladderFixtureDef.isSensor = true
         triangleFixtureDef.shape = triangleShape
         triangleFixtureDef.friction = 1.0f
-        triangleFixtureDef.restitution = 1.0f
+        triangleFixtureDef.restitution = 0.3f
         goalFixtureDef.shape = goalShape
 
         if (file.exists()) {
@@ -312,7 +314,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         renderer.render(world, camera.combined)
     }
 
-    private val speed = 100000.0f
+    private val speed = 1.0f
   
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
@@ -417,32 +419,32 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private fun drawSprites() {
         wallBodies.forEach {
             val sprite = wallSprite
-            sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
+            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
         squareBodies.forEach {
             val sprite = squareSprite
-            sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
+            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
         triangleBodies.forEach {
             val sprite = triangleSprites[(it.userData as Triangle).rotate]
-            sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
+            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
         ladderBodies.forEach {
             val sprite = ladderSprite
-            sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
+            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
         playerBody.let {
             val sprite = playerSprite
-            sprite.setPosition(it.position.x - gridSize / 3f, it.position.y - gridSize / 3f)
+            sprite.setPosition(it.position.x * gridSize2 / gridSize - gridSize2 / 3f, it.position.y * gridSize2 / gridSize - gridSize2 / 3f)
             sprite.draw(spriteBatch)
         }
         goalBody.let {
             val sprite = goalSprite
-            sprite.setPosition(it.position.x - halfGrid, it.position.y - halfGrid)
+            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
     }
