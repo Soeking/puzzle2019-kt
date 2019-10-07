@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
+import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -67,15 +68,16 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private var stage: Stage
 
     private val topList = arrayOf(
-        Vector2(halfGrid, halfGrid),
-        Vector2(-halfGrid, halfGrid),
-        Vector2(-halfGrid, -halfGrid),
-        Vector2(halfGrid, -halfGrid)
+            Vector2(halfGrid, halfGrid),
+            Vector2(-halfGrid, halfGrid),
+            Vector2(-halfGrid, -halfGrid),
+            Vector2(halfGrid, -halfGrid)
     )
     private val left = 0
     private val up = 1
     private val right = 2
     private val down = 3
+    private val jump = 4
 
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
@@ -126,12 +128,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         triangleShape = PolygonShape()
         goalShape = PolygonShape()
         goalShape.set(
-            arrayOf(
-                Vector2(halfGrid / 2, halfGrid),
-                Vector2(-halfGrid / 2, halfGrid),
-                Vector2(-halfGrid / 2, -halfGrid),
-                Vector2(halfGrid / 2, -halfGrid)
-            )
+                arrayOf(
+                        Vector2(halfGrid / 2, halfGrid),
+                        Vector2(-halfGrid / 2, halfGrid),
+                        Vector2(-halfGrid / 2, -halfGrid),
+                        Vector2(halfGrid / 2, -halfGrid)
+                )
         )
         playerFixtureDef.shape = circleShape
         playerFixtureDef.density = 1.0f // 仮    //密度
@@ -216,27 +218,31 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
         stage = Stage()
         button = arrayOf(
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png")))))
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/jumpbutton.png")))))
         )
-        repeat(4) {
+        repeat(5) {
             button[it].image.setScale(Gdx.graphics.width / 10.0f / button[it].width)
-            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b,0.5f)
+            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b, 0.5f)
             button[it].setScale(Gdx.graphics.width / 10.0f / button[it].width / 1f)
-            //button[i].setScale(10f)
-            //button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
             button[it].setOrigin(0.0f, 0.0f)
-            //button[i].setPosition(Gdx.graphics.width / 12.0f * 3.0f + Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 8.0f * 3.0f + Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
-            button[it].setPosition(
-                Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
-                Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
-            )
-            button[it].color.set(Color.BLACK)
+            if (it == jump) {
+                button[it].setPosition(
+                        Gdx.graphics.width / 10.0f / 3.0f * 24.0f,
+                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f
+                )
+            } else {
+                button[it].setPosition(
+                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
+                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
+                )
+                button[it].color.set(Color.BLACK)
+            }
             stage.addActor(button[it])
-            //button[i].rotation(0.0f)
-            Gdx.app.log("button","${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
+            Gdx.app.log("button", "${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
         }
         Gdx.input.inputProcessor = stage
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
@@ -315,7 +321,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     private val speed = 1.0f
-  
+
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
 
@@ -334,63 +340,28 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
         var temp = 0
 
-        repeat(4) {
+        repeat(5) {
             if (button[it].isPressed) {
                 no = true
                 temp++
                 //Gdx.app.log("pressed", "${i} , ${Gdx.graphics.deltaTime}")
                 when (it) {
                     left -> {
-                        //playerBody.position.set(playerBody.position.x - SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
-                        //playerBody.setLinearVelocity(-SPEED, playerBody.linearVelocity.y)
-                        //playerBody.setLinearVelocity(playerBody.linearVelocity.add(Vector2(-SPEED, 0.0f)))
-                        //playerBody.applyForceToCenter(Vector2(-speed, 0.0f), true)
                         playerBody.applyLinearImpulse(-speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
-                        //playerBody.linearVelocity.x = -SPEED
-
-                        /*
-                        // compute the aiming direction
-                        //var direction = Vector2(diff.x / dist, diff.y / dist)
-
-                        // get the current missile velocity because we will apply a force to compensate this.
-                        var currentVelocity = playerBody.linearVelocity
-
-                        // the missile ideal velocity is the direction to the target multiplied by the max speed
-                        var desireVelocity = Vector2 (1.0f * speed, 0.0f * speed);
-
-                        // compensate the current missile velocity by the desired velocity, based on the control factor
-
-                        var finalVelocity = Vector2(desireVelocity.x - currentVelocity.x, desireVelocity.y - currentVelocity.y);
-
-                        // transform our velocity into an impulse (get rid of the time and mass factor)
-                        var temp = (playerBody.mass / 1.0f)
-
-                        var finalForce = Vector2 (finalVelocity.x * temp, finalVelocity.y * temp);
-
-                        playerBody.applyForce(finalForce, playerBody.worldCenter, true);
-                        */
                     }
                     up -> {
-                        //playerBody.position.set(playerBody.position.x, playerBody.position.y + SPEED * Gdx.graphics.deltaTime)
-                        //playerBody.setLinearVelocity(playerBody.linearVelocity.x, SPEED)
-                        //playerBody.applyForceToCenter(0.0f, speed, true)
                         playerBody.applyLinearImpulse(0.0f, speed, playerBody.position.x, playerBody.position.y, true)
-                        //playerBody.linearVelocity.y = SPEED
                     }
                     right -> {
-                        //playerBody.position.set(playerBody.position.x + SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
-                        //playerBody.setLinearVelocity(SPEED, playerBody.linearVelocity.y)
-                        //playerBody.applyForceToCenter(speed, 0.0f, true)
                         playerBody.applyLinearImpulse(speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
-                        //playerBody.linearVelocity.set(SPEED, playerBody.linearVelocity.y)
-                        //playerBody.linearVelocity.x = SPEED
                     }
                     down -> {
-                        //playerBody.position.set(playerBody.position.x, playerBody.position.y - SPEED * Gdx.graphics.deltaTime)
-                        //playerBody.setLinearVelocity(playerBody.linearVelocity.x, -SPEED)
-                        //playerBody.applyForceToCenter(0.0f, -speed, true)
                         playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
-                        //playerBody.linearVelocity.y = -SPEED
+                    }
+                    jump -> {
+                        if ((world.gravity.y == 0.0f && playerBody.linearVelocity.x.absoluteValue <= 0.05f) ||
+                                (world.gravity.x == 0.0f && playerBody.linearVelocity.y.absoluteValue <= 0.05f))
+                            playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
                     }
                 }
             }
@@ -407,11 +378,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     private fun drawUI() {
-        /* val sprite = moveArrow
-        sprite.setPosition(Gdx.graphics.width / 15.0f, Gdx.graphics.height / 10.0f)
-        sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, 0.3f)
-        sprite.draw(spriteBatch) */
-
         stage.act(Gdx.graphics.deltaTime)
         stage.draw()
     }
