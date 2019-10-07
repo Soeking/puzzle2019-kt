@@ -41,10 +41,12 @@ data class Ladder(
 
 data class Start(
     var x: Float,
-    var y: Float
+    var y: Float,
+    var gravity: Int
 )
 
 data class Goal(
     var x: Float,
-    var y: Float
+    var y: Float,
+    val gravity: Int
 )

@@ -23,7 +23,6 @@ import com.badlogic.gdx.physics.box2d.FixtureDef
 import kotlin.math.cos
 import kotlin.math.sin
 
-
 class PlayScreen(private val game: Core, private val fileName: String) : Screen {
     private val camera: OrthographicCamera
     private val spriteBatch = SpriteBatch()
@@ -67,10 +66,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private var stage: Stage
 
     private val topList = arrayOf(
-        Vector2(halfGrid, halfGrid),
-        Vector2(-halfGrid, halfGrid),
-        Vector2(-halfGrid, -halfGrid),
-        Vector2(halfGrid, -halfGrid)
+            Vector2(halfGrid, halfGrid),
+            Vector2(-halfGrid, halfGrid),
+            Vector2(-halfGrid, -halfGrid),
+            Vector2(halfGrid, -halfGrid)
     )
     private val left = 0
     private val up = 1
@@ -95,7 +94,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder.png")))
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
-        // moveArrow = Sprite(Texture(Gdx.files.internal("images/Arrow.png")))
 
         wallSprite.setOrigin(0f, 0f)
         wallSprite.setScale(gridSize2 / wallSprite.width)
@@ -111,7 +109,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         goalSprite.setOrigin(0f, 0f)
         goalSprite.setScale(gridSize2 / goalSprite.width)
 
-
         playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.DynamicBody
         staticDef.type = BodyDef.BodyType.StaticBody
@@ -126,23 +123,25 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         triangleShape = PolygonShape()
         goalShape = PolygonShape()
         goalShape.set(
-            arrayOf(
-                Vector2(halfGrid / 2, halfGrid),
-                Vector2(-halfGrid / 2, halfGrid),
-                Vector2(-halfGrid / 2, -halfGrid),
-                Vector2(halfGrid / 2, -halfGrid)
-            )
+                arrayOf(
+                        Vector2(halfGrid / 2, halfGrid),
+                        Vector2(-halfGrid / 2, halfGrid),
+                        Vector2(-halfGrid / 2, -halfGrid),
+                        Vector2(halfGrid / 2, -halfGrid)
+                )
         )
         playerFixtureDef.shape = circleShape
-        playerFixtureDef.density = 1.0f // 仮    //密度
+        playerFixtureDef.density = 0.5f // 仮    //密度
         playerFixtureDef.friction = 1.0f         //摩擦
         playerFixtureDef.restitution = 0.6f     //返還
         squareFixtureDef.shape = boxShape
+        squareFixtureDef.density = 1000000f
         squareFixtureDef.friction = 1.0f
         squareFixtureDef.restitution = 0.3f
         ladderFixtureDef.shape = ladderShape
         ladderFixtureDef.isSensor = true
         triangleFixtureDef.shape = triangleShape
+        triangleFixtureDef.density = 1000000f
         triangleFixtureDef.friction = 1.0f
         triangleFixtureDef.restitution = 0.3f
         goalFixtureDef.shape = goalShape
@@ -199,11 +198,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         stageData.start.let {
             it.x *= gridSize
             it.y *= gridSize
-            playerDef.position.set(it.x, it.y + 2)
+            playerDef.position.set(it.x, it.y)
             playerBody = world.createBody(playerDef)
             playerFixture = playerBody.createFixture(playerFixtureDef)
             playerBody.resetMassData()
             playerBody.userData = it
+            playerBody.linearDamping = 0.6f
         }
         stageData.goal.let {
             it.x *= gridSize
@@ -216,36 +216,36 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
         stage = Stage()
         button = arrayOf(
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png")))))
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png")))))
         )
         repeat(4) {
             button[it].image.setScale(Gdx.graphics.width / 10.0f / button[it].width)
-            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b,0.5f)
+            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b, 0.5f)
             button[it].setScale(Gdx.graphics.width / 10.0f / button[it].width / 1f)
             button[it].setOrigin(0.0f, 0.0f)
             button[it].setPosition(
-                Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
-                Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
+                    Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
+                    Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
             )
             button[it].color.set(Color.BLACK)
             stage.addActor(button[it])
-            Gdx.app.log("button","${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
+            Gdx.app.log("button", "${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
         }
         Gdx.input.inputProcessor = stage
+
         squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
-            it.setLinearVelocity(0f, -12f)
+            it.setLinearVelocity(0f, -0.3f)
         }
         triangleBodies.filter { (it.userData as Triangle).gravityID == 2 }.forEach {
-            it.setLinearVelocity(0f, -12f)
+            it.setLinearVelocity(0f, -0.3f)
         }
 
         //フォント生成
-        var file = Gdx.files.internal("fonts/Roboto-Black.ttf")
-        fontGenerator = FreeTypeFontGenerator(file)
-        var param = FreeTypeFontGenerator.FreeTypeFontParameter()
+        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Black.ttf"))
+        val param = FreeTypeFontGenerator.FreeTypeFontParameter()
         param.size = 25
         param.color = Color.RED
         param.incremental = true
@@ -303,15 +303,36 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         renderer.render(world, camera.combined)
     }
 
-    private val speed = 1.0f
-  
+    private val speed = 0.5f
+
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
-
+            if (b == goalBody) onGoal(a, b)
         } else if (b == playerBody) {
-
+            if (a == goalBody) onGoal(b, a)
         } else {
-
+            if (a.type == BodyDef.BodyType.DynamicBody && b.type == BodyDef.BodyType.StaticBody) {
+                a.type = BodyDef.BodyType.StaticBody
+            } else if (b.type == BodyDef.BodyType.DynamicBody && a.type == BodyDef.BodyType.StaticBody) {
+                b.type = BodyDef.BodyType.StaticBody
+            } else {
+                val aid = when (a.userData) {
+                    is Square -> (a.userData as Square).gravityID
+                    is Triangle -> (a.userData as Triangle).gravityID
+                    is Ladder -> (a.userData as Ladder).gravityID
+                    else -> 9
+                }
+                val bid = when (b.userData) {
+                    is Square -> (b.userData as Square).gravityID
+                    is Triangle -> (b.userData as Triangle).gravityID
+                    is Ladder -> (b.userData as Ladder).gravityID
+                    else -> 9
+                }
+                if (aid != bid) {
+                    a.type = BodyDef.BodyType.StaticBody
+                    b.type = BodyDef.BodyType.StaticBody
+                }
+            }
         }
     }
 
@@ -380,6 +401,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             val sprite = goalSprite
             sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
+        }
+    }
+
+    private fun onGoal(a: Body, b: Body) {
+        if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
+            Gdx.app.log("goal", "ok")
         }
     }
 
