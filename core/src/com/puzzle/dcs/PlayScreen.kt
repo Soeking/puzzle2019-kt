@@ -23,12 +23,12 @@ import com.badlogic.gdx.physics.box2d.FixtureDef
 import kotlin.math.cos
 import kotlin.math.sin
 
-class PlayScreen(private val game: Core, private val fileName: String) : Screen {
+class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val camera: OrthographicCamera
     private val spriteBatch = SpriteBatch()
     private val file: FileHandle
     private val json = Gson()
-    private lateinit var stageData: StageData
+    private val stageData: StageData
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 10.0f
@@ -149,7 +149,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
         } else {
-
+            TODO("ファイルがないとき")
         }
 
         stageData.wall.forEach {
@@ -316,24 +316,28 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             } else if (b.type == BodyDef.BodyType.DynamicBody && a.type == BodyDef.BodyType.StaticBody) {
                 b.type = BodyDef.BodyType.StaticBody
             } else {
-                val aid = when (a.userData) {
-                    is Square -> (a.userData as Square).gravityID
-                    is Triangle -> (a.userData as Triangle).gravityID
-                    is Ladder -> (a.userData as Ladder).gravityID
-                    else -> 9
-                }
-                val bid = when (b.userData) {
-                    is Square -> (b.userData as Square).gravityID
-                    is Triangle -> (b.userData as Triangle).gravityID
-                    is Ladder -> (b.userData as Ladder).gravityID
-                    else -> 9
-                }
-                if (aid != bid) {
+                if (idCheck(a.userData, b.userData)) {
                     a.type = BodyDef.BodyType.StaticBody
                     b.type = BodyDef.BodyType.StaticBody
                 }
             }
         }
+    }
+
+    private fun idCheck(a: Any, b: Any): Boolean {
+        val aid = when (a) {
+            is Square -> a.gravityID
+            is Triangle -> a.gravityID
+            is Ladder -> a.gravityID
+            else -> 9
+        }
+        val bid = when (b) {
+            is Square -> b.gravityID
+            is Triangle -> b.gravityID
+            is Ladder -> b.gravityID
+            else -> 9
+        }
+        return aid != bid
     }
 
     private var no = false
