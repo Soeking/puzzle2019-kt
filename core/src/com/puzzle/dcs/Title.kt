@@ -20,7 +20,7 @@ class Title(private val game: Core) : Screen {
 
     override fun render(delta: Float) {
         if (Gdx.input.justTouched()) {
-            game.screen=GameMain(game)
+            game.screen=GameMain(game) //画面遷移
         }
 
         batch.begin()
