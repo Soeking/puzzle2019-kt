@@ -8,9 +8,11 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -73,6 +75,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val right = 2
     private val down = 3
 
+    private val fontGenerator: FreeTypeFontGenerator
+    private val bitmapFont: BitmapFont
+
     init {
         Box2D.init()
         camera = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
@@ -127,17 +132,17 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             )
         )
         playerFixtureDef.shape = circleShape
-        playerFixtureDef.density = 0.05f // 仮    //密度
-        playerFixtureDef.friction = 1f         //摩擦
-        playerFixtureDef.restitution = 1f     //返還
+        playerFixtureDef.density = 1.0f // 仮    //密度
+        playerFixtureDef.friction = 1.0f         //摩擦
+        playerFixtureDef.restitution = 1.0f     //返還
         squareFixtureDef.shape = boxShape
-        squareFixtureDef.friction = 1f
-        squareFixtureDef.restitution = 0f
+        squareFixtureDef.friction = 1.0f
+        squareFixtureDef.restitution = 1.0f
         ladderFixtureDef.shape = ladderShape
         ladderFixtureDef.isSensor = true
         triangleFixtureDef.shape = triangleShape
-        triangleFixtureDef.friction = 1f
-        triangleFixtureDef.restitution = 0f
+        triangleFixtureDef.friction = 1.0f
+        triangleFixtureDef.restitution = 1.0f
         goalFixtureDef.shape = goalShape
 
         if (file.exists()) {
@@ -241,6 +246,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             it.setLinearVelocity(0f, -12f)
         }
 
+        //フォント生成
+        var file = Gdx.files.internal("fonts/Roboto-Black.ttf")
+        fontGenerator = FreeTypeFontGenerator(file)
+        var param = FreeTypeFontGenerator.FreeTypeFontParameter()
+        param.size = 25
+        param.color = Color.RED
+        param.incremental = true
+        bitmapFont = fontGenerator.generateFont(param)
+        //bitmapFont = BitmapFont()
+        //bitmapFont.color = Color.WHITE
+        //bitmapFont.data.setScale(10f)
+
         circleShape.dispose()
         boxShape.dispose()
         ladderShape.dispose()
@@ -274,7 +291,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     override fun render(delta: Float) {
-        button()
+        //button()
 
         Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
@@ -283,15 +300,20 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
 
         spriteBatch.begin()
+        bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
         //drawSprites()
-        drawUI()
         spriteBatch.end()
+
+        drawUI()
+        button()
 
         camera.update()
         world.step(Gdx.graphics.deltaTime, 1, 0)
         renderer.render(world, camera.combined)
     }
 
+    private val speed = 100000.0f
+  
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
 
@@ -302,11 +324,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
-    private val speed = 100000000.0f
     private var no = false
 
     private fun button() {
         //Gdx.app.log("TEST", "A")
+        //Gdx.app.log("Gravity", "${playerBody.linearVelocity.x}, ${playerBody.linearVelocity.y}")
 
         var temp = 0
 
@@ -320,30 +342,52 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                         //playerBody.position.set(playerBody.position.x - SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
                         //playerBody.setLinearVelocity(-SPEED, playerBody.linearVelocity.y)
                         //playerBody.setLinearVelocity(playerBody.linearVelocity.add(Vector2(-SPEED, 0.0f)))
-                        playerBody.applyForceToCenter(-speed, 0.0f, true)
-                        //playerBody.applyLinearImpulse(-SPEED, 0.0f, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyForceToCenter(Vector2(-speed, 0.0f), true)
+                        playerBody.applyLinearImpulse(-speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.x = -SPEED
+
+                        /*
+                        // compute the aiming direction
+                        //var direction = Vector2(diff.x / dist, diff.y / dist)
+
+                        // get the current missile velocity because we will apply a force to compensate this.
+                        var currentVelocity = playerBody.linearVelocity
+
+                        // the missile ideal velocity is the direction to the target multiplied by the max speed
+                        var desireVelocity = Vector2 (1.0f * speed, 0.0f * speed);
+
+                        // compensate the current missile velocity by the desired velocity, based on the control factor
+
+                        var finalVelocity = Vector2(desireVelocity.x - currentVelocity.x, desireVelocity.y - currentVelocity.y);
+
+                        // transform our velocity into an impulse (get rid of the time and mass factor)
+                        var temp = (playerBody.mass / 1.0f)
+
+                        var finalForce = Vector2 (finalVelocity.x * temp, finalVelocity.y * temp);
+
+                        playerBody.applyForce(finalForce, playerBody.worldCenter, true);
+                        */
                     }
                     up -> {
                         //playerBody.position.set(playerBody.position.x, playerBody.position.y + SPEED * Gdx.graphics.deltaTime)
                         //playerBody.setLinearVelocity(playerBody.linearVelocity.x, SPEED)
-                        playerBody.applyForceToCenter(0.0f, speed, true)
-                        //playerBody.applyLinearImpulse(0.0f, SPEED, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyForceToCenter(0.0f, speed, true)
+                        playerBody.applyLinearImpulse(0.0f, speed, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.y = SPEED
                     }
                     right -> {
                         //playerBody.position.set(playerBody.position.x + SPEED * Gdx.graphics.deltaTime, playerBody.position.y)
                         //playerBody.setLinearVelocity(SPEED, playerBody.linearVelocity.y)
-                        playerBody.applyForceToCenter(speed, 0.0f, true)
-                        //playerBody.applyLinearImpulse(SPEED, 0.0f, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyForceToCenter(speed, 0.0f, true)
+                        playerBody.applyLinearImpulse(speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.set(SPEED, playerBody.linearVelocity.y)
                         //playerBody.linearVelocity.x = SPEED
                     }
                     down -> {
                         //playerBody.position.set(playerBody.position.x, playerBody.position.y - SPEED * Gdx.graphics.deltaTime)
                         //playerBody.setLinearVelocity(playerBody.linearVelocity.x, -SPEED)
-                        playerBody.applyForceToCenter(0.0f, -speed, true)
-                        //playerBody.applyLinearImpulse(0.0f, -SPEED, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyForceToCenter(0.0f, -speed, true)
+                        playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
                         //playerBody.linearVelocity.y = -SPEED
                     }
                 }
