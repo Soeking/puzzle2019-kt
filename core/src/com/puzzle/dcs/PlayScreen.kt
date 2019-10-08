@@ -343,9 +343,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             ochitattawa += (Gdx.graphics.deltaTime * 1000).toInt()
             bitmapFont2.draw(spriteBatch, "落っこちんな～？", Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f * 1.5f)
             if (ochita) {
-                playerBody.setLinearVelocity((10.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
-                if (playerBody.position.x <= 10.5f && playerBody.position.x >= 9.5f &&
-                        playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
+                playerBody.setLinearVelocity((20.0f - playerBody.position.x) * 5, (20.0f - playerBody.position.y) * 5)
+                if (playerBody.position.x <= 20.5f && playerBody.position.x >= 19.5f &&
+                        playerBody.position.y <= 20.5f && playerBody.position.y >= 19.5f) {
                     ochita = false
                 }
             }
