@@ -153,8 +153,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             body.createFixture(squareFixtureDef)
             body.userData = it
             wallBodies.add(body)
-            val b = world.createBody(dynamicDef)
-            b.createFixture(squareFixtureDef)
         }
         stageData.square.forEach {
             it.x *= gridSize
