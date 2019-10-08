@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
+import com.badlogic.gdx.input.GestureDetector
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -236,6 +237,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             Gdx.app.log("button", "${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
         }
         Gdx.input.inputProcessor = stage
+        //Gdx.input.inputProcessor = GestureDetector(Touch())
 
         squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
             it.setLinearVelocity(0f, -0.3f)
@@ -388,7 +390,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             is Ladder -> b.gravityID
             else -> 9
         }
-        Gdx.app.log("id", "${aid},$bid")
+        //Gdx.app.log("id", "${aid},$bid")
         return aid != bid
     }
 
