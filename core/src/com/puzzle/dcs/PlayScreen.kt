@@ -318,7 +318,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
         spriteBatch.begin()
         checkPlayer()
-        bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
+        bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toFloat()}, ${playerBody.position.y.toFloat()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
         drawSprites()
         spriteBatch.end()
 
@@ -333,23 +333,45 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private var ochitattawa = 1000
     private var ochita = false
+    private var temp1 = false
+    private var temp2 = false
 
     private fun checkPlayer() {
         if (playerBody.position.x * world.gravity.x.absoluteValue < 0 || playerBody.position.y * world.gravity.y.absoluteValue < 0) {
+            // 0が境界条件になっている
             ochitattawa = 0
             ochita = true
+            temp1=true
+            temp2=true
         }
-        if (ochitattawa < 1000) {
+        if (ochitattawa < 3000) {
             ochitattawa += (Gdx.graphics.deltaTime * 1000).toInt()
             bitmapFont2.draw(spriteBatch, "落っこちんな～？", Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f * 1.5f)
-            if (ochita) {
+            if (temp1) {
+                playerBody.setLinearVelocity((-5.0f - playerBody.position.x) * 3, (0.5f - playerBody.position.y) * 3)
+                if (playerBody.position.x <= -4.5f && playerBody.position.x >= -5.5f &&
+                        playerBody.position.y <= 1.0f && playerBody.position.y >= 0.0f) {//このyの下限を0未満に設定してしまうと常に落ちている判定になるのでダメ
+                    temp1 = false
+                }
+            }
+            else if (temp2) {
+                playerBody.setLinearVelocity((-5.0f - playerBody.position.x) , (10.0f - playerBody.position.y) * 5)
+                //bitmapFont2.draw(spriteBatch, "tinnちんな～？", Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f * 1.5f)
+                if (playerBody.position.x <= -4.5f && playerBody.position.x >= -5.5f &&
+                        playerBody.position.y <= 11f && playerBody.position.y >= 9.0f) {
+                    temp2 = false
+                }
+            }
+            else if (ochita) {
                 playerBody.setLinearVelocity((10.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
-                if (playerBody.position.x <= 10.5f && playerBody.position.x >= 9.5f &&
+                if (playerBody.position.x <= 10.0f && playerBody.position.x >= 9.0f &&
                         playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
+                    //playerBody.setLinearVelocity(0f,0f)
                     ochita = false
                 }
             }
         }
+
     }
 
     private val speed = 1.0f
