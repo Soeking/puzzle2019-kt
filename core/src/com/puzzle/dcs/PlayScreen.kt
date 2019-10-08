@@ -20,6 +20,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
+import com.badlogic.gdx.scenes.scene2d.Action
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -79,6 +84,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
+
+//    アニメーション関連
+    private val clearStage : Stage
+    private val actor : Actor
+    private val actions : Action
+    private val skin : Skin
+    private val label : Label
+    private val clearFont : BitmapFont
 
     init {
         Box2D.init()
@@ -260,6 +273,19 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         //bitmapFont.color = Color.WHITE
         //bitmapFont.data.setScale(10f)
 
+
+//        アニメーション関連
+        clearStage = Stage()
+        actor = Actor()
+        clearStage.addActor(actor)
+        actions = Actions.moveTo(0f, 0f, 2.0f)
+        skin = Skin()
+        clearFont = fontGenerator.generateFont(param)
+        label = Label("Clear", Label.LabelStyle(clearFont, Color(1f, 0f, 0f, 0.5f)))
+        label.setText("Clear!")
+        label.setPosition(0f, 0f)
+        clearStage.addActor(label)
+
         circleShape.dispose()
         boxShape.dispose()
         ladderShape.dispose()
@@ -305,9 +331,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
         //drawSprites()
         spriteBatch.end()
-
+        clearStage.act(Gdx.graphics.deltaTime)
+        clearStage.draw()
         drawUI()
         button()
+        gameClear()
 
         camera.update()
         world.step(Gdx.graphics.deltaTime, 1, 0)
@@ -447,6 +475,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
+    }
+
+    private fun gameClear(){
+        label.addAction(actions)
     }
 
     override fun resize(width: Int, height: Int) {
