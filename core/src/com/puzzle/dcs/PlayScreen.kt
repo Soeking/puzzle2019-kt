@@ -245,21 +245,19 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
 
         //フォント生成
-        var file = Gdx.files.internal("fonts/Roboto-Black.ttf")
-        var file2 = Gdx.files.internal("fonts/meiryo.ttc")
-        fontGenerator = FreeTypeFontGenerator(file)
-        fontGenerator2 = FreeTypeFontGenerator(file2)
-        var param = FreeTypeFontGenerator.FreeTypeFontParameter()
+        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Black.ttf"))
+        fontGenerator2 = FreeTypeFontGenerator(Gdx.files.internal("fonts/meiryo.ttc"))
+        val param = FreeTypeFontGenerator.FreeTypeFontParameter()
         param.size = 25
         param.color = Color.RED
         param.incremental = true
         bitmapFont = fontGenerator.generateFont(param)
-        var param2 = FreeTypeFontGenerator.FreeTypeFontParameter()
+        val param2 = FreeTypeFontGenerator.FreeTypeFontParameter()
         param2.size = 64
         param2.color = Color.GREEN
         param2.incremental = true
         bitmapFont2 = fontGenerator2.generateFont(param2)
-      
+
         circleShape.dispose()
         boxShape.dispose()
         ladderShape.dispose()
@@ -341,19 +339,16 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                         playerBody.position.y <= 1.0f && playerBody.position.y >= 0.0f) {
                     ochita3 = false
                 }
-            }
-            else if (ochita2) {
+            } else if (ochita2) {
                 playerBody.setLinearVelocity((-1.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
                 if (playerBody.position.x <= -0.5f && playerBody.position.x >= -1.5f &&
                         playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
                     ochita2 = false
                 }
-            }
-            else if (ochita) {
+            } else if (ochita) {
                 playerBody.setLinearVelocity((10.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
-                playerBody.angularVelocity = -45.0f
-                if (playerBody.position.x <= 10.5f && playerBody.position.x >= 9.5f &&
-                        playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
+                if (playerBody.position.x in 9.5..10.5 &&
+                        playerBody.position.y in 9.5..10.5) {
                     ochita = false
                 }
             }
@@ -438,8 +433,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun drawSprites() {
-        var playerX = playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
-        var playerY = playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
+        val playerX = playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
+        val playerY = playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
         wallBodies.forEach {
             val sprite = wallSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
