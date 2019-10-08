@@ -90,10 +90,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val bitmapFont: BitmapFont
 
 //    アニメーション関連
-//    private val clearGroup : Group
+    private val clearGroup : Group
     private val actions : Action
     private val label : Label
     private val clearFont : BitmapFont
+    private var flg = true
 
     init {
         Box2D.init()
@@ -277,17 +278,22 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
 
 //        アニメーション関連
-//        clearGroup = Group()
-//        clearGroup.setPosition(0f, 0f)
-        actions = Actions.moveTo(0f, 0f, 2.0f)
+        clearGroup = Group()
+        clearGroup.setPosition(0f, 0f)
+        stage.addActor(clearGroup)
+        actions = /*Actions.sequence(*/
+                Actions.moveTo(0f, 1000f, 2.0f)/*,
+                Actions.moveTo(0f, 0f, 2.0f),
+                Actions.moveTo(1000f, 0f, 2.0f),
+                Actions.moveTo(0f, 1000f, 2.0f)
+        )*/
         clearFont = fontGenerator.generateFont(param)
         label = Label("Clear", Label.LabelStyle(clearFont, Color(1f, 0f, 0f, 0.5f)))
         label.setText("Clear!")
-        label.setPosition(0f, 0f)
-        label.setSize(10f, 10f)
+        label.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        label.setScale(100f)
         label.setAlignment(Align.center)
-        stage.addActor(label)
-//        stage.addActor(clearGroup)
+        clearGroup.addActor(label)
 
         circleShape.dispose()
         boxShape.dispose()
@@ -336,7 +342,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         spriteBatch.end()
         drawUI()
         button()
-        if(button[left].isPressed) {
+        if(button[left].isPressed && flg) {
             gameClear()
         }
 
@@ -481,7 +487,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     private fun gameClear(){
-//        label.addAction(actions)
+        flg = false
+        label.addAction(actions)
     }
 
     override fun resize(width: Int, height: Int) {
