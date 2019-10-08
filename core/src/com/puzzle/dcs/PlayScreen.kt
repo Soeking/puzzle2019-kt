@@ -309,12 +309,13 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
         spriteBatch.begin()
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
-        //drawSprites()
+        drawSprites()
         spriteBatch.end()
 
         drawUI()
         button()
 
+        //camera.translate(playerBody.position.x, playerBody.position.y)
         camera.update()
         world.step(Gdx.graphics.deltaTime, 1, 0)
         renderer.render(world, camera.combined)
@@ -383,34 +384,36 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     private fun drawSprites() {
+        var playerX = playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
+        var playerY = playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
         wallBodies.forEach {
             val sprite = wallSprite
-            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
         squareBodies.forEach {
             val sprite = squareSprite
-            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
         triangleBodies.forEach {
             val sprite = triangleSprites[(it.userData as Triangle).rotate]
-            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
         ladderBodies.forEach {
             val sprite = ladderSprite
-            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
         playerBody.let {
             val sprite = playerSprite
-            sprite.setPosition(it.position.x * gridSize2 / gridSize - gridSize2 / 3f, it.position.y * gridSize2 / gridSize - gridSize2 / 3f)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - gridSize2 / 3f, (it.position.y - playerY) * gridSize2 / gridSize - gridSize2 / 3f)
             sprite.draw(spriteBatch)
         }
         goalBody.let {
             val sprite = goalSprite
-            sprite.setPosition(it.position.x * gridSize2 / gridSize - halfGrid2, it.position.y * gridSize2 / gridSize - halfGrid2)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
             sprite.draw(spriteBatch)
         }
     }
