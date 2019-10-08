@@ -28,7 +28,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val spriteBatch = SpriteBatch()
     private val file: FileHandle
     private val json = Gson()
-    private val stageData: StageData
+    private lateinit var stageData: StageData
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 10.0f
@@ -324,7 +324,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
     }
 
-    private fun idCheck(a: Any, b: Any): Boolean {
+    private fun idCheck(a: Any?, b: Any?): Boolean {
         val aid = when (a) {
             is Square -> a.gravityID
             is Triangle -> a.gravityID
