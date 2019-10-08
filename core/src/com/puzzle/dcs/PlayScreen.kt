@@ -307,7 +307,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         spriteBatch.begin()
         checkPlayer()
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
-        drawSprites()
+        //drawSprites()
         spriteBatch.end()
 
         drawUI()
@@ -336,14 +336,14 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             ochitattawa += (Gdx.graphics.deltaTime * 1000).toInt()
             bitmapFont2.draw(spriteBatch, "落っこちんな～？", Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f * 1.5f)
             if (ochita3) {
-                playerBody.setLinearVelocity((-1.0f - playerBody.position.x) * 5, (0.5f - playerBody.position.y) * 5)
-                if (playerBody.position.x <= -0.5f && playerBody.position.x >= -1.5f &&
+                playerBody.setLinearVelocity((-5.0f - playerBody.position.x) * 5, (0.5f - playerBody.position.y) * 5)
+                if (playerBody.position.x in -5.5..-4.5 &&
                         playerBody.position.y <= 1.0f && playerBody.position.y >= 0.0f) {
                     ochita3 = false
                 }
             } else if (ochita2) {
-                playerBody.setLinearVelocity((-1.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
-                if (playerBody.position.x <= -0.5f && playerBody.position.x >= -1.5f &&
+                playerBody.setLinearVelocity((-5.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
+                if (playerBody.position.x in -5.5..-4.5 &&
                         playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
                     ochita2 = false
                 }
