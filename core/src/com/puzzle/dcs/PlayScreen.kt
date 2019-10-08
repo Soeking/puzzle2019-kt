@@ -333,19 +333,37 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private var ochitattawa = 1000
     private var ochita = false
+    private var ochita2 = false
+    private var ochita3 = false
 
     private fun checkPlayer() {
         if (playerBody.position.x * world.gravity.x.absoluteValue < 0 || playerBody.position.y * world.gravity.y.absoluteValue < 0) {
             ochitattawa = 0
             ochita = true
+            ochita2 = true
+            ochita3 = true
         }
-        if (ochitattawa < 1000) {
+        if (ochitattawa < 1000 || ochita) {
             ochitattawa += (Gdx.graphics.deltaTime * 1000).toInt()
             bitmapFont2.draw(spriteBatch, "落っこちんな～？", Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f * 1.5f)
-            if (ochita) {
-                playerBody.setLinearVelocity((20.0f - playerBody.position.x) * 5, (20.0f - playerBody.position.y) * 5)
-                if (playerBody.position.x <= 20.5f && playerBody.position.x >= 19.5f &&
-                        playerBody.position.y <= 20.5f && playerBody.position.y >= 19.5f) {
+            if (ochita3) {
+                playerBody.setLinearVelocity((-5.0f - playerBody.position.x) * 5, (0.5f - playerBody.position.y) * 5)
+                if (playerBody.position.x <= -4.5f && playerBody.position.x >= -5.5f &&
+                        playerBody.position.y <= 1.0f && playerBody.position.y >= 0.0f) {
+                    ochita3 = false
+                }
+            }
+            else if (ochita2) {
+                playerBody.setLinearVelocity((-5.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
+                if (playerBody.position.x <= -4.5f && playerBody.position.x >= -5.5f &&
+                        playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
+                    ochita2 = false
+                }
+            }
+            else if (ochita) {
+                playerBody.setLinearVelocity((10.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
+                if (playerBody.position.x <= 10.5f && playerBody.position.x >= 9.5f &&
+                        playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
                     ochita = false
                 }
             }
