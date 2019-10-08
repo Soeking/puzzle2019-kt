@@ -82,7 +82,7 @@
   "ladder": [
     {
       "x": 4,
-      "y": 4,
+      "y": 6,
       "gravityID": 1,
       "gravity": 0,
       "rotate": 0

@@ -28,7 +28,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val spriteBatch = SpriteBatch()
     private val file: FileHandle
     private val json = Gson()
-    private lateinit var stageData: StageData
+    private val stageData: StageData
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 10.0f
@@ -65,16 +65,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerFixture: Fixture
     private var stage: Stage
 
-    private val topList = arrayOf(
-            Vector2(halfGrid, halfGrid),
-            Vector2(-halfGrid, halfGrid),
-            Vector2(-halfGrid, -halfGrid),
-            Vector2(halfGrid, -halfGrid)
-    )
+    private val topList = arrayOf(Vector2(halfGrid, halfGrid), Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid))
     private val left = 0
     private val up = 1
     private val right = 2
     private val down = 3
+    private var start = false
 
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
@@ -122,14 +118,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ladderShape.setAsBox(halfGrid, halfGrid)
         triangleShape = PolygonShape()
         goalShape = PolygonShape()
-        goalShape.set(
-                arrayOf(
-                        Vector2(halfGrid / 2, halfGrid),
-                        Vector2(-halfGrid / 2, halfGrid),
-                        Vector2(-halfGrid / 2, -halfGrid),
-                        Vector2(halfGrid / 2, -halfGrid)
-                )
-        )
+        goalShape.set(arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid)))
         playerFixtureDef.shape = circleShape
         playerFixtureDef.density = 0.5f // 仮    //密度
         playerFixtureDef.friction = 1.0f         //摩擦
@@ -198,7 +187,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         stageData.start.let {
             it.x *= gridSize
             it.y *= gridSize
-            playerDef.position.set(it.x, it.y)
+            playerDef.position.set(it.x, it.y + 1)
             playerBody = world.createBody(playerDef)
             playerFixture = playerBody.createFixture(playerFixtureDef)
             playerBody.resetMassData()
@@ -260,7 +249,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun createCollision() {
         world.setContactListener(object : ContactListener {
             override fun beginContact(contact: Contact?) {
-
+                contact?.let {
+                    if (contact.fixtureA.body == playerBody && contact.fixtureB.body.type == BodyDef.BodyType.StaticBody) start = true
+                    if (contact.fixtureB.body == playerBody && contact.fixtureA.body.type == BodyDef.BodyType.StaticBody) start = true
+                }
             }
 
             override fun endContact(contact: Contact?) {
@@ -286,8 +278,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     override fun render(delta: Float) {
         Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        world.contactList.forEach {
-            collisionAction(it.fixtureA.body, it.fixtureB.body)
+        if (start) {
+            world.contactList.forEach {
+                collisionAction(it.fixtureA.body, it.fixtureB.body)
+            }
         }
 
         spriteBatch.begin()
@@ -319,6 +313,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 if (idCheck(a.userData, b.userData)) {
                     a.type = BodyDef.BodyType.StaticBody
                     b.type = BodyDef.BodyType.StaticBody
+                    Gdx.app.log("collide", "${a.position},${b.position}")
                 }
             }
         }
@@ -337,6 +332,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             is Ladder -> b.gravityID
             else -> 9
         }
+        Gdx.app.log("id", "${aid},$bid")
         return aid != bid
     }
 
@@ -411,6 +407,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
             Gdx.app.log("goal", "ok")
+            TODO("ゴールしたとき")
         }
     }
 
