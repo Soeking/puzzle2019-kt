@@ -80,7 +80,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val jump = 4
 
     private val fontGenerator: FreeTypeFontGenerator
+    private val fontGenerator2: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
+    private val bitmapFont2: BitmapFont
 
     init {
         Box2D.init()
@@ -256,12 +258,19 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
         //フォント生成
         var file = Gdx.files.internal("fonts/Roboto-Black.ttf")
+        var file2 = Gdx.files.internal("fonts/meiryo.ttc")
         fontGenerator = FreeTypeFontGenerator(file)
+        fontGenerator2 = FreeTypeFontGenerator(file2)
         var param = FreeTypeFontGenerator.FreeTypeFontParameter()
         param.size = 25
         param.color = Color.RED
         param.incremental = true
         bitmapFont = fontGenerator.generateFont(param)
+        var param2 = FreeTypeFontGenerator.FreeTypeFontParameter()
+        param2.size = 64
+        param2.color = Color.GREEN
+        param2.incremental = true
+        bitmapFont2 = fontGenerator2.generateFont(param2)
         //bitmapFont = BitmapFont()
         //bitmapFont.color = Color.WHITE
         //bitmapFont.data.setScale(10f)
@@ -308,6 +317,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
 
         spriteBatch.begin()
+        checkPlayer()
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
         drawSprites()
         spriteBatch.end()
@@ -319,6 +329,27 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         camera.update()
         world.step(Gdx.graphics.deltaTime, 1, 0)
         renderer.render(world, camera.combined)
+    }
+
+    private var ochitattawa = 1000
+    private var ochita = false
+
+    private fun checkPlayer() {
+        if (playerBody.position.x * world.gravity.x.absoluteValue < 0 || playerBody.position.y * world.gravity.y.absoluteValue < 0) {
+            ochitattawa = 0
+            ochita = true
+        }
+        if (ochitattawa < 1000) {
+            ochitattawa += (Gdx.graphics.deltaTime * 1000).toInt()
+            bitmapFont2.draw(spriteBatch, "落っこちんな～？", Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f * 1.5f)
+            if (ochita) {
+                playerBody.setLinearVelocity((10.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
+                if (playerBody.position.x <= 10.5f && playerBody.position.x >= 9.5f &&
+                        playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
+                    ochita = false
+                }
+            }
+        }
     }
 
     private val speed = 1.0f
