@@ -154,8 +154,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             body.createFixture(squareFixtureDef)
             body.userData = it
             wallBodies.add(body)
-            val b = world.createBody(dynamicDef)
-            b.createFixture(squareFixtureDef)
+            //val b = world.createBody(dynamicDef)
+            //b.createFixture(squareFixtureDef)
+            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.square.forEach {
             it.x *= gridSize
@@ -166,6 +167,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             body.userData = it
             body.createFixture(squareFixtureDef)
             squareBodies.add(body)
+            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.triangle.forEach {
             it.x *= gridSize
@@ -178,6 +180,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             triangleFixtureDef.shape = triangleShape
             body.createFixture(triangleFixtureDef)
             triangleBodies.add(body)
+            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.ladder.forEach {
             it.x *= gridSize
@@ -188,6 +191,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             body.userData = it
             body.createFixture(ladderFixtureDef)
             ladderBodies.add(body)
+            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.start.let {
             it.x *= gridSize
@@ -198,6 +202,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             playerBody.resetMassData()
             playerBody.userData = it
             playerBody.linearDamping = 0.6f
+            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.goal.let {
             it.x *= gridSize
@@ -206,6 +211,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             goalBody = world.createBody(staticDef)
             goalBody.userData = it
             goalBody.createFixture(goalFixtureDef)
+            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
 
         stage = Stage()
@@ -307,7 +313,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         spriteBatch.begin()
         checkPlayer()
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
-        //drawSprites()
+        drawSprites()
         spriteBatch.end()
 
         drawUI()
@@ -332,18 +338,18 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             ochita2 = true
             ochita3 = true
         }
-        if (ochitattawa < 1000 || ochita) {
+        if (ochitattawa < 1000) {
             ochitattawa += (Gdx.graphics.deltaTime * 1000).toInt()
             bitmapFont2.draw(spriteBatch, "落っこちんな～？", Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f * 1.5f)
             if (ochita3) {
-                playerBody.setLinearVelocity((-5.0f - playerBody.position.x) * 5, (0.5f - playerBody.position.y) * 5)
-                if (playerBody.position.x in -5.5..-4.5 &&
+                playerBody.setLinearVelocity((-1.0f - playerBody.position.x) * 5, (0.5f - playerBody.position.y) * 5)
+                if (playerBody.position.x in -1.5..-0.5 &&
                         playerBody.position.y <= 1.0f && playerBody.position.y >= 0.0f) {
                     ochita3 = false
                 }
             } else if (ochita2) {
-                playerBody.setLinearVelocity((-5.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
-                if (playerBody.position.x in -5.5..-4.5 &&
+                playerBody.setLinearVelocity((-1.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
+                if (playerBody.position.x in -1.5..-0.5 &&
                         playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
                     ochita2 = false
                 }
