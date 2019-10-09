@@ -42,7 +42,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val wallSprite: Sprite
     private val squareSprite: Sprite
     private val triangleSprite: Sprite
-    private val triangleSprites = mutableListOf<Sprite>()
+    private val triangleSprite1: Sprite
+    private val triangleSprite2: Sprite
+    private val triangleSprite3: Sprite
+    private val triangleSprites: List<Sprite>
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
@@ -95,6 +98,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         wallSprite = Sprite(Texture(Gdx.files.internal("images/wall.png")))
         squareSprite = Sprite(Texture(Gdx.files.internal("images/square.png")))
         triangleSprite = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
+        triangleSprite1 = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
+        triangleSprite2 = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
+        triangleSprite3 = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
         ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder.png")))
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
@@ -105,6 +111,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         squareSprite.setScale(gridSize2 / squareSprite.width)
         triangleSprite.setOrigin(triangleSprite.width / 2.0f, triangleSprite.height / 2.0f)
         triangleSprite.setScale(gridSize2 / triangleSprite.width)
+        ladderSprite.setOrigin(0f, 0f)
         repeat(4) { triangleSprites.add(triangleSprite) }
         ladderSprite.setOrigin(ladderSprite.width / 2.0f, ladderSprite.height / 2.0f)
         ladderSprite.setScale(gridSize2 / ladderSprite.width)
@@ -146,6 +153,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
         } else {
+            dispose()
             game.screen = StageSelect(game)
         }
 
@@ -290,20 +298,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             }
 
             override fun preSolve(contact: Contact?, oldManifold: Manifold?) {
-                contact?.let {
-                    oldManifold?.let {
-                        if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) {
-                            if (world.gravity.x > 0f) if (playerBody.position.x + 1 < oldManifold.localPoint.x) isLand = true
-                            if (world.gravity.x < 0f) if (playerBody.position.x - 1 > oldManifold.localPoint.x) isLand = true
-                            if (world.gravity.y > 0f) if (playerBody.position.y + 1 < oldManifold.localPoint.y) isLand = true
-                            if (world.gravity.y < 0f) if (playerBody.position.y - 1 > oldManifold.localPoint.y) isLand = true
-                        }
-                    }
-                }
+
             }
 
             override fun postSolve(contact: Contact?, impulse: ContactImpulse?) {
-
+                contact?.let {
+                    if (contact.fixtureA.body == playerBody) jumpCheck(contact.fixtureA.body.position, contact.fixtureB.body.position)
+                    if (contact.fixtureB.body == playerBody) jumpCheck(contact.fixtureB.body.position, contact.fixtureA.body.position)
+                }
             }
         })
     }
@@ -399,6 +401,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
+    private fun jumpCheck(playerPosition: Vector2, objectPosition: Vector2) {
+        if (world.gravity.x > 0f) {
+            if (playerPosition.x <= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+        } else if (world.gravity.x < 0f) {
+            if (playerPosition.x >= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+        } else if (world.gravity.y > 0f) {
+            if (playerPosition.y <= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+        } else if (world.gravity.y < 0f) {
+            if (playerPosition.y >= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+        }
+    }
+
     private fun idCheck(a: Any?, b: Any?): Triple<Boolean, Int, Int> {
         val aid = when (a) {
             is Square -> a.gravityID
@@ -450,12 +464,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                         playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
                     }
                     jump -> {
-                        if (isLand) playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
-                        /**
-                        if ((world.gravity.y == 0.0f && playerBody.linearVelocity.x.absoluteValue <= 0.05f) ||
-                        (world.gravity.x == 0.0f && playerBody.linearVelocity.y.absoluteValue <= 0.05f))
-                        playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
-                         */
+                        if (isLand)
+                            playerBody.applyLinearImpulse(world.gravity.x * -3f, world.gravity.y * -3f, playerBody.worldCenter.x, playerBody.worldCenter.y, true)
                     }
                 }
             }
@@ -513,6 +523,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
+            //dispose()
             game.screen = PlayScreen(game, fileName)
         }
     }
@@ -538,6 +549,20 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     override fun dispose() {
+        wallBodies.forEach {
+            world.destroyBody(it)
+        }
+        squareBodies.forEach {
+            world.destroyBody(it)
+        }
+        triangleBodies.forEach {
+            world.destroyBody(it)
+        }
+        ladderBodies.forEach {
+            world.destroyBody(it)
+        }
+        world.destroyBody(playerBody)
+        world.destroyBody(goalBody)
 
     }
 }
