@@ -111,6 +111,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         squareSprite.setScale(gridSize2 / squareSprite.width)
         squareSprite.setOrigin(squareSprite.width / 2.0f, squareSprite.height / 2.0f)
 
+        changeSprite.setOrigin(0.0f, 0.0f)
+        changeSprite.setScale(gridSize2 / changeSprite.width)
+        changeSprite.setOrigin(changeSprite.width / 2.0f, changeSprite.height / 2.0f)
+
         triangleSprite.setOrigin(0.0f, 0.0f)
         triangleSprite.setScale(gridSize2 / triangleSprite.width)
         triangleSprite.setOrigin(triangleSprite.width / 2.0f, triangleSprite.height / 2.0f)
@@ -526,6 +530,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             val sprite = squareSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.rotation = it.angle / PI.toFloat() * 180.0f
+            sprite.draw(spriteBatch)
+        }
+        changeBodies.forEach {
+            val sprite = changeSprite
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
+            sprite.rotation = it.angle / PI.toFloat() * 180.0f + ((it.userData as GravityChange).gravity - 3) * 90.0f
             sprite.draw(spriteBatch)
         }
         triangleBodies.forEach {
