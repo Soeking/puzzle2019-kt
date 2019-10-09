@@ -375,13 +375,13 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             if (ochita3) {
                 playerBody.setLinearVelocity((-1.0f - playerBody.position.x) * 5, (0.5f - playerBody.position.y) * 5)
                 if (playerBody.position.x in -1.5..-0.5 &&
-                        playerBody.position.y <= 1.0f && playerBody.position.y >= 0.0f) {
+                        playerBody.position.y in 0.0..1.0) {
                     ochita3 = false
                 }
             } else if (ochita2) {
                 playerBody.setLinearVelocity((-1.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
                 if (playerBody.position.x in -1.5..-0.5 &&
-                        playerBody.position.y <= 10.5f && playerBody.position.y >= 9.5f) {
+                        playerBody.position.y in 9.5..10.5) {
                     ochita2 = false
                 }
             } else if (ochita) {
