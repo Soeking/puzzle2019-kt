@@ -39,7 +39,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val wallSprite: Sprite
     private val squareSprite: Sprite
     private val triangleSprite: Sprite
-    private val triangleSprites = mutableListOf<Sprite>()
+    private val triangleSprite1: Sprite
+    private val triangleSprite2: Sprite
+    private val triangleSprite3: Sprite
+    private val triangleSprites: List<Sprite>
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
@@ -92,6 +95,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         wallSprite = Sprite(Texture(Gdx.files.internal("images/wall.png")))
         squareSprite = Sprite(Texture(Gdx.files.internal("images/square.png")))
         triangleSprite = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
+        triangleSprite1 = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
+        triangleSprite2 = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
+        triangleSprite3 = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
         ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder.png")))
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
@@ -102,7 +108,19 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         squareSprite.setScale(gridSize2 / squareSprite.width)
         triangleSprite.setOrigin(0f, 0f)
         triangleSprite.setScale(gridSize2 / triangleSprite.width)
-        repeat(4) { triangleSprites.add(triangleSprite) }
+        triangleSprite1.setOrigin(0f, 0f)
+        triangleSprite1.setScale(gridSize2 / triangleSprite.width)
+        triangleSprite1.setOrigin(halfGrid2 / 2f, gridSize2 / 2f)
+        triangleSprite1.rotate(90f)
+        triangleSprite2.setOrigin(0f, 0f)
+        triangleSprite2.setScale(gridSize2 / triangleSprite.width)
+        triangleSprite2.setOrigin(halfGrid2 / 2f, gridSize2 / 2f)
+        triangleSprite2.rotate(180f)
+        triangleSprite3.setOrigin(0f, 0f)
+        triangleSprite3.setScale(gridSize2 / triangleSprite.width)
+        triangleSprite3.setOrigin(halfGrid2 / 2f, gridSize2 / 2f)
+        triangleSprite3.rotate(270f)
+        triangleSprites = listOf(triangleSprite, triangleSprite1, triangleSprite2, triangleSprite3)
         ladderSprite.setOrigin(0f, 0f)
         ladderSprite.setScale(gridSize2 / ladderSprite.width)
         playerSprite.setOrigin(0f, 0f)
@@ -501,7 +519,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
-            dispose()
+            //dispose()
             game.screen = PlayScreen(game, fileName)
         }
     }
