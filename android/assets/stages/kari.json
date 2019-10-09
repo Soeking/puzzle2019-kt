@@ -21,14 +21,6 @@
       "y": 1
     },
     {
-      "x": 6,
-      "y": 1
-    },
-    {
-      "x": 7,
-      "y": 1
-    },
-    {
       "x": 8,
       "y": 1
     },
@@ -57,6 +49,24 @@
       "gravity": 0
     },
     {
+      "x": 4,
+      "y": 8,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 6,
+      "y": 12,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 8,
+      "y": 16,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
       "x": 6,
       "y": 3,
       "gravityID": 2,
@@ -64,6 +74,66 @@
     }
   ],
   "triangle": [
+    {
+      "x": 9,
+      "y": 16,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 10,
+      "y": 15,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 11,
+      "y": 14,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 12,
+      "y": 13,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 13,
+      "y": 12,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 14,
+      "y": 11,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 15,
+      "y": 10,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 16,
+      "y": 9,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 17,
+      "y": 8,
+      "gravityID": 1,
+      "gravity": 0
+    },
+    {
+      "x": 18,
+      "y": 7,
+      "gravityID": 1,
+      "gravity": 0
+    },
     {
       "x": 5,
       "y": 3,
@@ -82,7 +152,7 @@
   "ladder": [
     {
       "x": 4,
-      "y": 4,
+      "y": 6,
       "gravityID": 1,
       "gravity": 0,
       "rotate": 0
@@ -97,11 +167,13 @@
   ],
   "start": {
     "x": 1,
-    "y": 2
+    "y": 2,
+    "gravity": 0
   },
   "goal": {
     "x": 9,
-    "y": 2
+    "y": 2,
+    "gravity": 0
   },
   "gravityChange": [
   ],
