@@ -1,7 +1,6 @@
 package com.puzzle.dcs
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Color
@@ -25,16 +24,17 @@ import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 
-class PlayScreen(private val game: Core, fileName: String) : Screen {
+class PlayScreen(private val game: Core, private val fileName: String) : Screen {
     private val camera: OrthographicCamera
     private val spriteBatch = SpriteBatch()
     private val file: FileHandle
     private val json = Gson()
-    private val stageData: StageData
+    private lateinit var stageData: StageData
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 10.0f
     private val halfGrid2 = gridSize2 / 2.0f
+    private val fixtureGrid = gridSize * 0.95f / 2f
     private val world: World
     private val renderer: Box2DDebugRenderer
     private val wallSprite: Sprite
@@ -67,13 +67,14 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerFixture: Fixture
     private var stage: Stage
 
-    private val topList = arrayOf(Vector2(halfGrid, halfGrid), Vector2(-halfGrid, halfGrid), Vector2(-halfGrid, -halfGrid), Vector2(halfGrid, -halfGrid))
+    private val topList = arrayOf(Vector2(fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, -fixtureGrid), Vector2(fixtureGrid, -fixtureGrid))
     private val left = 0
     private val up = 1
     private val right = 2
     private val down = 3
     private val jump = 4
     private var start = false
+    private var isLand = false
 
     private val fontGenerator: FreeTypeFontGenerator
     private val fontGenerator2: FreeTypeFontGenerator
@@ -118,9 +119,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         circleShape = CircleShape()
         circleShape.radius = gridSize / 3f
         boxShape = PolygonShape()
-        boxShape.setAsBox(halfGrid, halfGrid)
+        boxShape.setAsBox(fixtureGrid, fixtureGrid)
         ladderShape = PolygonShape()
-        ladderShape.setAsBox(halfGrid, halfGrid)
+        ladderShape.setAsBox(fixtureGrid, fixtureGrid)
         triangleShape = PolygonShape()
         goalShape = PolygonShape()
         goalShape.set(arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid)))
@@ -143,7 +144,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
         } else {
-            TODO("ファイルがないとき")
+            game.screen = StageSelect(game)
         }
 
         stageData.wall.forEach {
@@ -154,9 +155,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             body.createFixture(squareFixtureDef)
             body.userData = it
             wallBodies.add(body)
-            //val b = world.createBody(dynamicDef)
-            //b.createFixture(squareFixtureDef)
-            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.square.forEach {
             it.x *= gridSize
@@ -245,6 +243,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         Gdx.input.inputProcessor = stage
         //Gdx.input.inputProcessor = GestureDetector(Touch())
 
+        /**↓ここからデバッグ用*/
         squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
             it.setLinearVelocity(0f, -0.3f)
         }
@@ -265,6 +264,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         param2.color = Color.GREEN
         param2.incremental = true
         bitmapFont2 = fontGenerator2.generateFont(param2)
+        /**↑ここまで*/
 
         circleShape.dispose()
         boxShape.dispose()
@@ -282,11 +282,22 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             }
 
             override fun endContact(contact: Contact?) {
-
+                contact?.let {
+                    if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) isLand = false
+                }
             }
 
             override fun preSolve(contact: Contact?, oldManifold: Manifold?) {
-
+                contact?.let {
+                    oldManifold?.let {
+                        if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) {
+                            if (world.gravity.x > 0f) if (playerBody.position.x + 1 < oldManifold.localPoint.x) isLand = true
+                            if (world.gravity.x < 0f) if (playerBody.position.x - 1 > oldManifold.localPoint.x) isLand = true
+                            if (world.gravity.y > 0f) if (playerBody.position.y + 1 < oldManifold.localPoint.y) isLand = true
+                            if (world.gravity.y < 0f) if (playerBody.position.y - 1 > oldManifold.localPoint.y) isLand = true
+                        }
+                    }
+                }
             }
 
             override fun postSolve(contact: Contact?, impulse: ContactImpulse?) {
@@ -321,11 +332,13 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
         //camera.translate(playerBody.position.x, playerBody.position.y)
         camera.update()
-        world.step(Gdx.graphics.deltaTime, 1, 0)
+        world.step(1 / 60f, 8, 3)
         renderer.render(world, camera.combined)
     }
 
     private val speed = 0.5f
+
+    /**↓ここからデバッグ用*/
     private var ochitattawa = 1000
     private var ochita = false
     private var ochita2 = false
@@ -363,6 +376,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
     }
 
+    /**↑ここまで*/
+
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
             if (b == goalBody) onGoal(a, b)
@@ -370,34 +385,44 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             if (a == goalBody) onGoal(b, a)
         } else {
             if (a.type == BodyDef.BodyType.DynamicBody && b.type == BodyDef.BodyType.StaticBody) {
-                a.type = BodyDef.BodyType.StaticBody
+                toStatic(idCheck(a.userData, b.userData).second, 99)
             } else if (b.type == BodyDef.BodyType.DynamicBody && a.type == BodyDef.BodyType.StaticBody) {
-                b.type = BodyDef.BodyType.StaticBody
+                toStatic(idCheck(a.userData, b.userData).third, 99)
             } else {
-                if (idCheck(a.userData, b.userData)) {
-                    a.type = BodyDef.BodyType.StaticBody
-                    b.type = BodyDef.BodyType.StaticBody
-                    Gdx.app.log("collide", "${a.position},${b.position}")
+                val x = idCheck(a.userData, b.userData)
+                if (x.first) {
+                    toStatic(x.second, x.third)
                 }
             }
         }
     }
 
-    private fun idCheck(a: Any?, b: Any?): Boolean {
+    private fun idCheck(a: Any?, b: Any?): Triple<Boolean, Int, Int> {
         val aid = when (a) {
             is Square -> a.gravityID
             is Triangle -> a.gravityID
             is Ladder -> a.gravityID
-            else -> 9
+            else -> 99
         }
         val bid = when (b) {
             is Square -> b.gravityID
             is Triangle -> b.gravityID
             is Ladder -> b.gravityID
-            else -> 9
+            else -> 99
         }
-        //Gdx.app.log("id", "${aid},$bid")
-        return aid != bid
+        return Triple(aid != bid, aid, bid)
+    }
+
+    private fun toStatic(aid: Int, bid: Int) {
+        squareBodies.filter { (it.userData as Square).gravityID == aid || (it.userData as Square).gravityID == bid }.forEach {
+            it.type = BodyDef.BodyType.StaticBody
+        }
+        triangleBodies.filter { (it.userData as Triangle).gravityID == aid || (it.userData as Triangle).gravityID == bid }.forEach {
+            it.type = BodyDef.BodyType.StaticBody
+        }
+        ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
+            it.type = BodyDef.BodyType.StaticBody
+        }
     }
 
     private var no = false
@@ -423,9 +448,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                         playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
                     }
                     jump -> {
+                        if (isLand) playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
+                        /**
                         if ((world.gravity.y == 0.0f && playerBody.linearVelocity.x.absoluteValue <= 0.05f) ||
-                                (world.gravity.x == 0.0f && playerBody.linearVelocity.y.absoluteValue <= 0.05f))
-                            playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
+                        (world.gravity.x == 0.0f && playerBody.linearVelocity.y.absoluteValue <= 0.05f))
+                        playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
+                         */
                     }
                 }
             }
@@ -477,8 +505,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
-            Gdx.app.log("goal", "ok")
-            TODO("ゴールしたとき")
+            game.screen = PlayScreen(game, fileName)
         }
     }
 
