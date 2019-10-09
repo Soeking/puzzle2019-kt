@@ -33,7 +33,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val gravityValue = 8f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 10.0f
+    private val gridSize2 = Gdx.graphics.width / 20.0f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
     private val fixtureGrid2 = gridSize2 * 0.95f
@@ -42,10 +42,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val wallSprite: Sprite
     private val squareSprite: Sprite
     private val triangleSprite: Sprite
-    private val triangleSprite1: Sprite
-    private val triangleSprite2: Sprite
-    private val triangleSprite3: Sprite
-    private val triangleSprites = mutableListOf<Sprite>()
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
@@ -102,28 +98,34 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         wallSprite = Sprite(Texture(Gdx.files.internal("images/wall.png")))
         squareSprite = Sprite(Texture(Gdx.files.internal("images/square.png")))
         triangleSprite = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
-        triangleSprite1 = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
-        triangleSprite2 = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
-        triangleSprite3 = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
         ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder.png")))
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
         changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
 
-        wallSprite.setOrigin(wallSprite.width / 2.0f, wallSprite.height / 2.0f)
+        wallSprite.setOrigin(0.0f, 0.0f)
         wallSprite.setScale(gridSize2 / wallSprite.width)
-        squareSprite.setOrigin(squareSprite.width / 2.0f, squareSprite.height / 2.0f)
+        wallSprite.setOrigin(wallSprite.width / 2.0f, wallSprite.height / 2.0f)
+
+        squareSprite.setOrigin(0.0f, 0.0f)
         squareSprite.setScale(gridSize2 / squareSprite.width)
-        triangleSprite.setOrigin(triangleSprite.width / 2.0f, triangleSprite.height / 2.0f)
+        squareSprite.setOrigin(squareSprite.width / 2.0f, squareSprite.height / 2.0f)
+
+        triangleSprite.setOrigin(0.0f, 0.0f)
         triangleSprite.setScale(gridSize2 / triangleSprite.width)
+        triangleSprite.setOrigin(triangleSprite.width / 2.0f, triangleSprite.height / 2.0f)
+
         ladderSprite.setOrigin(0f, 0f)
-        repeat(4) { triangleSprites.add(triangleSprite) }
-        ladderSprite.setOrigin(ladderSprite.width / 2.0f, ladderSprite.height / 2.0f)
         ladderSprite.setScale(gridSize2 / ladderSprite.width)
-        playerSprite.setOrigin(playerSprite.width / 2.0f, playerSprite.height / 2.0f)
+        ladderSprite.setOrigin(ladderSprite.width / 2.0f, ladderSprite.height / 2.0f)
+
+        playerSprite.setOrigin(0.0f, 0.0f)
         playerSprite.setScale(gridSize2 / playerSprite.width / 1.5f)
-        goalSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
+        playerSprite.setOrigin(playerSprite.width / 2.0f, playerSprite.height / 2.0f)
+
+        goalSprite.setOrigin(0.0f, 0.0f)
         goalSprite.setScale(gridSize2 / goalSprite.width)
+        goalSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
 
         playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.DynamicBody
@@ -190,7 +192,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             triangleFixtureDef.shape = triangleShape
             body.createFixture(triangleFixtureDef)
             triangleBodies.add(body)
-            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.ladder.forEach {
             it.x *= gridSize
@@ -200,7 +201,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             body.userData = it
             body.createFixture(ladderFixtureDef)
             ladderBodies.add(body)
-            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.gravityChange.forEach {
             it.x *= gridSize
@@ -220,7 +220,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             playerBody.resetMassData()
             playerBody.userData = it
             playerBody.linearDamping = 0.6f
-            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.goal.let {
             it.x *= gridSize
@@ -231,7 +230,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             goalShape.set(if (it.gravity % 2 == 0) goalX else goalY)
             goalFixtureDef.shape = goalShape
             goalBody.createFixture(goalFixtureDef)
-            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
 
         stage = Stage()
@@ -516,41 +514,41 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     private fun drawSprites() {
-        val playerX = halfGrid / 1.75f//playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
-        val playerY = halfGrid / 1.75f//playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
+        val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
+        val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
         wallBodies.forEach {
             val sprite = wallSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
         squareBodies.forEach {
             val sprite = squareSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
         triangleBodies.forEach {
-            val sprite = triangleSprites[(it.userData as Triangle).rotate]
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            val sprite = triangleSprite
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.rotation = it.angle / PI.toFloat() * 180.0f + (it.userData as Triangle).rotate * 90.0f
             sprite.draw(spriteBatch)
         }
         ladderBodies.forEach {
             val sprite = ladderSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
         playerBody.let {
             val sprite = playerSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - gridSize2 / 8f, (it.position.y - playerY) * gridSize2 / gridSize - gridSize2 / 8f)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
         goalBody.let {
             val sprite = goalSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
