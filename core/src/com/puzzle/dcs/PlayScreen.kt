@@ -341,11 +341,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
         spriteBatch.begin()
         checkPlayer()
-<<<<<<< HEAD
+
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
-=======
+
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toFloat()}, ${playerBody.position.y.toFloat()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
->>>>>>> 0fe2c3ce3fb837a901b23ed2509b6adc6c14c226
+
         drawSprites()
         spriteBatch.end()
 
