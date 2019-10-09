@@ -143,6 +143,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
         } else {
+            dispose()
             game.screen = StageSelect(game)
         }
 
@@ -281,20 +282,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             }
 
             override fun preSolve(contact: Contact?, oldManifold: Manifold?) {
-                contact?.let {
-                    oldManifold?.let {
-                        if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) {
-                            if (world.gravity.x > 0f) if (playerBody.position.x + 1 < oldManifold.localPoint.x) isLand = true
-                            if (world.gravity.x < 0f) if (playerBody.position.x - 1 > oldManifold.localPoint.x) isLand = true
-                            if (world.gravity.y > 0f) if (playerBody.position.y + 1 < oldManifold.localPoint.y) isLand = true
-                            if (world.gravity.y < 0f) if (playerBody.position.y - 1 > oldManifold.localPoint.y) isLand = true
-                        }
-                    }
-                }
+
             }
 
             override fun postSolve(contact: Contact?, impulse: ContactImpulse?) {
-
+                contact?.let {
+                    if (contact.fixtureA.body == playerBody) jumpCheck(contact.fixtureA.body.position, contact.fixtureB.body.position)
+                    if (contact.fixtureB.body == playerBody) jumpCheck(contact.fixtureB.body.position, contact.fixtureA.body.position)
+                }
             }
         })
     }
@@ -374,8 +369,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
             if (b == goalBody) onGoal(a, b)
+            //else jumpCheck(a.position, b.position)
         } else if (b == playerBody) {
             if (a == goalBody) onGoal(b, a)
+            //else jumpCheck(b.position, a.position)
         } else {
             if (a.type == BodyDef.BodyType.DynamicBody && b.type == BodyDef.BodyType.StaticBody) {
                 toStatic(idCheck(a.userData, b.userData).second, 99)
@@ -387,6 +384,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                     toStatic(x.second, x.third)
                 }
             }
+        }
+    }
+
+    private fun jumpCheck(playerPosition: Vector2, objectPosition: Vector2) {
+        if (world.gravity.x > 0f) {
+            if (playerPosition.x <= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+        } else if (world.gravity.x < 0f) {
+            if (playerPosition.x >= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+        } else if (world.gravity.y > 0f) {
+            if (playerPosition.y <= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+        } else if (world.gravity.y < 0f) {
+            if (playerPosition.y >= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
         }
     }
 
@@ -441,7 +450,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                         playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
                     }
                     jump -> {
-                        if (isLand) playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
+                        if (isLand) playerBody.applyLinearImpulse(world.gravity.x * -3f, world.gravity.y * -3f, playerBody.worldCenter.x, playerBody.worldCenter.y, true)
                         /**
                         if ((world.gravity.y == 0.0f && playerBody.linearVelocity.x.absoluteValue <= 0.05f) ||
                         (world.gravity.x == 0.0f && playerBody.linearVelocity.y.absoluteValue <= 0.05f))
@@ -498,6 +507,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
+            dispose()
             game.screen = PlayScreen(game, fileName)
         }
     }
