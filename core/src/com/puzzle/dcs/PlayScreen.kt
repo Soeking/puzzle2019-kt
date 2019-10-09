@@ -338,7 +338,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         spriteBatch.begin()
         checkPlayer()
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
-        //drawSprites()
+        drawSprites()
         spriteBatch.end()
 
         drawUI()
@@ -549,7 +549,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         goalBody.let {
             val sprite = goalSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.rotation = it.angle / PI.toFloat() * 180.0f
+            sprite.rotation = it.angle / PI.toFloat() * 180.0f + ((it.userData as Goal).gravity - 3) * 90.0f
             sprite.draw(spriteBatch)
         }
     }
