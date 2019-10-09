@@ -100,18 +100,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
 
         wallSprite.setOrigin(wallSprite.width / 2.0f, wallSprite.height / 2.0f)
-        wallSprite.setScale(fixtureGrid2 / wallSprite.width)
+        wallSprite.setScale(gridSize2 / wallSprite.width)
         squareSprite.setOrigin(squareSprite.width / 2.0f, squareSprite.height / 2.0f)
-        squareSprite.setScale(fixtureGrid2 / squareSprite.width)
+        squareSprite.setScale(gridSize2 / squareSprite.width)
         triangleSprite.setOrigin(triangleSprite.width / 2.0f, triangleSprite.height / 2.0f)
-        triangleSprite.setScale(fixtureGrid2 / triangleSprite.width)
+        triangleSprite.setScale(gridSize2 / triangleSprite.width)
         repeat(4) { triangleSprites.add(triangleSprite) }
         ladderSprite.setOrigin(ladderSprite.width / 2.0f, ladderSprite.height / 2.0f)
-        ladderSprite.setScale(fixtureGrid2 / ladderSprite.width)
+        ladderSprite.setScale(gridSize2 / ladderSprite.width)
         playerSprite.setOrigin(playerSprite.width / 2.0f, playerSprite.height / 2.0f)
         playerSprite.setScale(gridSize2 / playerSprite.width / 1.5f)
         goalSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
-        goalSprite.setScale(fixtureGrid2 / goalSprite.width)
+        goalSprite.setScale(gridSize2 / goalSprite.width)
 
         playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.DynamicBody
@@ -471,8 +471,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     private fun drawSprites() {
-        val playerX = fixtureGrid / 1.75f//playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
-        val playerY = fixtureGrid / 1.75f//playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
+        val playerX = halfGrid / 1.75f//playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
+        val playerY = halfGrid / 1.75f//playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
         wallBodies.forEach {
             val sprite = wallSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
