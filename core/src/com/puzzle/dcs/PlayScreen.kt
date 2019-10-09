@@ -369,10 +369,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
             if (b == goalBody) onGoal(a, b)
-            //else jumpCheck(a.position, b.position)
         } else if (b == playerBody) {
             if (a == goalBody) onGoal(b, a)
-            //else jumpCheck(b.position, a.position)
         } else {
             if (a.type == BodyDef.BodyType.DynamicBody && b.type == BodyDef.BodyType.StaticBody) {
                 toStatic(idCheck(a.userData, b.userData).second, 99)
@@ -450,12 +448,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                         playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
                     }
                     jump -> {
-                        if (isLand) playerBody.applyLinearImpulse(world.gravity.x * -3f, world.gravity.y * -3f, playerBody.worldCenter.x, playerBody.worldCenter.y, true)
-                        /**
-                        if ((world.gravity.y == 0.0f && playerBody.linearVelocity.x.absoluteValue <= 0.05f) ||
-                        (world.gravity.x == 0.0f && playerBody.linearVelocity.y.absoluteValue <= 0.05f))
-                        playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
-                         */
+                        if (isLand)
+                            playerBody.applyLinearImpulse(world.gravity.x * -3f, world.gravity.y * -3f, playerBody.worldCenter.x, playerBody.worldCenter.y, true)
                     }
                 }
             }
@@ -533,6 +527,20 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     override fun dispose() {
+        wallBodies.forEach {
+            world.destroyBody(it)
+        }
+        squareBodies.forEach {
+            world.destroyBody(it)
+        }
+        triangleBodies.forEach {
+            world.destroyBody(it)
+        }
+        ladderBodies.forEach {
+            world.destroyBody(it)
+        }
+        world.destroyBody(playerBody)
+        world.destroyBody(goalBody)
 
     }
 }
