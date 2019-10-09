@@ -51,6 +51,14 @@
   ],
   "ladder": [
   ],
+  "gravityChange": [
+    {
+      "x": 8,
+      "y": 2,
+      "rotate": 2,
+      "setGravity": 0
+    }
+  ],
   "start": {
     "x": 1,
     "y": 2,
@@ -60,13 +68,5 @@
     "x": 8,
     "y": 4,
     "gravity": 2
-  },
-  "gravityChange": [
-    {
-      "x": 8,
-      "y": 2,
-      "rotate": 2,
-      "setGravity": 0
-    }
-  ]
+  }
 }

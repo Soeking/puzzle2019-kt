@@ -5,9 +5,9 @@ data class StageData(
     val square: MutableList<Square>,
     val triangle: MutableList<Triangle>,
     val ladder: MutableList<Ladder>,
+    val gravityChange: MutableList<GravityChange>,
     val start: Start,
-    val goal: Goal,
-    val gravityChange: MutableList<GravityChange>
+    val goal: Goal
 )
 
 data class Wall(
@@ -38,6 +38,13 @@ data class Ladder(
     val rotate: Int
 )
 
+data class GravityChange(
+        var x: Float,
+        var y: Float,
+        val rotate: Int,
+        val setGravity: Int
+)
+
 data class Start(
     var x: Float,
     var y: Float,
@@ -50,9 +57,3 @@ data class Goal(
     val gravity: Int
 )
 
-data class GravityChange(
-        var x: Float,
-        var y: Float,
-        val rotate: Int,
-        val setGravity: Int
-)

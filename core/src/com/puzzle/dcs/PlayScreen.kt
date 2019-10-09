@@ -49,6 +49,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
+    private val changeSprite: Sprite
     private val button: Array<ImageButton>
     private val playerDef = BodyDef()
     private val dynamicDef = BodyDef()
@@ -59,6 +60,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val ladderBodies = mutableListOf<Body>()
     private val playerBody: Body
     private val goalBody: Body
+    private val changeBodies = mutableListOf<Body>()
     private val circleShape: CircleShape
     private val boxShape: PolygonShape
     private val ladderShape: PolygonShape
@@ -104,6 +106,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder.png")))
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
+        changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
 
         wallSprite.setOrigin(wallSprite.width / 2.0f, wallSprite.height / 2.0f)
         wallSprite.setScale(gridSize2 / wallSprite.width)
@@ -170,7 +173,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             it.x *= gridSize
             it.y *= gridSize
             dynamicDef.position.set(it.x, it.y)
-            dynamicDef.position.set(it.x, it.y)
             val body = world.createBody(dynamicDef)
             body.userData = it
             body.createFixture(squareFixtureDef)
@@ -180,7 +182,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         stageData.triangle.forEach {
             it.x *= gridSize
             it.y *= gridSize
-            dynamicDef.position.set(it.x, it.y)
             dynamicDef.position.set(it.x, it.y)
             val body = world.createBody(dynamicDef)
             body.userData = it
@@ -193,7 +194,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         stageData.ladder.forEach {
             it.x *= gridSize
             it.y *= gridSize
-            dynamicDef.position.set(it.x, it.y)
             dynamicDef.position.set(it.x, it.y)
             val body = world.createBody(dynamicDef)
             body.userData = it
