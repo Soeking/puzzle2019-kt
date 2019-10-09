@@ -41,7 +41,8 @@ data class Ladder(
 data class GravityChange(
         var x: Float,
         var y: Float,
-        val rotate: Int,
+        val gravityID: Int,
+        val gravity: Int,
         val setGravity: Int
 )
 

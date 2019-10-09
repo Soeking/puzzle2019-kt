@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
-import com.badlogic.gdx.input.GestureDetector
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -31,6 +30,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val file: FileHandle
     private val json = Gson()
     private lateinit var stageData: StageData
+    private val gravityValue = 8f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 10.0f
@@ -75,6 +75,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private var stage: Stage
 
     private val topList = arrayOf(Vector2(fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, -fixtureGrid), Vector2(fixtureGrid, -fixtureGrid))
+    private val goalX = arrayOf(Vector2(halfGrid, halfGrid / 2), Vector2(-halfGrid, halfGrid / 2), Vector2(-halfGrid, -halfGrid / 2), Vector2(halfGrid, -halfGrid / 2))
+    private val goalY = arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid))
     private val left = 0
     private val up = 1
     private val right = 2
@@ -92,7 +94,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         Box2D.init()
         camera = OrthographicCamera(50.0f, 50.0f / Gdx.graphics.width.toFloat() * Gdx.graphics.height.toFloat())
         camera.translate(25.0f, 25.0f / Gdx.graphics.width.toFloat() * Gdx.graphics.height)
-        world = World(Vector2(0f, -8f), true)
+        world = World(Vector2(0f, -gravityValue), true)
         renderer = Box2DDebugRenderer()
         createCollision()
 
@@ -151,7 +153,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         triangleFixtureDef.density = 1000000f
         triangleFixtureDef.friction = 1.0f
         triangleFixtureDef.restitution = 0.3f
-        goalFixtureDef.shape = goalShape
 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
@@ -201,6 +202,15 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             ladderBodies.add(body)
             //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
+        stageData.gravityChange.forEach {
+            it.x *= gridSize
+            it.y *= gridSize
+            dynamicDef.position.set(it.x, it.y)
+            val body = world.createBody(dynamicDef)
+            body.userData = it
+            body.createFixture(squareFixtureDef)
+            changeBodies.add(body)
+        }
         stageData.start.let {
             it.x *= gridSize
             it.y *= gridSize
@@ -218,6 +228,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             staticDef.position.set(it.x, it.y)
             goalBody = world.createBody(staticDef)
             goalBody.userData = it
+            goalShape.set(if (it.gravity % 2 == 0) goalX else goalY)
+            goalFixtureDef.shape = goalShape
             goalBody.createFixture(goalFixtureDef)
             //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
@@ -328,7 +340,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         spriteBatch.begin()
         checkPlayer()
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
-        drawSprites()
+        //drawSprites()
         spriteBatch.end()
 
         drawUI()
@@ -385,8 +397,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
             if (b == goalBody) onGoal(a, b)
+            else if (b.userData is GravityChange) changeGravity(b.userData as GravityChange)
         } else if (b == playerBody) {
             if (a == goalBody) onGoal(b, a)
+            else if (a.userData is GravityChange) changeGravity(a.userData as GravityChange)
         } else {
             if (a.type == BodyDef.BodyType.DynamicBody && b.type == BodyDef.BodyType.StaticBody) {
                 toStatic(idCheck(a.userData, b.userData).second, 99)
@@ -410,6 +424,27 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             if (playerPosition.y <= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
         } else if (world.gravity.y < 0f) {
             if (playerPosition.y >= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+        }
+    }
+
+    private fun changeGravity(switch: GravityChange) {
+        when (switch.setGravity) {
+            0 -> {
+                world.gravity = Vector2(gravityValue, 0f)
+                (playerBody.userData as Start).gravity = switch.setGravity
+            }
+            1 -> {
+                world.gravity = Vector2(0f, gravityValue)
+                (playerBody.userData as Start).gravity = switch.setGravity
+            }
+            2 -> {
+                world.gravity = Vector2(-gravityValue, 0f)
+                (playerBody.userData as Start).gravity = switch.setGravity
+            }
+            3 -> {
+                world.gravity = Vector2(0f, -gravityValue)
+                (playerBody.userData as Start).gravity = switch.setGravity
+            }
         }
     }
 

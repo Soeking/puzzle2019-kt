@@ -55,18 +55,19 @@
     {
       "x": 8,
       "y": 2,
-      "rotate": 2,
+      "gravityID": 1,
+      "gravity": 0,
       "setGravity": 0
     }
   ],
   "start": {
     "x": 1,
     "y": 2,
-    "gravity": 1
+    "gravity": 3
   },
   "goal": {
     "x": 8,
     "y": 4,
-    "gravity": 2
+    "gravity": 0
   }
 }
