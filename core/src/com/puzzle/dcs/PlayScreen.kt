@@ -327,7 +327,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
+        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         if (start) {
             world.contactList.forEach {
@@ -557,7 +557,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
             //dispose()
-            game.screen = PlayScreen(game, fileName)
+            game.screen = StageSelect(game)
         }
     }
 
