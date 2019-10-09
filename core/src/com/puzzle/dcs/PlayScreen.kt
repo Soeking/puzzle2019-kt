@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
+import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
@@ -97,18 +98,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
 
-        wallSprite.setOrigin(0f, 0f)
+        wallSprite.setOrigin(wallSprite.width / 2.0f, wallSprite.height / 2.0f)
         wallSprite.setScale(gridSize2 / wallSprite.width)
-        squareSprite.setOrigin(0f, 0f)
+        squareSprite.setOrigin(squareSprite.width / 2.0f, squareSprite.height / 2.0f)
         squareSprite.setScale(gridSize2 / squareSprite.width)
-        triangleSprite.setOrigin(0f, 0f)
+        triangleSprite.setOrigin(triangleSprite.width / 2.0f, triangleSprite.height / 2.0f)
         triangleSprite.setScale(gridSize2 / triangleSprite.width)
         repeat(4) { triangleSprites.add(triangleSprite) }
-        ladderSprite.setOrigin(0f, 0f)
+        ladderSprite.setOrigin(ladderSprite.width / 2.0f, ladderSprite.height / 2.0f)
         ladderSprite.setScale(gridSize2 / ladderSprite.width)
-        playerSprite.setOrigin(0f, 0f)
+        playerSprite.setOrigin(playerSprite.width / 2.0f, playerSprite.height / 2.0f)
         playerSprite.setScale(gridSize2 / playerSprite.width / 1.5f)
-        goalSprite.setOrigin(0f, 0f)
+        goalSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
         goalSprite.setScale(gridSize2 / goalSprite.width)
 
         playerDef.type = BodyDef.BodyType.DynamicBody
@@ -474,31 +475,37 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         wallBodies.forEach {
             val sprite = wallSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
         squareBodies.forEach {
             val sprite = squareSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
         triangleBodies.forEach {
             val sprite = triangleSprites[(it.userData as Triangle).rotate]
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            sprite.rotation = it.angle / PI.toFloat() * 180.0f + (it.userData as Triangle).rotate * 90.0f
             sprite.draw(spriteBatch)
         }
         ladderBodies.forEach {
             val sprite = ladderSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
         playerBody.let {
             val sprite = playerSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - gridSize2 / 3f, (it.position.y - playerY) * gridSize2 / gridSize - gridSize2 / 3f)
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - gridSize2 / 8f, (it.position.y - playerY) * gridSize2 / gridSize - gridSize2 / 9f)
+            sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
         goalBody.let {
             val sprite = goalSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - halfGrid2)
+            sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
     }
