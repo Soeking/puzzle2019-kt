@@ -1,7 +1,6 @@
 package com.puzzle.dcs
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Color
@@ -24,7 +23,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 
-class PlayScreen(game: Core, fileName: String) : Screen {
+class PlayScreen(private val game: Core, private val fileName: String) : Screen {
     private val camera: OrthographicCamera
     private val spriteBatch = SpriteBatch()
     private val file: FileHandle
@@ -277,14 +276,20 @@ class PlayScreen(game: Core, fileName: String) : Screen {
 
             override fun endContact(contact: Contact?) {
                 contact?.let {
-                    if (contact.fixtureA.body == playerBody && contact.fixtureB.body.type == BodyDef.BodyType.StaticBody) isLand = false
-                    if (contact.fixtureB.body == playerBody && contact.fixtureA.body.type == BodyDef.BodyType.StaticBody) isLand = false
+                    if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) isLand = false
                 }
             }
 
             override fun preSolve(contact: Contact?, oldManifold: Manifold?) {
-                oldManifold?.let {
-                    Gdx.app.log("mani", "${oldManifold.localPoint}")
+                contact?.let {
+                    oldManifold?.let {
+                        if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) {
+                            if (world.gravity.x > 0f) if (playerBody.position.x + 1 < oldManifold.localPoint.x) isLand = true
+                            if (world.gravity.x < 0f) if (playerBody.position.x - 1 > oldManifold.localPoint.x) isLand = true
+                            if (world.gravity.y > 0f) if (playerBody.position.y + 1 < oldManifold.localPoint.y) isLand = true
+                            if (world.gravity.y < 0f) if (playerBody.position.y - 1 > oldManifold.localPoint.y) isLand = true
+                        }
+                    }
                 }
             }
 
@@ -325,6 +330,7 @@ class PlayScreen(game: Core, fileName: String) : Screen {
     }
 
     private val speed = 0.5f
+
     /**↓ここからデバッグ用*/
     private var ochitattawa = 1000
     private var ochita = false
@@ -435,9 +441,12 @@ class PlayScreen(game: Core, fileName: String) : Screen {
                         playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
                     }
                     jump -> {
+                        if (isLand) playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
+                        /**
                         if ((world.gravity.y == 0.0f && playerBody.linearVelocity.x.absoluteValue <= 0.05f) ||
-                                (world.gravity.x == 0.0f && playerBody.linearVelocity.y.absoluteValue <= 0.05f))
-                            playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
+                        (world.gravity.x == 0.0f && playerBody.linearVelocity.y.absoluteValue <= 0.05f))
+                        playerBody.applyLinearImpulse(world.gravity.x * -10.0f, world.gravity.y * -10.0f, playerBody.position.x, playerBody.position.y, true)
+                         */
                     }
                 }
             }
@@ -489,8 +498,7 @@ class PlayScreen(game: Core, fileName: String) : Screen {
 
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
-            Gdx.app.log("goal", "ok")
-            TODO("ゴールしたとき")
+            game.screen = PlayScreen(game, fileName)
         }
     }
 
