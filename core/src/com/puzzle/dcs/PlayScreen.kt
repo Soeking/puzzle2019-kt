@@ -45,7 +45,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val triangleSprite1: Sprite
     private val triangleSprite2: Sprite
     private val triangleSprite3: Sprite
-    private val triangleSprites: List<Sprite>
+    private val triangleSprites= mutableListOf<Sprite>()
     private val ladderSprite: Sprite
     private val playerSprite: Sprite
     private val goalSprite: Sprite
