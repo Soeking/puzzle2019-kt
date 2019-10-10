@@ -451,12 +451,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             is Square -> a.gravityID
             is Triangle -> a.gravityID
             is Ladder -> a.gravityID
+            is GravityChange->a.gravityID
             else -> 99
         }
         val bid = when (b) {
             is Square -> b.gravityID
             is Triangle -> b.gravityID
             is Ladder -> b.gravityID
+            is GravityChange->b.gravityID
             else -> 99
         }
         return Triple(aid != bid, aid, bid)
@@ -470,6 +472,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             it.type = BodyDef.BodyType.StaticBody
         }
         ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
+            it.type = BodyDef.BodyType.StaticBody
+        }
+        changeBodies.filter { (it.userData as GravityChange).gravityID == aid||(it.userData as GravityChange).gravityID == bid }.forEach {
             it.type = BodyDef.BodyType.StaticBody
         }
     }
