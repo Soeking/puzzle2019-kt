@@ -33,7 +33,7 @@ class Touch : InputProcessor {
         Gdx.app.log("touchDown", "${screenX}, ${screenY}, ${pointer}, ${button}")
         if (pointer in 0..4) {
             touchCoordinate[pointer] = Vector2(screenX.toFloat(), screenY.toFloat())
-            return true
+            return false
         }
         return false
     }
@@ -44,7 +44,7 @@ class Touch : InputProcessor {
             if(touchCoordinate[pointer] == null) return false
             touchCoordinate[pointer]!!.x = screenX.toFloat()
             touchCoordinate[pointer]!!.y = screenY.toFloat()
-            return true
+            return false
         }
         return false
     }
@@ -53,7 +53,7 @@ class Touch : InputProcessor {
         Gdx.app.log("touchUp", "${screenX}, ${screenY}, ${pointer}, ${button}")
         if (pointer in 0..4) {
             touchCoordinate[pointer] = null
-            return true
+            return false
         }
         return false
     }
