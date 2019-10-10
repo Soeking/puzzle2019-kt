@@ -1,6 +1,7 @@
 package com.puzzle.dcs
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Color
@@ -264,7 +265,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             stage.addActor(button[it])
             Gdx.app.log("button", "${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
         }
-        Gdx.input.inputProcessor = stage
+        val mu = InputMultiplexer()
+        mu.addProcessor(Touch())
+        mu.addProcessor(stage)
+        Gdx.input.inputProcessor = mu
         //Gdx.input.inputProcessor = GestureDetector(Touch())
 
         /**↓ここからデバッグ用*/
