@@ -14,10 +14,10 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
@@ -25,8 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.utils.Align
 import java.nio.file.attribute.GroupPrincipal
 import kotlin.math.cos
@@ -76,10 +75,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private var stage: Stage
 
     private val topList = arrayOf(
-        Vector2(halfGrid, halfGrid),
-        Vector2(-halfGrid, halfGrid),
-        Vector2(-halfGrid, -halfGrid),
-        Vector2(halfGrid, -halfGrid)
+            Vector2(halfGrid, halfGrid),
+            Vector2(-halfGrid, halfGrid),
+            Vector2(-halfGrid, -halfGrid),
+            Vector2(halfGrid, -halfGrid)
     )
     private val left = 0
     private val up = 1
@@ -89,11 +88,13 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
 
-//    アニメーション関連
-    private val clearGroup : Group
-    private val actions : Action
-    private val label : Label
-    private val clearFont : BitmapFont
+    //    アニメーション関連
+    private val clearStage : Stage
+    private val clearGroup: Group
+    private val actions: Action
+    private val label: Label
+    private val container : Container<Label>
+    private val clearFont: BitmapFont
     private var flg = true
 
     init {
@@ -142,12 +143,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         triangleShape = PolygonShape()
         goalShape = PolygonShape()
         goalShape.set(
-            arrayOf(
-                Vector2(halfGrid / 2, halfGrid),
-                Vector2(-halfGrid / 2, halfGrid),
-                Vector2(-halfGrid / 2, -halfGrid),
-                Vector2(halfGrid / 2, -halfGrid)
-            )
+                arrayOf(
+                        Vector2(halfGrid / 2, halfGrid),
+                        Vector2(-halfGrid / 2, halfGrid),
+                        Vector2(-halfGrid / 2, -halfGrid),
+                        Vector2(halfGrid / 2, -halfGrid)
+                )
         )
         playerFixtureDef.shape = circleShape
         playerFixtureDef.density = 1.0f // 仮    //密度
@@ -231,30 +232,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
 
         stage = Stage()
-        button = arrayOf(
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
-            ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png")))))
-        )
-        repeat(4) {
-            button[it].image.setScale(Gdx.graphics.width / 10.0f / button[it].width)
-            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b,0.5f)
-            button[it].setScale(Gdx.graphics.width / 10.0f / button[it].width / 1f)
-            //button[i].setScale(10f)
-            //button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
-            button[it].setOrigin(0.0f, 0.0f)
-            //button[i].setPosition(Gdx.graphics.width / 12.0f * 3.0f + Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 8.0f * 3.0f + Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
-            button[it].setPosition(
-                Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
-                Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
-            )
-            button[it].color.set(Color.BLACK)
-            stage.addActor(button[it])
-            //button[i].rotation(0.0f)
-            Gdx.app.log("button","${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
-        }
-        Gdx.input.inputProcessor = stage
+
         //button[0].setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         //button[0].setScale(gridSize / goalSprite.width)
         squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
@@ -278,22 +256,62 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
 
 //        アニメーション関連
+        clearStage = Stage()
         clearGroup = Group()
         clearGroup.setPosition(0f, 0f)
-        stage.addActor(clearGroup)
-        actions = /*Actions.sequence(*/
-                Actions.moveTo(0f, 1000f, 2.0f)/*,
-                Actions.moveTo(0f, 0f, 2.0f),
-                Actions.moveTo(1000f, 0f, 2.0f),
-                Actions.moveTo(0f, 1000f, 2.0f)
-        )*/
+        clearStage.addActor(clearGroup)
+        actions = Actions.sequence(
+                Actions.moveTo(0f, 100f, 0.5f, Interpolation.pow2In),
+                Actions.moveTo(0f, 0f, 0.5f, Interpolation.pow2In),
+                Actions.moveTo(100f, 0f, 0.5f, Interpolation.pow2In),
+                Actions.moveTo(100f, 100f, 0.5f, Interpolation.pow2In),
+                Actions.scaleTo(300f, 300f, 2.0f)/*,
+                Actions.run(object : Runnable {
+                    override fun run() {
+                        Gdx.app.log("Clear", "Finishes")
+                        flg = true
+                    }
+                })*/
+        )
         clearFont = fontGenerator.generateFont(param)
         label = Label("Clear", Label.LabelStyle(clearFont, Color(1f, 0f, 0f, 0.5f)))
-        label.setText("Clear!")
-        label.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
-        label.setScale(100f)
-        label.setAlignment(Align.center)
-        clearGroup.addActor(label)
+//        label.setText("Clear!")
+//        label.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+//        label.setFontScale(2f)
+//        label.setAlignment(Align.center)
+        container = Container(label)
+        container.isTransform = true
+        container.setSize(0f, 0f)
+        container.setOrigin(container.getWidth() / 2, container.getHeight() / 2)
+        container.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        container.setScale(3f)
+        clearGroup.addActor(container)
+
+
+        button = arrayOf(
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
+                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png")))))
+        )
+        repeat(4) {
+            button[it].image.setScale(Gdx.graphics.width / 10.0f / button[it].width)
+            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b, 0.5f)
+            button[it].setScale(Gdx.graphics.width / 10.0f / button[it].width / 1f)
+            //button[i].setScale(10f)
+            //button[i].setOrigin(button[i].width / 2.0f, button[i].height / 2.0f)
+            button[it].setOrigin(0.0f, 0.0f)
+            //button[i].setPosition(Gdx.graphics.width / 12.0f * 3.0f + Gdx.graphics.width / 6.0f * (-Math.cos(Math.PI * i / 2.0).toFloat()), Gdx.graphics.height / 8.0f * 3.0f + Gdx.graphics.height / 4.0f * (Math.sin(Math.PI * i / 2.0)).toFloat())
+            button[it].setPosition(
+                    Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
+                    Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
+            )
+            button[it].color.set(Color.BLACK)
+            stage.addActor(button[it])
+            //button[i].rotation(0.0f)
+            Gdx.app.log("button", "${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
+        }
+        Gdx.input.inputProcessor = stage
 
         circleShape.dispose()
         boxShape.dispose()
@@ -340,11 +358,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
         //drawSprites()
         spriteBatch.end()
+        if (button[left].isPressed && flg) {
+            gameClear()
+            stage.addActor(clearGroup)
+        }
         drawUI()
         button()
-        if(button[left].isPressed && flg) {
-            gameClear()
-        }
 
         camera.update()
         world.step(Gdx.graphics.deltaTime, 1, 0)
@@ -352,7 +371,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     private val speed = 1.0f
-  
+
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
 
@@ -448,9 +467,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         sprite.setPosition(Gdx.graphics.width / 15.0f, Gdx.graphics.height / 10.0f)
         sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, 0.3f)
         sprite.draw(spriteBatch) */
-
         stage.act(Gdx.graphics.deltaTime)
         stage.draw()
+        clearStage.act(Gdx.graphics.deltaTime)
+        clearStage.draw()
     }
 
     private fun drawSprites() {
@@ -486,9 +506,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
-    private fun gameClear(){
+    private fun gameClear() {
+        container.addAction(actions)
         flg = false
-        label.addAction(actions)
     }
 
     override fun resize(width: Int, height: Int) {
