@@ -32,7 +32,7 @@ class Touch : InputProcessor {
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         Gdx.app.log("touchDown", "${screenX}, ${screenY}, ${pointer}, ${button}")
         if (pointer in 0..4) {
-            touchCoordinate[pointer] = Vector2(screenX.toFloat(), screenY.toFloat())
+            touchCoordinate[pointer] = Vector2(screenX.toFloat(), Gdx.graphics.height - screenY.toFloat())
             return false
         }
         return false
@@ -43,7 +43,7 @@ class Touch : InputProcessor {
         if (pointer in 0..4) {
             if(touchCoordinate[pointer] == null) return false
             touchCoordinate[pointer]!!.x = screenX.toFloat()
-            touchCoordinate[pointer]!!.y = screenY.toFloat()
+            touchCoordinate[pointer]!!.y = Gdx.graphics.height - screenY.toFloat()
             return false
         }
         return false

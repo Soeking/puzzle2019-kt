@@ -4,10 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.files.FileHandle
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -86,6 +83,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val fontGenerator2: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
     private val bitmapFont2: BitmapFont
+
+    private var moveButton: Pixmap
+    private var tex: Texture
 
     init {
         Box2D.init()
@@ -294,6 +294,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         bitmapFont2 = fontGenerator2.generateFont(param2)
         /**↑ここまで*/
 
+        //ボタン君
+        moveButton = Pixmap(Gdx.graphics.width / 6, Gdx.graphics.width / 6, Pixmap.Format.RGBA8888)
+        moveButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
+        moveButton.fill()
+        tex = Texture(moveButton)
+
         circleShape.dispose()
         boxShape.dispose()
         ladderShape.dispose()
@@ -347,6 +353,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         checkPlayer()
         bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
         drawSprites()
+        drawButton()
         spriteBatch.end()
 
         drawUI()
@@ -480,6 +487,51 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
             it.type = BodyDef.BodyType.StaticBody
         }
+    }
+
+    var touched: Int = -1
+    var coordinate: Vector2 = Vector2(0.0f, 0.0f)
+    var dis: Float = 0.0f
+
+    private fun drawButton() {
+        moveButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
+        moveButton.fill()
+        moveButton.setColor(0.5f, 0.5f, 0.5f, 0.5f)
+        moveButton.fillCircle(moveButton.width / 2, moveButton.height / 2, moveButton.width / 2)
+        if (touched == -1)
+            for (i in 0..4) {
+                if (touchCoordinate[i] == null) continue
+                if (calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton.width / 2.0f, moveButton.width / 2.0f) < moveButton.width / 2.0f) {
+                    touched = i
+                    break
+                }
+            }
+        else {
+            if (touchCoordinate[touched] == null) {
+                touched = -1
+            } else {
+                coordinate.x = touchCoordinate[touched]!!.x
+                coordinate.y = touchCoordinate[touched]!!.y
+                dis = calcDistance(coordinate.x, coordinate.y, moveButton.width / 2.0f, moveButton.width / 2.0f)
+                if (dis >= moveButton.width / 4.0f) {
+                    coordinate.x = coordinate.x / dis * moveButton.width / 4.0f
+                    coordinate.y = coordinate.y / dis * moveButton.width / 4.0f
+                }
+            }
+        }
+        if (touched == -1) {
+            moveButton.setColor(1.0f, 0.0f, 0.0f, 0.5f)
+            moveButton.fillCircle(moveButton.width / 2, moveButton.height / 2, moveButton.width / 4)
+        } else {
+            moveButton.setColor(1.0f, 0.8f, 0.8f, 0.5f)
+            moveButton.fillCircle(coordinate.x.toInt(), coordinate.y.toInt(), moveButton.width / 4)
+        }
+        tex.draw(moveButton, 0, 0)
+        spriteBatch.draw(tex, 0.0f, 0.0f)
+    }
+
+    private fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
+        return Math.sqrt(Math.pow(x1 - x2.toDouble(), 2.0) + Math.pow(y1 - y2.toDouble(), 2.0)).toFloat()
     }
 
     private var no = false
