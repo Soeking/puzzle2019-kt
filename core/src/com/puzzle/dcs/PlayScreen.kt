@@ -478,10 +478,22 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             }
         }
         gravity = (gravity + 2) % 4
-        squareBodies.filter { (it.userData as Square).gravityID == id }.forEach { setMove(it, gravity) }
-        triangleBodies.filter { (it.userData as Triangle).gravityID == id }.forEach { setMove(it, gravity) }
-        ladderBodies.filter { (it.userData as Ladder).gravityID == id }.forEach { setMove(it, gravity) }
-        changeBodies.filter { (it.userData as GravityChange).gravityID == id }.forEach { setMove(it, gravity) }
+        squareBodies.filter { (it.userData as Square).gravityID == id }.forEach {
+            setMove(it, gravity)
+            (it.userData as Square).gravity = gravity
+        }
+        triangleBodies.filter { (it.userData as Triangle).gravityID == id }.forEach {
+            setMove(it, gravity)
+            (it.userData as Triangle).gravity = gravity
+        }
+        ladderBodies.filter { (it.userData as Ladder).gravityID == id }.forEach {
+            setMove(it, gravity)
+            (it.userData as Ladder).gravity = gravity
+        }
+        changeBodies.filter { (it.userData as GravityChange).gravityID == id }.forEach {
+            setMove(it, gravity)
+            (it.userData as GravityChange).gravity = gravity
+        }
     }
 
     private fun setMove(body: Body, gravity: Int){
