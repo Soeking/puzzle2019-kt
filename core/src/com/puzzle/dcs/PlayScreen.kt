@@ -31,6 +31,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val json = Gson()
     private lateinit var stageData: StageData
     private val gravityValue = 8f
+    private val blockSpeed = 0.5f
+    private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 20.0f
@@ -350,8 +352,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         renderer.render(world, camera.combined)
     }
 
-    private val speed = 0.5f
-
     /**↓ここからデバッグ用*/
     private var ochitattawa = 1000
     private var ochita = false
@@ -452,19 +452,62 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
-    private fun idCheck(a: Any?, b: Any?): Triple<Boolean, Int, Int> {
+    private fun moveBlocks(block: Any) {
+        val id: Int
+        var gravity: Int
+        when (block) {
+            is Square -> {
+                id = block.gravityID
+                gravity = block.gravity
+            }
+            is Triangle -> {
+                id = block.gravityID
+                gravity = block.gravity
+            }
+            is Ladder -> {
+                id = block.gravityID
+                gravity = block.gravity
+            }
+            is GravityChange -> {
+                id = block.gravityID
+                gravity = block.gravity
+            }
+            else -> {
+                id = 99
+                gravity = 3
+            }
+        }
+        gravity = (gravity + 2) % 4
+        squareBodies.filter { (it.userData as Square).gravityID == id }.forEach { setMove(it, gravity) }
+        triangleBodies.filter { (it.userData as Triangle).gravityID == id }.forEach { setMove(it, gravity) }
+        ladderBodies.filter { (it.userData as Ladder).gravityID == id }.forEach { setMove(it, gravity) }
+        changeBodies.filter { (it.userData as GravityChange).gravityID == id }.forEach { setMove(it, gravity) }
+    }
+
+    private fun setMove(body: Body, gravity: Int){
+        body.type = BodyDef.BodyType.DynamicBody
+        body.linearVelocity = when (gravity){
+            0 -> Vector2(blockSpeed, 0f)
+            1 -> Vector2(0f, blockSpeed)
+            2 -> Vector2(-blockSpeed, 0f)
+            3 -> Vector2(0f, -blockSpeed)
+            else -> Vector2(0f, 0f)
+        }
+    }
+
+    private fun idCheck(a: Any, b: Any): Triple<Boolean, Int, Int> {
         val aid = when (a) {
             is Square -> a.gravityID
             is Triangle -> a.gravityID
             is Ladder -> a.gravityID
-            is GravityChange->a.gravityID
+            is GravityChange -> a.gravityID
             else -> 99
         }
         val bid = when (b) {
             is Square -> b.gravityID
             is Triangle -> b.gravityID
             is Ladder -> b.gravityID
-            is GravityChange->b.gravityID
+            is GravityChange -> b.gravityID
             else -> 99
         }
         return Triple(aid != bid, aid, bid)
@@ -496,16 +539,16 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 temp++
                 when (it) {
                     left -> {
-                        playerBody.applyLinearImpulse(-speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
+                        playerBody.applyLinearImpulse(-playerSpeed, 0.0f, playerBody.position.x, playerBody.position.y, true)
                     }
                     up -> {
-                        playerBody.applyLinearImpulse(0.0f, speed, playerBody.position.x, playerBody.position.y, true)
+                        playerBody.applyLinearImpulse(0.0f, playerSpeed, playerBody.position.x, playerBody.position.y, true)
                     }
                     right -> {
-                        playerBody.applyLinearImpulse(speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
+                        playerBody.applyLinearImpulse(playerSpeed, 0.0f, playerBody.position.x, playerBody.position.y, true)
                     }
                     down -> {
-                        playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
+                        playerBody.applyLinearImpulse(0.0f, -playerSpeed, playerBody.position.x, playerBody.position.y, true)
                     }
                     jump -> {
                         if (isLand)
