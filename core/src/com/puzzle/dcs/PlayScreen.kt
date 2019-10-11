@@ -86,6 +86,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private var moveButton: Pixmap
     private var tex: Texture
+    private var jumpButton: Pixmap
+    private var jtex: Texture
 
     init {
         Box2D.init()
@@ -295,10 +297,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         /**↑ここまで*/
 
         //ボタン君
-        moveButton = Pixmap(Gdx.graphics.width / 6, Gdx.graphics.width / 6, Pixmap.Format.RGBA8888)
+        moveButton = Pixmap(Gdx.graphics.width / 5, Gdx.graphics.width / 5, Pixmap.Format.RGBA8888)
         moveButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
         moveButton.fill()
         tex = Texture(moveButton)
+        jumpButton = Pixmap(Gdx.graphics.width / 5, Gdx.graphics.width / 5, Pixmap.Format.RGBA8888)
+        jumpButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
+        jumpButton.fill()
+        jtex = Texture(jumpButton)
 
         circleShape.dispose()
         boxShape.dispose()
@@ -356,8 +362,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         drawButton()
         spriteBatch.end()
 
-        drawUI()
-        button()
+        //drawUI()
+        //button()
 
         //camera.translate(playerBody.position.x, playerBody.position.y)
         camera.update()
@@ -490,6 +496,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     var touched: Int = -1
+    var jumpTouched: Int = -1
     var coordinate: Vector2 = Vector2(0.0f, 0.0f)
     var dis: Float = 0.0f
 
@@ -503,6 +510,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 if (touchCoordinate[i] == null) continue
                 if (calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton.width / 2.0f, moveButton.width / 2.0f) < moveButton.width / 2.0f) {
                     touched = i
+                    coordinate.x = touchCoordinate[touched]!!.x
+                    coordinate.y = touchCoordinate[touched]!!.y
                     break
                 }
             }
@@ -513,21 +522,47 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 coordinate.x = touchCoordinate[touched]!!.x
                 coordinate.y = touchCoordinate[touched]!!.y
                 dis = calcDistance(coordinate.x, coordinate.y, moveButton.width / 2.0f, moveButton.width / 2.0f)
-                if (dis >= moveButton.width / 4.0f) {
-                    coordinate.x = coordinate.x / dis * moveButton.width / 4.0f
-                    coordinate.y = coordinate.y / dis * moveButton.width / 4.0f
+                if (dis > moveButton.width / 4.0f) {
+                    coordinate.x = moveButton.width / 2.0f + (coordinate.x - moveButton.width / 2.0f) / dis * moveButton.width / 4.0f
+                    coordinate.y = moveButton.width / 2.0f + (coordinate.y - moveButton.width / 2.0f) / dis * moveButton.width / 4.0f
                 }
+                bitmapFont.draw(spriteBatch, "${coordinate.x}, ${coordinate.y}, ${touchCoordinate[touched]!!.x}, ${touchCoordinate[touched]!!.y}, ${dis}", 0.0f, Gdx.graphics.height - 5.0f)
             }
         }
         if (touched == -1) {
             moveButton.setColor(1.0f, 0.0f, 0.0f, 0.5f)
             moveButton.fillCircle(moveButton.width / 2, moveButton.height / 2, moveButton.width / 4)
         } else {
-            moveButton.setColor(1.0f, 0.8f, 0.8f, 0.5f)
-            moveButton.fillCircle(coordinate.x.toInt(), coordinate.y.toInt(), moveButton.width / 4)
+            moveButton.setColor(1.0f, 0.5f, 0.5f, 0.5f)
+            moveButton.fillCircle(coordinate.x.toInt(), moveButton.height - coordinate.y.toInt(), moveButton.width / 4)
+            playerBody.applyLinearImpulse(speed * (coordinate.x - moveButton.width / 2.0f) / (moveButton.width / 4.0f), speed * (coordinate.y - moveButton.width / 2.0f) / (moveButton.width / 4.0f), playerBody.position.x, playerBody.position.y, true)
         }
         tex.draw(moveButton, 0, 0)
         spriteBatch.draw(tex, 0.0f, 0.0f)
+
+        jumpButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
+        jumpButton.fill()
+        jumpButton.setColor(0.0f, 1.0f, 0.0f, 0.5f)
+        if (jumpTouched == -1)
+            for (i in 0..4) {
+                if (touchCoordinate[i] == null) continue
+                if (calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton.width / 2.0f, jumpButton.width / 2.0f) < jumpButton.width / 4.0f) {
+                    jumpTouched = i
+                    break
+                }
+            }
+        else {
+            if (touchCoordinate[jumpTouched] == null) {
+                jumpTouched = -1
+            } else {
+                if (isLand)
+                    playerBody.applyLinearImpulse(world.gravity.x * -3f, world.gravity.y * -3f, playerBody.worldCenter.x, playerBody.worldCenter.y, true)
+                jumpButton.setColor(0.5f, 1.0f, 0.5f, 0.5f)
+            }
+        }
+        jumpButton.fillCircle(jumpButton.width / 2, jumpButton.height / 2, jumpButton.width / 4)
+        jtex.draw(jumpButton, 0, 0)
+        spriteBatch.draw(jtex, Gdx.graphics.width - jumpButton.width.toFloat(), 0.0f)
     }
 
     private fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
@@ -545,20 +580,20 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 temp++
                 when (it) {
                     left -> {
-                        playerBody.applyLinearImpulse(-speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyLinearImpulse(-speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
                     }
                     up -> {
-                        playerBody.applyLinearImpulse(0.0f, speed, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyLinearImpulse(0.0f, speed, playerBody.position.x, playerBody.position.y, true)
                     }
                     right -> {
-                        playerBody.applyLinearImpulse(speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyLinearImpulse(speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
                     }
                     down -> {
-                        playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
+                        //playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
                     }
                     jump -> {
-                        if (isLand)
-                            playerBody.applyLinearImpulse(world.gravity.x * -3f, world.gravity.y * -3f, playerBody.worldCenter.x, playerBody.worldCenter.y, true)
+                        //if (isLand)
+                        //    playerBody.applyLinearImpulse(world.gravity.x * -3f, world.gravity.y * -3f, playerBody.worldCenter.x, playerBody.worldCenter.y, true)
                     }
                 }
             }
