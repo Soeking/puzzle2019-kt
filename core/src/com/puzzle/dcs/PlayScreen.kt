@@ -36,7 +36,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val gridSize2 = Gdx.graphics.width / 20.0f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
-    private val fixtureGrid2 = gridSize2 * 0.95f
     private val world: World
     private val renderer: Box2DDebugRenderer
     private val wallSprite: Sprite
@@ -78,7 +77,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val right = 2
     private val down = 3
     private val jump = 4
-    private var start = false
     private var isLand = false
 
     private val fontGenerator: FreeTypeFontGenerator
@@ -296,14 +294,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         world.setContactListener(object : ContactListener {
             override fun beginContact(contact: Contact?) {
                 contact?.let {
-                    if (contact.fixtureA.body == playerBody && contact.fixtureB.body.type == BodyDef.BodyType.StaticBody) start = true
-                    if (contact.fixtureB.body == playerBody && contact.fixtureA.body.type == BodyDef.BodyType.StaticBody) start = true
+                    if (contact.fixtureA.body == playerBody && contact.fixtureB.body.userData is Ladder) ladderAction()
+                    if (contact.fixtureB.body == playerBody && contact.fixtureA.body.userData is Ladder) ladderAction()
                 }
             }
 
             override fun endContact(contact: Contact?) {
                 contact?.let {
-                    if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) isLand = false
+                    if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody){
+                        isLand = false
+                        playerBody.gravityScale = 1f
+                        playerBody.linearDamping = 0.6f
+                    }
                 }
             }
 
@@ -329,10 +331,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     override fun render(delta: Float) {
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        if (start) {
-            world.contactList.forEach {
-                collisionAction(it.fixtureA.body, it.fixtureB.body)
-            }
+        world.contactList.forEach {
+            collisionAction(it.fixtureA.body, it.fixtureB.body)
         }
 
         spriteBatch.begin()
@@ -423,6 +423,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         } else if (world.gravity.y < 0f) {
             if (playerPosition.y >= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
         }
+    }
+
+    private fun ladderAction(){
+        playerBody.gravityScale = 0f
+        playerBody.linearDamping = 2f
+        isLand = true
     }
 
     private fun changeGravity(switch: GravityChange) {
