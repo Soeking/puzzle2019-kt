@@ -180,7 +180,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             body.userData = it
             body.createFixture(squareFixtureDef)
             squareBodies.add(body)
-            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.triangle.forEach {
             it.x *= gridSize
@@ -258,10 +257,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 button[it].color.set(Color.BLACK)
             }
             stage.addActor(button[it])
-            Gdx.app.log("button", "${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
         }
         Gdx.input.inputProcessor = stage
-        //Gdx.input.inputProcessor = GestureDetector(Touch())
 
         /**↓ここからデバッグ用*/
         squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
@@ -622,9 +619,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
-            //dispose()
             game.screen = StageSelect(game)
         }
+    }
+
+    private fun onGameover() {
+        game.screen = StageSelect(game)
     }
 
     override fun resize(width: Int, height: Int) {
@@ -662,6 +662,5 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
         world.destroyBody(playerBody)
         world.destroyBody(goalBody)
-
     }
 }
