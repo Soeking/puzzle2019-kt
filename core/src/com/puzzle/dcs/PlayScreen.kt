@@ -88,6 +88,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private var tex: Texture
     private var jumpButton: Pixmap
     private var jtex: Texture
+    private var laserButton: Pixmap
+    private var ltex: Texture
 
     init {
         Box2D.init()
@@ -305,6 +307,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         jumpButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
         jumpButton.fill()
         jtex = Texture(jumpButton)
+        laserButton = Pixmap(Gdx.graphics.width, Gdx.graphics.height, Pixmap.Format.RGBA8888)
+        laserButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
+        laserButton.fill()
+        ltex = Texture(laserButton)
 
         circleShape.dispose()
         boxShape.dispose()
@@ -499,23 +505,34 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     var jumpTouched: Int = -1
     var coordinate: Vector2 = Vector2(0.0f, 0.0f)
     var dis: Float = 0.0f
+    var laserTouched: Int = -1
+    var firstLaser: Vector2 = Vector2(0.0f, 0.0f)
 
     private fun drawButton() {
         moveButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
         moveButton.fill()
         moveButton.setColor(0.5f, 0.5f, 0.5f, 0.5f)
         moveButton.fillCircle(moveButton.width / 2, moveButton.height / 2, moveButton.width / 2)
-        if (touched == -1 || jumpTouched == -1)
-            for (i in 0..4) {
-                if (touchCoordinate[i] == null) continue
-                if (touched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton.width / 2.0f, moveButton.width / 2.0f) < moveButton.width / 2.0f) {
-                    touched = i
-                    coordinate.x = touchCoordinate[touched]!!.x
-                    coordinate.y = touchCoordinate[touched]!!.y
-                } else if (jumpTouched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton.width / 2.0f, jumpButton.width / 2.0f) < jumpButton.width / 4.0f) {
-                    jumpTouched = i
-                }
+
+        jumpButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
+        jumpButton.fill()
+        jumpButton.setColor(0.0f, 1.0f, 0.0f, 0.5f)
+
+        for (i in 0..4) {
+            if (touchCoordinate[i] == null) continue
+            if (touched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton.width / 2.0f, moveButton.width / 2.0f) < moveButton.width / 2.0f) {
+                touched = i
+                coordinate.x = touchCoordinate[touched]!!.x
+                coordinate.y = touchCoordinate[touched]!!.y
+            } else if (jumpTouched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton.width / 2.0f, jumpButton.width / 2.0f) < jumpButton.width / 4.0f) {
+                jumpTouched = i
+            } else if (touched != i && jumpTouched != i && laserTouched == -1) {
+                laserTouched = i
+                firstLaser.x = touchCoordinate[i]!!.x
+                firstLaser.y = touchCoordinate[i]!!.y
             }
+        }
+
         if (touched != -1) {
             if (touchCoordinate[touched] == null) {
                 touched = -1
@@ -541,9 +558,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         tex.draw(moveButton, 0, 0)
         spriteBatch.draw(tex, 0.0f, 0.0f)
 
-        jumpButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
-        jumpButton.fill()
-        jumpButton.setColor(0.0f, 1.0f, 0.0f, 0.5f)
         if (jumpTouched != -1) {
             if (touchCoordinate[jumpTouched] == null) {
                 jumpTouched = -1
@@ -556,6 +570,22 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         jumpButton.fillCircle(jumpButton.width / 2, jumpButton.height / 2, jumpButton.width / 4)
         jtex.draw(jumpButton, 0, 0)
         spriteBatch.draw(jtex, Gdx.graphics.width - jumpButton.width.toFloat(), 0.0f)
+
+        if (laserTouched != -1) {
+            if (touchCoordinate[laserTouched] == null) {
+                laserTouched = -1
+            } else {
+                laserButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
+                laserButton.fill()
+                laserButton.setColor(1.0f, 0.0f, 0.0f, 0.5f)
+                laserButton.drawLine(Gdx.graphics.width / 2, Gdx.graphics.height / 2,
+                        ((touchCoordinate[laserTouched]!!.x - firstLaser.x) + Gdx.graphics.width / 2).toInt(),
+                        (-(touchCoordinate[laserTouched]!!.y - firstLaser.y) + Gdx.graphics.height / 2).toInt())
+                ltex.draw(laserButton, 0, 0)
+                spriteBatch.draw(ltex, 0.0f, 0.0f)
+                bitmapFont.draw(spriteBatch, "(${((touchCoordinate[laserTouched]!!.x - firstLaser.x) + Gdx.graphics.width / 2).toInt()}, ${(-(touchCoordinate[laserTouched]!!.y - firstLaser.y) + Gdx.graphics.height / 2).toInt()}, ${firstLaser.x.toInt()}, ${firstLaser.y.toInt()})", 0.0f, Gdx.graphics.height - 10.0f)
+            }
+        }
     }
 
     private fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
