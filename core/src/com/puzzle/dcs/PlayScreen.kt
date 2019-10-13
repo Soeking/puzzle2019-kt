@@ -505,17 +505,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         moveButton.fill()
         moveButton.setColor(0.5f, 0.5f, 0.5f, 0.5f)
         moveButton.fillCircle(moveButton.width / 2, moveButton.height / 2, moveButton.width / 2)
-        if (touched == -1)
+        if (touched == -1 || jumpTouched == -1)
             for (i in 0..4) {
                 if (touchCoordinate[i] == null) continue
-                if (calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton.width / 2.0f, moveButton.width / 2.0f) < moveButton.width / 2.0f) {
+                if (touched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton.width / 2.0f, moveButton.width / 2.0f) < moveButton.width / 2.0f) {
                     touched = i
                     coordinate.x = touchCoordinate[touched]!!.x
                     coordinate.y = touchCoordinate[touched]!!.y
-                    break
+                } else if (jumpTouched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton.width / 2.0f, jumpButton.width / 2.0f) < jumpButton.width / 4.0f) {
+                    jumpTouched = i
                 }
             }
-        else {
+        if (touched != -1) {
             if (touchCoordinate[touched] == null) {
                 touched = -1
             } else {
@@ -543,15 +544,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         jumpButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
         jumpButton.fill()
         jumpButton.setColor(0.0f, 1.0f, 0.0f, 0.5f)
-        if (jumpTouched == -1)
-            for (i in 0..4) {
-                if (touchCoordinate[i] == null) continue
-                if (calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton.width / 2.0f, jumpButton.width / 2.0f) < jumpButton.width / 4.0f) {
-                    jumpTouched = i
-                    break
-                }
-            }
-        else {
+        if (jumpTouched != -1) {
             if (touchCoordinate[jumpTouched] == null) {
                 jumpTouched = -1
             } else {
