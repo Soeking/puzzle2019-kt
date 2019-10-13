@@ -15,7 +15,7 @@ class StageSelect(private val game: Core) : Screen {
     private val spriteBatch = SpriteBatch()
     private val kari: ImageButton
     private val neww: ImageButton
-    private val stages = mutableListOf<ImageButton>()
+    private val stageMap = mutableMapOf<ImageButton, String>()
 
     init {
         stage = Stage()
@@ -23,24 +23,17 @@ class StageSelect(private val game: Core) : Screen {
         neww = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/new.png")))))
         kari.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * 3)
         neww.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * 1)
-        stages.add(kari)
-        stages.add(neww)
-        stages.forEach {
-            stage.addActor(it)
+        stageMap.put(kari, "kari.json")
+        stageMap.put(neww, "new.json")
+        stageMap.forEach {
+            stage.addActor(it.key)
         }
         Gdx.input.inputProcessor = stage
     }
 
     override fun render(delta: Float) {
-        repeat(stages.size) {
-            if (stages[it].isPressed) {
-                Gdx.app.log("push", "$it")
-                game.screen = when (it) {
-                    0 -> PlayScreen(game, "kari.json")
-                    1 -> PlayScreen(game, "new.json")
-                    else -> Title(game)
-                }
-            }
+        stageMap.forEach {
+            if (it.key.isPressed) game.screen = PlayScreen(game, it.value)
         }
 
         spriteBatch.begin()
