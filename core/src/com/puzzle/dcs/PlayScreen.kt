@@ -616,7 +616,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         } else {
             moveButton.setColor(1.0f, 0.5f, 0.5f, 0.5f)
             moveButton.fillCircle(coordinate.x.toInt(), moveButton.height - coordinate.y.toInt(), moveButton.width / 4)
-            playerBody.applyLinearImpulse(speed * (coordinate.x - moveButton.width / 2.0f) / (moveButton.width / 4.0f), speed * (coordinate.y - moveButton.width / 2.0f) / (moveButton.width / 4.0f), playerBody.position.x, playerBody.position.y, true)
+            playerBody.applyLinearImpulse(playerSpeed * (coordinate.x - moveButton.width / 2.0f) / (moveButton.width / 4.0f), playerSpeed * (coordinate.y - moveButton.width / 2.0f) / (moveButton.width / 4.0f), playerBody.position.x, playerBody.position.y, true)
         }
         tex.draw(moveButton, 0, 0)
         spriteBatch.draw(tex, 0.0f, 0.0f)
