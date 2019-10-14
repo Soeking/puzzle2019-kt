@@ -261,17 +261,23 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         clearGroup.setPosition(0f, 0f)
         clearStage.addActor(clearGroup)
         actions = Actions.sequence(
-                Actions.moveTo(0f, 100f, 0.5f, Interpolation.pow2In),
-                Actions.moveTo(0f, 0f, 0.5f, Interpolation.pow2In),
-                Actions.moveTo(100f, 0f, 0.5f, Interpolation.pow2In),
-                Actions.moveTo(100f, 100f, 0.5f, Interpolation.pow2In),
-                Actions.scaleTo(300f, 300f, 2.0f)/*,
+                Actions.moveTo(Gdx.graphics.width / 2f + 800f, Gdx.graphics.height / 2f, 1.0f, Interpolation.exp10),
+                Actions.moveTo(Gdx.graphics.width / 2f - 800f, Gdx.graphics.height / 2f, 1.0f, Interpolation.exp5),
+                Actions.moveTo(Gdx.graphics.width / 2f + 800f, Gdx.graphics.height / 2f,  1.0f, Interpolation.exp5),
+                Actions.moveTo(Gdx.graphics.width / 2f - 800f, Gdx.graphics.height / 2f, 1.0f, Interpolation.exp10),
+                Actions.moveTo(Gdx.graphics.width / 2f + 800f, Gdx.graphics.height / 2f,  1.0f, Interpolation.exp10),
+                Actions.moveTo(Gdx.graphics.width / 2f - 800f, Gdx.graphics.height / 2f, 1.0f, Interpolation.exp10),
+                Actions.moveTo(Gdx.graphics.width / 2f + 800f, Gdx.graphics.height / 2f,  1.0f, Interpolation.pow5),
+                Actions.moveTo(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f, 1.0f, Interpolation.exp10),
+                Actions.fadeOut(1.0f),
+                Actions.fadeIn(1.0f),
+                Actions.scaleBy(10f, 10f, 0.7f, Interpolation.swing),
                 Actions.run(object : Runnable {
                     override fun run() {
                         Gdx.app.log("Clear", "Finishes")
                         flg = true
                     }
-                })*/
+                })
         )
         clearFont = fontGenerator.generateFont(param)
         label = Label("Clear", Label.LabelStyle(clearFont, Color(1f, 0f, 0f, 0.5f)))
@@ -282,7 +288,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         container = Container(label)
         container.isTransform = true
         container.setSize(0f, 0f)
-        container.setOrigin(container.getWidth() / 2, container.getHeight() / 2)
+        container.setOrigin(0f, 0f)
         container.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         container.setScale(3f)
         clearGroup.addActor(container)
