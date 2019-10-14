@@ -85,20 +85,25 @@
       "gravityID": 1,
       "gravity": 0,
       "rotate": 0
+    },
+    {
+      "x": 4,
+      "y": 4,
+      "gravityID": 1,
+      "gravity": 0,
+      "rotate": 0
     }
+  ],
+  "gravityChange": [
   ],
   "start": {
     "x": 1,
     "y": 2,
-    "gravity": 0
+    "gravity": 3
   },
   "goal": {
     "x": 9,
     "y": 2,
-    "gravity": 0
-  },
-  "gravityChange": [
-  ],
-  "switch": [
-  ]
+    "gravity": 3
+  }
 }

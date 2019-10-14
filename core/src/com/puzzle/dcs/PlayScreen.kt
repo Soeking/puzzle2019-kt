@@ -29,12 +29,13 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val json = Gson()
     private lateinit var stageData: StageData
     private val gravityValue = 8f
+    private val blockSpeed = 0.5f
+    private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 20.0f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
-    private val fixtureGrid2 = gridSize2 * 0.95f
     private val world: World
     private val renderer: Box2DDebugRenderer
     private val wallSprite: Sprite
@@ -76,7 +77,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val right = 2
     private val down = 3
     private val jump = 4
-    private var start = false
     private var isLand = false
 
     private val fontGenerator: FreeTypeFontGenerator
@@ -189,7 +189,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             body.userData = it
             body.createFixture(squareFixtureDef)
             squareBodies.add(body)
-            //Gdx.app.log("createBody", "${it.x}, ${it.y}, ${it}")
         }
         stageData.triangle.forEach {
             it.x *= gridSize
@@ -267,13 +266,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 button[it].color.set(Color.BLACK)
             }
             stage.addActor(button[it])
-            Gdx.app.log("button", "${button[it].x},${button[it].y},${button[it].width},${button[it].height}")
         }
         val mu = InputMultiplexer()
         mu.addProcessor(Touch())
         mu.addProcessor(stage)
         Gdx.input.inputProcessor = mu
-        //Gdx.input.inputProcessor = GestureDetector(Touch())
 
         /**↓ここからデバッグ用*/
         squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
@@ -322,14 +319,18 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         world.setContactListener(object : ContactListener {
             override fun beginContact(contact: Contact?) {
                 contact?.let {
-                    if (contact.fixtureA.body == playerBody && contact.fixtureB.body.type == BodyDef.BodyType.StaticBody) start = true
-                    if (contact.fixtureB.body == playerBody && contact.fixtureA.body.type == BodyDef.BodyType.StaticBody) start = true
+                    if (contact.fixtureA.body == playerBody && contact.fixtureB.body.userData is Ladder) ladderAction()
+                    if (contact.fixtureB.body == playerBody && contact.fixtureA.body.userData is Ladder) ladderAction()
                 }
             }
 
             override fun endContact(contact: Contact?) {
                 contact?.let {
-                    if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) isLand = false
+                    if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody){
+                        isLand = false
+                        playerBody.gravityScale = 1f
+                        playerBody.linearDamping = 0.6f
+                    }
                 }
             }
 
@@ -353,12 +354,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0.1f, 0.4f, 0.8f, 0f)
+        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        if (start) {
-            world.contactList.forEach {
-                collisionAction(it.fixtureA.body, it.fixtureB.body)
-            }
+        world.contactList.forEach {
+            collisionAction(it.fixtureA.body, it.fixtureB.body)
         }
 
         spriteBatch.begin()
@@ -376,8 +375,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         world.step(1 / 60f, 8, 3)
         renderer.render(world, camera.combined)
     }
-
-    private val speed = 0.5f
 
     /**↓ここからデバッグ用*/
     private var ochitattawa = 1000
@@ -452,6 +449,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
+    private fun ladderAction(){
+        playerBody.gravityScale = 0f
+        playerBody.linearDamping = 2f
+        isLand = true
+    }
+
     private fun changeGravity(switch: GravityChange) {
         when (switch.setGravity) {
             0 -> {
@@ -473,17 +476,74 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
-    private fun idCheck(a: Any?, b: Any?): Triple<Boolean, Int, Int> {
+    private fun moveBlocks(block: Any) {
+        val id: Int
+        var gravity: Int
+        when (block) {
+            is Square -> {
+                id = block.gravityID
+                gravity = block.gravity
+            }
+            is Triangle -> {
+                id = block.gravityID
+                gravity = block.gravity
+            }
+            is Ladder -> {
+                id = block.gravityID
+                gravity = block.gravity
+            }
+            is GravityChange -> {
+                id = block.gravityID
+                gravity = block.gravity
+            }
+            else -> {
+                id = 99
+                gravity = 3
+            }
+        }
+        gravity = (gravity + 2) % 4
+        squareBodies.filter { (it.userData as Square).gravityID == id }.forEach {
+            setMove(it, gravity)
+            (it.userData as Square).gravity = gravity
+        }
+        triangleBodies.filter { (it.userData as Triangle).gravityID == id }.forEach {
+            setMove(it, gravity)
+            (it.userData as Triangle).gravity = gravity
+        }
+        ladderBodies.filter { (it.userData as Ladder).gravityID == id }.forEach {
+            setMove(it, gravity)
+            (it.userData as Ladder).gravity = gravity
+        }
+        changeBodies.filter { (it.userData as GravityChange).gravityID == id }.forEach {
+            setMove(it, gravity)
+            (it.userData as GravityChange).gravity = gravity
+        }
+    }
+
+    private fun setMove(body: Body, gravity: Int){
+        body.type = BodyDef.BodyType.DynamicBody
+        body.linearVelocity = when (gravity){
+            0 -> Vector2(blockSpeed, 0f)
+            1 -> Vector2(0f, blockSpeed)
+            2 -> Vector2(-blockSpeed, 0f)
+            3 -> Vector2(0f, -blockSpeed)
+            else -> Vector2(0f, 0f)
+        }
+    }
+
+    private fun idCheck(a: Any, b: Any): Triple<Boolean, Int, Int> {
         val aid = when (a) {
             is Square -> a.gravityID
             is Triangle -> a.gravityID
             is Ladder -> a.gravityID
+            is GravityChange -> a.gravityID
             else -> 99
         }
         val bid = when (b) {
             is Square -> b.gravityID
             is Triangle -> b.gravityID
             is Ladder -> b.gravityID
+            is GravityChange -> b.gravityID
             else -> 99
         }
         return Triple(aid != bid, aid, bid)
@@ -497,6 +557,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             it.type = BodyDef.BodyType.StaticBody
         }
         ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
+            it.type = BodyDef.BodyType.StaticBody
+        }
+        changeBodies.filter { (it.userData as GravityChange).gravityID == aid||(it.userData as GravityChange).gravityID == bid }.forEach {
             it.type = BodyDef.BodyType.StaticBody
         }
     }
@@ -592,45 +655,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         return Math.sqrt(Math.pow(x1 - x2.toDouble(), 2.0) + Math.pow(y1 - y2.toDouble(), 2.0)).toFloat()
     }
 
-    private var no = false
-
-    private fun button() {
-        var temp = 0
-
-        repeat(5) {
-            if (button[it].isPressed) {
-                no = true
-                temp++
-                when (it) {
-                    left -> {
-                        //playerBody.applyLinearImpulse(-speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
-                    }
-                    up -> {
-                        //playerBody.applyLinearImpulse(0.0f, speed, playerBody.position.x, playerBody.position.y, true)
-                    }
-                    right -> {
-                        //playerBody.applyLinearImpulse(speed, 0.0f, playerBody.position.x, playerBody.position.y, true)
-                    }
-                    down -> {
-                        //playerBody.applyLinearImpulse(0.0f, -speed, playerBody.position.x, playerBody.position.y, true)
-                    }
-                    jump -> {
-                        //if (isLand)
-                        //    playerBody.applyLinearImpulse(world.gravity.x * -3f, world.gravity.y * -3f, playerBody.worldCenter.x, playerBody.worldCenter.y, true)
-                    }
-                }
-            }
-        }
-        if (temp == 0 && no) {
-            no = false
-        }
-    }
-
-    private fun drawUI() {
-        stage.act(Gdx.graphics.deltaTime)
-        stage.draw()
-    }
-
     private fun drawSprites() {
         val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
         val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
@@ -680,9 +704,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
-            //dispose()
-            game.screen = PlayScreen(game, fileName)
+            game.screen = StageSelect(game)
         }
+    }
+
+    private fun onGameover() {
+        game.screen = StageSelect(game)
     }
 
     override fun resize(width: Int, height: Int) {
@@ -720,6 +747,5 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
         world.destroyBody(playerBody)
         world.destroyBody(goalBody)
-
     }
 }
