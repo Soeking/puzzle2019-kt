@@ -1,53 +1,60 @@
 package com.puzzle.dcs
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.input.GestureDetector.GestureListener
+import javax.lang.model.type.NullType
 
+public var touchCoordinate: Array<Vector2?> = arrayOfNulls(5)
 
-class Touch : GestureListener {
+class Touch : InputProcessor {
 
-    override fun touchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean {
-        Gdx.app.log("Touch", "${x}, ${y}, ${pointer}, ${button}")
+    override fun keyDown(keycode: Int): Boolean {
         return false
     }
 
-    override fun tap(x: Float, y: Float, count: Int, button: Int): Boolean {
-        Gdx.app.log("tap", "${x}, ${y}, ${count}, ${button}")
+    override fun keyTyped(character: Char): Boolean {
         return false
     }
 
-    override fun longPress(x: Float, y: Float): Boolean {
-        Gdx.app.log("longPress", "${x}, ${y}")
+    override fun keyUp(keycode: Int): Boolean {
         return false
     }
 
-    override fun fling(velocityX: Float, velocityY: Float, button: Int): Boolean {
-        Gdx.app.log("fling", "${velocityX}, ${velocityY}, ${button}")
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
         return false
     }
 
-    override fun pan(x: Float, y: Float, deltaX: Float, deltaY: Float): Boolean {
-        Gdx.app.log("pan", "${x}, ${y}, ${deltaX}, ${deltaY}")
+    override fun scrolled(amount: Int): Boolean {
         return false
     }
 
-    override fun panStop(x: Float, y: Float, pointer: Int, button: Int): Boolean {
-        Gdx.app.log("panStop", "${x}, ${y}, ${pointer}, ${button}")
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        //Gdx.app.log("touchDown", "${screenX}, ${screenY}, ${pointer}, ${button}")
+        if (pointer in 0..4) {
+            touchCoordinate[pointer] = Vector2(screenX.toFloat(), Gdx.graphics.height - screenY.toFloat())
+            return false
+        }
         return false
     }
 
-    override fun zoom(originalDistance: Float, currentDistance: Float): Boolean {
-        Gdx.app.log("zoom", "${originalDistance}, ${currentDistance}")
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        //Gdx.app.log("touchDragged", "${screenX}, ${screenY}, ${pointer}")
+        if (pointer in 0..4) {
+            if(touchCoordinate[pointer] == null) return false
+            touchCoordinate[pointer]!!.x = screenX.toFloat()
+            touchCoordinate[pointer]!!.y = Gdx.graphics.height - screenY.toFloat()
+            return false
+        }
         return false
     }
 
-    override fun pinch(initialFirstPointer: Vector2, initialSecondPointer: Vector2, firstPointer: Vector2, secondPointer: Vector2): Boolean {
-        Gdx.app.log("pinch", "${initialFirstPointer}, ${initialSecondPointer}, ${firstPointer}, ${secondPointer}")
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        //Gdx.app.log("touchUp", "${screenX}, ${screenY}, ${pointer}, ${button}")
+        if (pointer in 0..4) {
+            touchCoordinate[pointer] = null
+            return false
+        }
         return false
-    }
-
-    override fun pinchStop() {
-
     }
 }
