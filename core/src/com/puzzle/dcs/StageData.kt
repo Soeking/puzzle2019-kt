@@ -42,7 +42,7 @@ data class GravityChange(
     var x: Float,
     var y: Float,
     val gravityID: Int,
-    val gravity: Int,
+    var gravity: Int,
     val setGravity: Int
 )
 
