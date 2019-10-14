@@ -17,10 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
-import kotlin.math.PI
-import kotlin.math.absoluteValue
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen {
     private val camera: OrthographicCamera
@@ -72,10 +69,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val topList = arrayOf(Vector2(fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, -fixtureGrid), Vector2(fixtureGrid, -fixtureGrid))
     private val goalX = arrayOf(Vector2(halfGrid, halfGrid / 2), Vector2(-halfGrid, halfGrid / 2), Vector2(-halfGrid, -halfGrid / 2), Vector2(halfGrid, -halfGrid / 2))
     private val goalY = arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid))
-    private val left = 0
-    private val up = 1
-    private val right = 2
-    private val down = 3
     private val jump = 4
     private var isLand = false
 
@@ -151,9 +144,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         goalShape = PolygonShape()
         goalShape.set(arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid)))
         playerFixtureDef.shape = circleShape
-        playerFixtureDef.density = 0.5f // 仮    //密度
-        playerFixtureDef.friction = 1.0f         //摩擦
-        playerFixtureDef.restitution = 0.6f     //返還
+        playerFixtureDef.density = 0.5f
+        playerFixtureDef.friction = 1.0f
+        playerFixtureDef.restitution = 0.6f
         squareFixtureDef.shape = boxShape
         squareFixtureDef.density = 1000000f
         squareFixtureDef.friction = 1.0f
@@ -367,10 +360,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         drawButton()
         spriteBatch.end()
 
-        //drawUI()
-        //button()
-
-        //camera.translate(playerBody.position.x, playerBody.position.y)
         camera.update()
         world.step(1 / 60f, 8, 3)
         renderer.render(world, camera.combined)
@@ -564,12 +553,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
-    var touched: Int = -1
-    var jumpTouched: Int = -1
-    var coordinate: Vector2 = Vector2(0.0f, 0.0f)
-    var dis: Float = 0.0f
-    var laserTouched: Int = -1
-    var firstLaser: Vector2 = Vector2(0.0f, 0.0f)
+    private var touched: Int = -1
+    private var jumpTouched: Int = -1
+    private var coordinate: Vector2 = Vector2(0.0f, 0.0f)
+    private var dis: Float = 0.0f
+    private var laserTouched: Int = -1
+    private var firstLaser: Vector2 = Vector2(0.0f, 0.0f)
 
     private fun drawButton() {
         moveButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
@@ -607,7 +596,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                     coordinate.x = moveButton.width / 2.0f + (coordinate.x - moveButton.width / 2.0f) / dis * moveButton.width / 4.0f
                     coordinate.y = moveButton.width / 2.0f + (coordinate.y - moveButton.width / 2.0f) / dis * moveButton.width / 4.0f
                 }
-                bitmapFont.draw(spriteBatch, "${coordinate.x}, ${coordinate.y}, ${touchCoordinate[touched]!!.x}, ${touchCoordinate[touched]!!.y}, ${dis}", 0.0f, Gdx.graphics.height - 5.0f)
+                bitmapFont.draw(spriteBatch, "${coordinate.x}, ${coordinate.y}, ${touchCoordinate[touched]!!.x}, ${touchCoordinate[touched]!!.y}, $dis", 0.0f, Gdx.graphics.height - 5.0f)
             }
         }
         if (touched == -1) {
@@ -652,7 +641,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     private fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
-        return Math.sqrt(Math.pow(x1 - x2.toDouble(), 2.0) + Math.pow(y1 - y2.toDouble(), 2.0)).toFloat()
+        return sqrt(Math.pow(x1 - x2.toDouble(), 2.0) + Math.pow(y1 - y2.toDouble(), 2.0)).toFloat()
     }
 
     private fun drawSprites() {
