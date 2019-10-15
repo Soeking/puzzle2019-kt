@@ -14,17 +14,17 @@ class StageSelect(private val game: Core) : Screen {
     private val stage: Stage
     private val spriteBatch = SpriteBatch()
     private val kari: ImageButton
-    private val neww: ImageButton
+    private val new: ImageButton
     private val stageMap = mutableMapOf<ImageButton, String>()
 
     init {
         stage = Stage()
         kari = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/kari.png")))))
-        neww = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/new.png")))))
+        new = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/new.png")))))
         kari.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * 3)
-        neww.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * 1)
+        new.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * 1)
         stageMap.put(kari, "kari.json")
-        stageMap.put(neww, "new.json")
+        stageMap.put(new, "new.json")
         stageMap.forEach {
             stage.addActor(it.key)
         }
