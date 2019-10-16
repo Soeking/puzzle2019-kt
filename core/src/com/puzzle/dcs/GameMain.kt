@@ -66,6 +66,7 @@ class GameMain(private val game: Core) : Screen {
     }
 
     override fun dispose() {
-
+        batch.dispose()
+        stage.dispose()
     }
 }

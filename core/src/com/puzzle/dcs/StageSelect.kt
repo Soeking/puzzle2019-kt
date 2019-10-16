@@ -61,6 +61,7 @@ class StageSelect(private val game: Core) : Screen {
     }
 
     override fun dispose() {
-
+        spriteBatch.dispose()
+        stage.dispose()
     }
 }

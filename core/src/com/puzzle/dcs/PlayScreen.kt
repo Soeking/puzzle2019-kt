@@ -325,6 +325,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                         isLand = false
                         playerBody.gravityScale = 1f
                         playerBody.linearDamping = 0.6f
+                        isTouchBlock = false
                     }
                 }
             }
@@ -792,5 +793,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
         world.destroyBody(playerBody)
         world.destroyBody(goalBody)
+        spriteBatch.dispose()
+        stage.dispose()
     }
 }
