@@ -13,27 +13,22 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 class StageSelect(private val game: Core) : Screen {
     private val stage: Stage
     private val spriteBatch = SpriteBatch()
-    private val kari: ImageButton
-    private val neww: ImageButton
-    private val stageMap = mutableMapOf<ImageButton, String>()
+    private val stageList = mutableListOf<Pair<ImageButton, String>>()
 
     init {
         stage = Stage()
-        kari = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/kari.png")))))
-        neww = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/new.png")))))
-        kari.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * 3)
-        neww.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * 1)
-        stageMap.put(kari, "kari.json")
-        stageMap.put(neww, "new.json")
-        stageMap.forEach {
-            stage.addActor(it.key)
+        stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/kari.png"))))), "kari.json"))
+        stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/new.png"))))), "new.json"))
+        for (i in stageList.indices) {
+            stageList[i].first.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * (3 - i))
+            stage.addActor(stageList[i].first)
         }
         Gdx.input.inputProcessor = stage
     }
 
     override fun render(delta: Float) {
-        stageMap.forEach {
-            if (it.key.isPressed) game.screen = PlayScreen(game, it.value)
+        stageList.forEach {
+            if (it.first.isPressed) game.screen = PlayScreen(game, it.second)
         }
 
         spriteBatch.begin()
