@@ -644,6 +644,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                                     ((touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x) + Gdx.graphics.width / 2).toInt() + Math.cos(it * Math.PI / 2.0).toInt(),
                                     (-(touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y) + Gdx.graphics.height / 2).toInt() + Math.sin(it * Math.PI / 2.0).toInt())
                         }
+                        //Gdx.app.log("laser", "${screen.firstLaser.x}, ${screen.firstLaser.y}")
                         //bitmapFont.draw(spriteBatch, "(${((touchCoordinate[laserTouched]!!.x - firstLaser.x) + Gdx.graphics.width / 2).toInt()}, ${(-(touchCoordinate[laserTouched]!!.y - firstLaser.y) + Gdx.graphics.height / 2).toInt()}, ${firstLaser.x.toInt()}, ${firstLaser.y.toInt()})", 0.0f, Gdx.graphics.height - 10.0f)
                     }
                 }
@@ -737,14 +738,27 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 //bitmapFont.draw(spriteBatch, "(${((touchCoordinate[laserTouched]!!.x - firstLaser.x) + Gdx.graphics.width / 2).toInt()}, ${(-(touchCoordinate[laserTouched]!!.y - firstLaser.y) + Gdx.graphics.height / 2).toInt()}, ${firstLaser.x.toInt()}, ${firstLaser.y.toInt()})", 0.0f, Gdx.graphics.height - 10.0f)
             }
         }*/
-        tex[b].draw(moveButton[b], 0, 0)
-        spriteBatch.draw(tex[b], 0.0f, 0.0f)
-        jtex[b].draw(jumpButton[b], 0, 0)
-        spriteBatch.draw(jtex[b], Gdx.graphics.width - jumpButton[b].width.toFloat(), 0.0f)
-        ltex[b].draw(laserButton[b], 0, 0)
-        spriteBatch.draw(ltex[b], 0.0f, 0.0f)
-        a = true
-        b = 1 - b
+
+        bitmapFont.draw(spriteBatch, "$a", 0.0f, 30.0f)
+
+        if (a) {
+            tex[0].draw(moveButton[1 - b], 0, 0)
+            spriteBatch.draw(tex[0], 0.0f, 0.0f)
+            jtex[0].draw(jumpButton[1 - b], 0, 0)
+            spriteBatch.draw(jtex[0], Gdx.graphics.width - jumpButton[1 - b].width.toFloat(), 0.0f)
+            ltex[0].draw(laserButton[1 - b], 0, 0)
+            spriteBatch.draw(ltex[0], 0.0f, 0.0f)
+            a = true
+        } else {
+            tex[0].draw(moveButton[b], 0, 0)
+            spriteBatch.draw(tex[0], 0.0f, 0.0f)
+            jtex[0].draw(jumpButton[b], 0, 0)
+            spriteBatch.draw(jtex[0], Gdx.graphics.width - jumpButton[b].width.toFloat(), 0.0f)
+            ltex[0].draw(laserButton[b], 0, 0)
+            spriteBatch.draw(ltex[0], 0.0f, 0.0f)
+            a = true
+            b = 1 - b
+        }
     }
 
     fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
