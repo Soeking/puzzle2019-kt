@@ -30,7 +30,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 20.0f
+    private val gridSize2 = Gdx.graphics.width / 12.0f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
     private val world: World
@@ -325,6 +325,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                         isLand = false
                         playerBody.gravityScale = 1f
                         playerBody.linearDamping = 0.6f
+                        isTouchBlock = false
                     }
                 }
             }
@@ -715,12 +716,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             sprite.rotation = it.angle / PI.toFloat() * 180.0f
             sprite.draw(spriteBatch)
         }
-        changeBodies.forEach {
-            val sprite = changeSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.rotation = it.angle / PI.toFloat() * 180.0f + ((it.userData as GravityChange).gravity - 3) * 90.0f
-            sprite.draw(spriteBatch)
-        }
         triangleBodies.forEach {
             val sprite = triangleSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
@@ -731,6 +726,12 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             val sprite = ladderSprite
             sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.rotation = it.angle / PI.toFloat() * 180.0f
+            sprite.draw(spriteBatch)
+        }
+        changeBodies.forEach {
+            val sprite = changeSprite
+            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
+            sprite.rotation = it.angle / PI.toFloat() * 180.0f + ((it.userData as GravityChange).setGravity + 1) % 4 * 90.0f
             sprite.draw(spriteBatch)
         }
         playerBody.let {
@@ -792,5 +793,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
         world.destroyBody(playerBody)
         world.destroyBody(goalBody)
+        spriteBatch.dispose()
+        stage.dispose()
     }
 }

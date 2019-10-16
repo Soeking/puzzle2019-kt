@@ -19,6 +19,7 @@ class StageSelect(private val game: Core) : Screen {
         stage = Stage()
         stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/kari.png"))))), "kari.json"))
         stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/new.png"))))), "new.json"))
+        stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/saishin.png"))))), "saishin.json"))
         for (i in stageList.indices) {
             stageList[i].first.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * (3 - i))
             stage.addActor(stageList[i].first)
@@ -60,6 +61,7 @@ class StageSelect(private val game: Core) : Screen {
     }
 
     override fun dispose() {
-
+        spriteBatch.dispose()
+        stage.dispose()
     }
 }
