@@ -34,7 +34,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 12.0f
+    private val gridSize2 = Gdx.graphics.width / 20.0f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
     private val world: World
@@ -735,7 +735,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
-    var touchtime: Int = 1000
+    var touchtime: Int = 10000
 
     private fun drawButton() {
         for (i in 0..4) {
@@ -790,7 +790,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
             touchtime += (Gdx.graphics.deltaTime * 1000).toInt()
             if (touchtime >= 1000) {
-                moveBlocks(laserFixture!!.userData)
+                moveBlocks(laserFixture!!.body.userData)
                 laserFixture = null
             }
         }
