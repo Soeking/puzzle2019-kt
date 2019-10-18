@@ -30,7 +30,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val json = Gson()
     private lateinit var stageData: StageData
     private val gravityValue = 8f
-    private val blockSpeed = 0.5f
+    private val blockSpeed = 1.5f
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
@@ -315,7 +315,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         ltex = arrayOf(Texture(laserButton[0]), Texture(laserButton[1]))
 
         laserTouchedPix = Pixmap(gridSize2.toInt(), gridSize2.toInt(), Pixmap.Format.RGBA4444)
-        laserTouchedPix.setColor(Color.GREEN)
+        laserTouchedPix.setColor(0.0f, 1.0f, 0.0f, 0.5f)
         laserTouchedPix.fill()
         ltouchtex = Texture(laserTouchedPix)
 
