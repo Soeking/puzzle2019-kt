@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2
 import javax.lang.model.type.NullType
 
 public var touchCoordinate: Array<Vector2?> = arrayOfNulls(5)
+public var ThreadEnabled: Boolean = false
 
 class Touch : InputProcessor {
 
