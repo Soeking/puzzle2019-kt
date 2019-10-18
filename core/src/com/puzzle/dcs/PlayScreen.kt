@@ -790,7 +790,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
             touchtime += (Gdx.graphics.deltaTime * 1000).toInt()
             if (touchtime >= 1000) {
-                moveBlocks(laserFixture!!.body)
+                moveBlocks(laserFixture!!.userData)
                 laserFixture = null
             }
         }
