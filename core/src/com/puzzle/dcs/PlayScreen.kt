@@ -22,14 +22,14 @@ import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.RayCastCallback
 
 
-class PlayScreen(private val game: Core, private val fileName: String) : Screen {
+class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val camera: OrthographicCamera
     private val spriteBatch = SpriteBatch()
     private val file: FileHandle
     private val json = Gson()
     private lateinit var stageData: StageData
     private val gravityValue = 8f
-    private val blockSpeed = 0.5f
+    private val blockSpeed = 1.5f
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
@@ -82,16 +82,16 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val bitmapFont: BitmapFont
     private val bitmapFont2: BitmapFont
 
-    var moveButton: Array<Pixmap>//Pixmap
-    var tex: Array<Texture>
-    var jumpButton: Array<Pixmap>
-    var jtex: Array<Texture>
-    var laserButton: Array<Pixmap>
-    var ltex: Array<Texture>
-    var callback: RayCastCallback
-    var laserFixture: Fixture? = null
-    var laserTouchedPix: Pixmap
-    var ltouchtex: Texture
+    private var moveButton: Array<Pixmap>//Pixmap
+    private var tex: Array<Texture>
+    private var jumpButton: Array<Pixmap>
+    private var jtex: Array<Texture>
+    private var laserButton: Array<Pixmap>
+    private var ltex: Array<Texture>
+    private var callback: RayCastCallback
+    private var laserFixture: Fixture? = null
+    private var laserTouchedPix: Pixmap
+    private var ltouchtex: Texture
 
     init {
         Box2D.init()
@@ -275,12 +275,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         Gdx.input.inputProcessor = mu
 
         /**↓ここからデバッグ用*/
-        squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
-            it.setLinearVelocity(0f, -0.3f)
-        }
-        triangleBodies.filter { (it.userData as Triangle).gravityID == 2 }.forEach {
-            it.setLinearVelocity(0f, -0.3f)
-        }
 
         //フォント生成
         fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Black.ttf"))
@@ -394,7 +388,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         isTouchBlock = false
         touchGravity.clear()
         camera.update()
-        world.step(1 / 60f, 8, 3)
+        world.step(1 / 45f, 8, 3)
         renderer.render(world, camera.combined)
     }
 
@@ -777,7 +771,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         a = true
 
         if (laserFixture != null) {
-            bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body.toString()}  ${touchTime} MILLISECOND", 0.0f, 50.0f)
+            bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body}  $touchTime MILLISECOND", 0.0f, 50.0f)
 
             val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
             val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
