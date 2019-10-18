@@ -34,7 +34,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 20.0f
+    private val gridSize2 = Gdx.graphics.width / 12.0f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
     private val world: World
@@ -75,6 +75,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val goalY = arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid))
     private val jump = 4
     private var isLand = false
+    private var isTouchBlock = false
+    private var touchGravity = mutableListOf<Int>()
 
     private val fontGenerator: FreeTypeFontGenerator
     private val fontGenerator2: FreeTypeFontGenerator
@@ -352,6 +354,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                         isLand = false
                         playerBody.gravityScale = 1f
                         playerBody.linearDamping = 0.6f
+                        isTouchBlock = false
                     }
                 }
             }
@@ -389,6 +392,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         drawButton()
         spriteBatch.end()
 
+        isTouchBlock = false
+        touchGravity.clear()
         camera.update()
         world.step(1 / 60f, 8, 3)
         renderer.render(world, camera.combined)
@@ -438,9 +443,47 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         if (a == playerBody) {
             if (b == goalBody) onGoal(a, b)
             else if (b.userData is GravityChange) changeGravity(b.userData as GravityChange)
+            if (b.userData !is Ladder) {
+                if (isTouchBlock) {
+                    val nowAngle = checkTouch(b)
+                    if (nowAngle != null) {
+                        touchGravity.forEach {
+                            if (abs(it - nowAngle) == 2) {
+                                if (playerBody.linearVelocity.x.toInt() == 0 && playerBody.linearVelocity.y.toInt() == 0) onGameover()
+                            }
+                        }
+                        touchGravity.add(nowAngle)
+                    }
+                } else {
+                    isTouchBlock = true
+                    val nowAngle = checkTouch(b)
+                    nowAngle?.let {
+                        touchGravity.add(it)
+                    }
+                }
+            }
         } else if (b == playerBody) {
             if (a == goalBody) onGoal(b, a)
             else if (a.userData is GravityChange) changeGravity(a.userData as GravityChange)
+            if (a.userData !is Ladder) {
+                if (isTouchBlock) {
+                    val nowAngle = checkTouch(a)
+                    if (nowAngle != null) {
+                        touchGravity.forEach {
+                            if (abs(it - nowAngle) == 2) {
+                                if (playerBody.linearVelocity.x.toInt() == 0 && playerBody.linearVelocity.y.toInt() == 0) onGameover()
+                            }
+                        }
+                        touchGravity.add(nowAngle)
+                    }
+                } else {
+                    isTouchBlock = true
+                    val nowAngle = checkTouch(a)
+                    nowAngle?.let {
+                        touchGravity.add(it)
+                    }
+                }
+            }
         } else {
             if (a.type == BodyDef.BodyType.DynamicBody && b.type == BodyDef.BodyType.StaticBody) {
                 toStatic(idCheck(a.userData, b.userData).second, 99)
@@ -492,6 +535,20 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 (playerBody.userData as Start).gravity = switch.setGravity
             }
         }
+    }
+
+    private fun checkTouch(block: Body): Int? {
+        val playerX = playerBody.position.x
+        val playerY = playerBody.position.y
+        val blockX = block.position.x
+        val blockY = block.position.y
+        return if (abs(playerX - blockX) <= fixtureGrid) {
+            if (playerY > blockY) 3
+            else 1
+        } else if (abs(playerY - blockY) <= fixtureGrid) {
+            if (playerX > blockX) 2
+            else 0
+        } else null
     }
 
     private fun moveBlocks(block: Any) {
@@ -739,55 +796,38 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
-    fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
-        return sqrt(Math.pow(x1 - x2.toDouble(), 2.0) + Math.pow(y1 - y2.toDouble(), 2.0)).toFloat()
-    }
+    private fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float) = sqrt(Math.pow(x1 - x2.toDouble(), 2.0) + Math.pow(y1 - y2.toDouble(), 2.0)).toFloat()
 
     private fun drawSprites() {
         val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
         val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
         wallBodies.forEach {
-            val sprite = wallSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.rotation = it.angle / PI.toFloat() * 180.0f
-            sprite.draw(spriteBatch)
+            drawMain(wallSprite, playerX, playerY, it.position.x, it.position.y, it.angle, 0)
         }
         squareBodies.forEach {
-            val sprite = squareSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.rotation = it.angle / PI.toFloat() * 180.0f
-            sprite.draw(spriteBatch)
-        }
-        changeBodies.forEach {
-            val sprite = changeSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.rotation = it.angle / PI.toFloat() * 180.0f + ((it.userData as GravityChange).gravity - 3) * 90.0f
-            sprite.draw(spriteBatch)
+            drawMain(squareSprite, playerX, playerY, it.position.x, it.position.y, it.angle, 0)
         }
         triangleBodies.forEach {
-            val sprite = triangleSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.rotation = it.angle / PI.toFloat() * 180.0f + (it.userData as Triangle).rotate * 90.0f
-            sprite.draw(spriteBatch)
+            drawMain(triangleSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Triangle).rotate)
         }
         ladderBodies.forEach {
-            val sprite = ladderSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.rotation = it.angle / PI.toFloat() * 180.0f
-            sprite.draw(spriteBatch)
+            drawMain(ladderSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Ladder).rotate)
+        }
+        changeBodies.forEach {
+            drawMain(changeSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as GravityChange).setGravity + 1)
         }
         playerBody.let {
-            val sprite = playerSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.rotation = it.angle / PI.toFloat() * 180.0f
-            sprite.draw(spriteBatch)
+            drawMain(playerSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Start).gravity + 1)
         }
         goalBody.let {
-            val sprite = goalSprite
-            sprite.setPosition((it.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2, (it.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.rotation = it.angle / PI.toFloat() * 180.0f + ((it.userData as Goal).gravity - 3) * 90.0f
-            sprite.draw(spriteBatch)
+            drawMain(goalSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Goal).gravity + 1)
         }
+    }
+
+    private fun drawMain(sprite: Sprite, playerX: Float, playerY: Float, x: Float, y: Float, angle: Float, rotate: Int) {
+        sprite.setPosition((x - playerX) * gridSize2 / gridSize - sprite.width / 2f + halfGrid2, (y - playerY) * gridSize2 / gridSize - sprite.width / 2f + halfGrid2)
+        sprite.rotation = angle / PI.toFloat() * 180f + rotate * 90f
+        sprite.draw(spriteBatch)
     }
 
     private fun onGoal(a: Body, b: Body) {
@@ -835,5 +875,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
         world.destroyBody(playerBody)
         world.destroyBody(goalBody)
+        spriteBatch.dispose()
+        stage.dispose()
     }
 }
