@@ -18,6 +18,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
 import kotlin.math.*
+import com.badlogic.gdx.physics.box2d.Fixture
+import com.badlogic.gdx.physics.box2d.RayCastCallback
+
 
 class PlayScreen(private val game: Core, private val fileName: String) : Screen {
     private val camera: OrthographicCamera
@@ -83,6 +86,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     var jtex: Array<Texture>
     var laserButton: Array<Pixmap>
     var ltex: Array<Texture>
+    var callback: RayCastCallback
+    var laserFixture: Fixture? = null
+    var laserTouchedPix: Pixmap
+    var ltouchtex: Texture
 
     init {
         Box2D.init()
@@ -303,6 +310,21 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         tex = arrayOf(Texture(moveButton[0]), Texture(moveButton[1]))
         jtex = arrayOf(Texture(jumpButton[0]), Texture(jumpButton[1]))
         ltex = arrayOf(Texture(laserButton[0]), Texture(laserButton[1]))
+
+        laserTouchedPix = Pixmap(gridSize2.toInt(), gridSize2.toInt(), Pixmap.Format.RGBA4444)
+        laserTouchedPix.setColor(Color.GREEN)
+        laserTouchedPix.fill()
+        ltouchtex = Texture(laserTouchedPix)
+
+        repeat(5) {
+            touchCoordinate[it] = null
+        }
+        callback = RayCastCallback { fixture, point, normal, fraction ->
+            laserFixture = fixture
+            Gdx.app.log("callback", "${fixture.body.position.x}, ${fixture.body.position.y}, ${point.x}, ${point.y}, ${normal.x}, ${normal.y}, ${fraction}")
+            fraction
+        }
+        laserFixture = null
 
         ThreadEnabled = true
         var th = drawButtonThread(this)
@@ -565,8 +587,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     var dis: Float = 0.0f
     var laserTouched: Int = -1
     var firstLaser: Vector2 = Vector2(0.0f, 0.0f)
+    var ldis: Float = 0.0f
     var a: Boolean = false
     var b: Int = 0
+    var laser: Vector2 = Vector2(0.0f, 0.0f)
 
     class drawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
@@ -618,15 +642,15 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 } else {
                     screen.moveButton[1 - screen.b].setColor(1.0f, 0.5f, 0.5f, 0.5f)
                     screen.moveButton[1 - screen.b].fillCircle(screen.coordinate.x.toInt(), screen.moveButton[1 - screen.b].height - screen.coordinate.y.toInt(), screen.moveButton[1 - screen.b].width / 4)
-                    screen.playerBody.applyLinearImpulse(screen.playerSpeed * (screen.coordinate.x - screen.moveButton[1 - screen.b].width / 2.0f) / (screen.moveButton[1 - screen.b].width / 4.0f), screen.playerSpeed * (screen.coordinate.y - screen.moveButton[1 - screen.b].width / 2.0f) / (screen.moveButton[1 - screen.b].width / 4.0f), screen.playerBody.position.x, screen.playerBody.position.y, true)
+                    //screen.playerBody.applyLinearImpulse(screen.playerSpeed * (screen.coordinate.x - screen.moveButton[1 - screen.b].width / 2.0f) / (screen.moveButton[1 - screen.b].width / 4.0f), screen.playerSpeed * (screen.coordinate.y - screen.moveButton[1 - screen.b].width / 2.0f) / (screen.moveButton[1 - screen.b].width / 4.0f), screen.playerBody.position.x, screen.playerBody.position.y, true)
                 }
 
                 if (screen.jumpTouched != -1) {
                     if (touchCoordinate[screen.jumpTouched] == null) {
                         screen.jumpTouched = -1
                     } else {
-                        if (screen.isLand)
-                            screen.playerBody.applyLinearImpulse(screen.world.gravity.x * -3f, screen.world.gravity.y * -3f, screen.playerBody.worldCenter.x, screen.playerBody.worldCenter.y, true)
+                        //if (screen.isLand)
+                        //    screen.playerBody.applyLinearImpulse(screen.world.gravity.x * -3f, screen.world.gravity.y * -3f, screen.playerBody.worldCenter.x, screen.playerBody.worldCenter.y, true)
                         screen.jumpButton[1 - screen.b].setColor(0.8f, 1.0f, 0.8f, 0.5f)
                     }
                 }
@@ -639,10 +663,22 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                         screen.laserButton[1 - screen.b].setColor(0.0f, 0.0f, 0.0f, 0.0f)
                         screen.laserButton[1 - screen.b].fill()
                         screen.laserButton[1 - screen.b].setColor(1.0f, 0.0f, 0.0f, 0.5f)
-                        repeat(4) {
-                            screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + Math.cos(it * Math.PI / 2.0).toInt(), Gdx.graphics.height / 2 + Math.sin(it * Math.PI / 2.0).toInt(),
-                                    ((touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x) + Gdx.graphics.width / 2).toInt() + Math.cos(it * Math.PI / 2.0).toInt(),
-                                    (-(touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y) + Gdx.graphics.height / 2).toInt() + Math.sin(it * Math.PI / 2.0).toInt())
+                        screen.ldis = screen.calcDistance(touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x, -(touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y), 0.0f, 0.0f)
+                        if (screen.ldis == 0.0f) {
+                            repeat(4) {
+                                screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + Math.cos(it * Math.PI / 2.0).toInt(), Gdx.graphics.height / 2 + Math.sin(it * Math.PI / 2.0).toInt(),
+                                        (Gdx.graphics.width / 2).toInt() + Math.cos(it * Math.PI / 2.0).toInt(),
+                                        (Gdx.graphics.height / 2).toInt() + Math.sin(it * Math.PI / 2.0).toInt())
+                            }
+                        } else {
+                            screen.laser.x = (touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x) / screen.ldis * Gdx.graphics.width / 10 + Gdx.graphics.width / 2
+                            screen.laser.y = -(touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y) / screen.ldis * Gdx.graphics.width / 10 + Gdx.graphics.height / 2
+                            repeat(4) {
+                                screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + Math.cos(it * Math.PI / 2.0).toInt(), Gdx.graphics.height / 2 + Math.sin(it * Math.PI / 2.0).toInt(),
+                                        screen.laser.x.toInt() + Math.cos(it * Math.PI / 2.0).toInt(),
+                                        screen.laser.y.toInt() + Math.sin(it * Math.PI / 2.0).toInt())
+                            }
+
                         }
                         //Gdx.app.log("laser", "${screen.firstLaser.x}, ${screen.firstLaser.y}")
                         //bitmapFont.draw(spriteBatch, "(${((touchCoordinate[laserTouched]!!.x - firstLaser.x) + Gdx.graphics.width / 2).toInt()}, ${(-(touchCoordinate[laserTouched]!!.y - firstLaser.y) + Gdx.graphics.height / 2).toInt()}, ${firstLaser.x.toInt()}, ${firstLaser.y.toInt()})", 0.0f, Gdx.graphics.height - 10.0f)
@@ -657,6 +693,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
+    var touchtime: Int = 1000
+
     private fun drawButton() {
         /*
         moveButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
@@ -666,15 +704,15 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
         jumpButton.setColor(0.0f, 0.0f, 0.0f, 0.0f)
         jumpButton.fill()
-        jumpButton.setColor(0.0f, 1.0f, 0.0f, 0.5f)
+        jumpButton.setColor(0.0f, 1.0f, 0.0f, 0.5f)*/
 
         for (i in 0..4) {
             if (touchCoordinate[i] == null) continue
-            if (touched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton.width / 2.0f, moveButton.width / 2.0f) < moveButton.width / 2.0f) {
+            if (touched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton[b].width / 2.0f, moveButton[b].width / 2.0f) < moveButton[b].width / 2.0f) {
                 touched = i
                 coordinate.x = touchCoordinate[touched]!!.x
                 coordinate.y = touchCoordinate[touched]!!.y
-            } else if (jumpTouched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton.width / 2.0f, jumpButton.width / 2.0f) < jumpButton.width / 4.0f) {
+            } else if (jumpTouched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton[b].width / 2.0f, jumpButton[b].width / 2.0f) < jumpButton[b].width / 4.0f) {
                 jumpTouched = i
             } else if (touched != i && jumpTouched != i && laserTouched == -1) {
                 laserTouched = i
@@ -683,6 +721,20 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             }
         }
 
+        if (touched != -1) {
+            playerBody.applyLinearImpulse(playerSpeed * (coordinate.x - moveButton[1 - b].width / 2.0f) / (moveButton[1 - b].width / 4.0f), playerSpeed * (coordinate.y - moveButton[1 - b].width / 2.0f) / (moveButton[1 - b].width / 4.0f), playerBody.position.x, playerBody.position.y, true)
+        }
+        if (jumpTouched != -1) {
+            if (isLand)
+                playerBody.applyLinearImpulse(world.gravity.x * -3f, world.gravity.y * -3f, playerBody.worldCenter.x, playerBody.worldCenter.y, true)
+        }
+        if (laserTouched == -1 && laserFixture == null) {
+            world.rayCast(callback, playerBody.position, laser.sub(Vector2(Gdx.graphics.width / 2.0f, Gdx.graphics.height / 2.0f)).add(playerBody.position));
+            //Gdx.app.log("rayCast", "TOUCHED")
+            touchtime = 0
+        }
+
+        /*
         if (touched != -1) {
             if (touchCoordinate[touched] == null) {
                 touched = -1
@@ -741,23 +793,24 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
         bitmapFont.draw(spriteBatch, "$a", 0.0f, 30.0f)
 
-        if (a) {
-            tex[0].draw(moveButton[1 - b], 0, 0)
-            spriteBatch.draw(tex[0], 0.0f, 0.0f)
-            jtex[0].draw(jumpButton[1 - b], 0, 0)
-            spriteBatch.draw(jtex[0], Gdx.graphics.width - jumpButton[1 - b].width.toFloat(), 0.0f)
-            ltex[0].draw(laserButton[1 - b], 0, 0)
-            spriteBatch.draw(ltex[0], 0.0f, 0.0f)
-            a = true
-        } else {
-            tex[0].draw(moveButton[b], 0, 0)
-            spriteBatch.draw(tex[0], 0.0f, 0.0f)
-            jtex[0].draw(jumpButton[b], 0, 0)
-            spriteBatch.draw(jtex[0], Gdx.graphics.width - jumpButton[b].width.toFloat(), 0.0f)
-            ltex[0].draw(laserButton[b], 0, 0)
-            spriteBatch.draw(ltex[0], 0.0f, 0.0f)
-            a = true
-            b = 1 - b
+        tex[0].draw(moveButton[b], 0, 0)
+        spriteBatch.draw(tex[0], 0.0f, 0.0f)
+        jtex[0].draw(jumpButton[b], 0, 0)
+        spriteBatch.draw(jtex[0], Gdx.graphics.width - jumpButton[b].width.toFloat(), 0.0f)
+        ltex[0].draw(laserButton[b], 0, 0)
+        spriteBatch.draw(ltex[0], 0.0f, 0.0f)
+        if (!a) b = 1 - b
+        a = true
+
+        if (laserFixture != null) {
+            bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body.toString()}", 0.0f, 50.0f)
+            spriteBatch.draw(ltouchtex, (laserFixture!!.body.position.x - (halfGrid + playerBody.position.x - Gdx.graphics.height / 2.0f / gridSize2 * gridSize)) * gridSize2 / gridSize - laserTouchedPix.width / 2.0f + halfGrid2,
+                    (laserFixture!!.body.position.y - (halfGrid + playerBody.position.y - Gdx.graphics.width / 2.0f / gridSize2 * gridSize)) * gridSize2 / gridSize - laserTouchedPix.width / 2.0f + halfGrid2)
+            touchtime += (Gdx.graphics.deltaTime * 1000).toInt()
+            if (touchtime >= 1000) {
+                moveBlocks(laserFixture!!.body)
+                laserFixture = null
+            }
         }
     }
 
