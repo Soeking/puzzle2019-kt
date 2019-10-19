@@ -797,7 +797,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                     (laserFixture!!.body.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.draw(spriteBatch)
 
-            Gdx.app.log("laser", "${laserTouched}, ${Math.atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI}")
+            //Gdx.app.log("laser", "${laserTouched}, ${Math.atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI}")
             if (laserTouched >= 0 && touchCoordinate[laserTouched] == null) {
                 laserTouched = -1
             } else if (laserTouched >= 0) {
