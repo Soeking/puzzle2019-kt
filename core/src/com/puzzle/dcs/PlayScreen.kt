@@ -33,7 +33,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 20.0f
+    private val gridSize2 = Gdx.graphics.width / 15f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
     private val world: World
@@ -550,33 +550,24 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         } else null
     }
 
-    private fun moveBlocks(block: Any, grav: Int) {
-        val id: Int
-        var gravity: Int
-        when (block) {
+    private fun moveBlocks(block: Any, gravity: Int) {
+        val id: Int = when (block) {
             is Square -> {
-                id = block.gravityID
-                gravity = block.gravity
+                block.gravityID
             }
             is Triangle -> {
-                id = block.gravityID
-                gravity = block.gravity
+                block.gravityID
             }
             is Ladder -> {
-                id = block.gravityID
-                gravity = block.gravity
+                block.gravityID
             }
             is GravityChange -> {
-                id = block.gravityID
-                gravity = block.gravity
+                block.gravityID
             }
             else -> {
-                id = 99
-                gravity = 3
+                99
             }
         }
-        gravity = (gravity + 2) % 4
-        gravity = grav
         squareBodies.filter { (it.userData as Square).gravityID == id }.forEach {
             setMove(it, gravity)
             (it.userData as Square).gravity = gravity
@@ -649,7 +640,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     var a: Boolean = false
     var b: Int = 0
     var laser: Vector2 = Vector2(0.0f, 0.0f)
-    var Alpha: Float = 0.0f
+    var alpha: Float = 0.0f
 
     class DrawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
@@ -700,7 +691,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
                     if (screen.laserTouched >= 0 && screen.laserFixture == null) {
                         if (touchCoordinate[screen.laserTouched] == null) {
-                            screen.Alpha = 0.0f
+                            screen.alpha = 0.0f
                             screen.laserTouched = -1
                         } else {
                             screen.laserButton[1 - screen.b].setColor(1.0f, 0.0f, 0.0f, 0.5f)
@@ -725,10 +716,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                     }
 
                     if (screen.laserFixture != null) {
-                        screen.laserButton[1 - screen.b].setColor(0.3f, 0.3f, 0.3f, Math.min(0.5f, screen.Alpha))
+                        screen.laserButton[1 - screen.b].setColor(0.3f, 0.3f, 0.3f, min(0.5f, screen.alpha))
                         screen.laserButton[1 - screen.b].fill()
 
-                        screen.Alpha += Gdx.graphics.deltaTime / 1.25f
+                        screen.alpha += Gdx.graphics.deltaTime / 1.25f
                     }
 
                     screen.a = false
@@ -786,7 +777,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         a = true
 
         if (laserFixture != null) {
-            bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body.toString()}  ${touchtime} MILLISECOND", 0.0f, 50.0f)
+            bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body}  $touchTime MILLISECOND", 0.0f, 50.0f)
             bitmapFont2.draw(spriteBatch, " 　↑　 \n← 　 →\n 　↓　 ", Gdx.graphics.width / 2.0f - 100.0f, Gdx.graphics.height / 2.0f + 100.0f)
             val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
             val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
