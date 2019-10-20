@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
-import com.badlogic.gdx.math.Vector
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -324,13 +323,13 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
         callback = RayCastCallback { fixture, point, normal, fraction ->
             laserFixture = fixture
-            Gdx.app.log("callback", "${fixture.body.position.x}, ${fixture.body.position.y}, ${point.x}, ${point.y}, ${normal.x}, ${normal.y}, ${fraction}")
+            Gdx.app.log("callback", "${fixture.body.position.x}, ${fixture.body.position.y}, ${point.x}, ${point.y}, ${normal.x}, ${normal.y}, $fraction")
             fraction
         }
         laserFixture = null
 
         ThreadEnabled = true
-        var th = drawButtonThread(this)
+        val th = DrawButtonThread(this)
         th.start()
 
         circleShape.dispose()
@@ -652,7 +651,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     var laser: Vector2 = Vector2(0.0f, 0.0f)
     var Alpha: Float = 0.0f
 
-    class drawButtonThread(private val screen: PlayScreen) : Thread() {
+    class DrawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
             while (ThreadEnabled) {
                 try {
@@ -708,17 +707,17 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                             screen.ldis = screen.calcDistance(touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x, -(touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y), 0.0f, 0.0f)
                             if (screen.ldis == 0.0f) {
                                 repeat(4) {
-                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + Math.cos(it * Math.PI / 2.0).toInt(), Gdx.graphics.height / 2 + Math.sin(it * Math.PI / 2.0).toInt(),
-                                            (Gdx.graphics.width / 2).toInt() + Math.cos(it * Math.PI / 2.0).toInt(),
-                                            (Gdx.graphics.height / 2).toInt() + Math.sin(it * Math.PI / 2.0).toInt())
+                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + cos(it * Math.PI / 2.0).toInt(), Gdx.graphics.height / 2 + sin(it * Math.PI / 2.0).toInt(),
+                                            (Gdx.graphics.width / 2) + cos(it * Math.PI / 2.0).toInt(),
+                                            (Gdx.graphics.height / 2) + sin(it * Math.PI / 2.0).toInt())
                                 }
                             } else {
                                 screen.laser.x = (touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x) / screen.ldis * Gdx.graphics.width / 10 + Gdx.graphics.width / 2
                                 screen.laser.y = (touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y) / screen.ldis * Gdx.graphics.width / 10 - Gdx.graphics.height / 2
                                 repeat(4) {
-                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + Math.cos(it * Math.PI / 2.0).toInt(), Gdx.graphics.height / 2 + Math.sin(it * Math.PI / 2.0).toInt(),
-                                            screen.laser.x.toInt() + Math.cos(it * Math.PI / 2.0).toInt(),
-                                            -screen.laser.y.toInt() + Math.sin(it * Math.PI / 2.0).toInt())
+                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + cos(it * Math.PI / 2.0).toInt(), Gdx.graphics.height / 2 + sin(it * Math.PI / 2.0).toInt(),
+                                            screen.laser.x.toInt() + cos(it * Math.PI / 2.0).toInt(),
+                                            -screen.laser.y.toInt() + sin(it * Math.PI / 2.0).toInt())
                                 }
 
                             }
@@ -744,7 +743,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
-    var touchtime: Int = 10000
+    private var touchTime: Int = 10000
 
     private fun drawButton() {
         for (i in 0..4) {
@@ -771,8 +770,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
         if (laserTouched == -1 && laserFixture == null) {
             laserTouched = -2
-            world.rayCast(callback, playerBody.position, laser.sub(Vector2(Gdx.graphics.width / 2.0f, -Gdx.graphics.height / 2.0f)).add(playerBody.position));
-            touchtime = 0
+            world.rayCast(callback, playerBody.position, laser.sub(Vector2(Gdx.graphics.width / 2.0f, -Gdx.graphics.height / 2.0f)).add(playerBody.position))
+            touchTime = 0
         }
 
         bitmapFont.draw(spriteBatch, "$a", 0.0f, 30.0f)
@@ -791,7 +790,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             bitmapFont2.draw(spriteBatch, " 　↑　 \n← 　 →\n 　↓　 ", Gdx.graphics.width / 2.0f - 100.0f, Gdx.graphics.height / 2.0f + 100.0f)
             val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
             val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
-            val sprite: Sprite = Sprite(ltouchtex)
+            val sprite = Sprite(ltouchtex)
             sprite.setOriginCenter()
             sprite.setPosition((laserFixture!!.body.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2,
                     (laserFixture!!.body.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
