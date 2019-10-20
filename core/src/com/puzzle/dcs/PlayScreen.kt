@@ -29,11 +29,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val json = Gson()
     private lateinit var stageData: StageData
     private val gravityValue = 8f
-    private val blockSpeed = 0.5f
+    private val blockSpeed = 1.5f
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 12.0f
+    private val gridSize2 = Gdx.graphics.width / 20.0f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
     private val world: World
@@ -314,7 +314,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         ltex = arrayOf(Texture(laserButton[0]), Texture(laserButton[1]))
 
         laserTouchedPix = Pixmap(gridSize2.toInt(), gridSize2.toInt(), Pixmap.Format.RGBA4444)
-        laserTouchedPix.setColor(Color.GREEN)
+        laserTouchedPix.setColor(0.0f, 1.0f, 0.0f, 0.5f)
         laserTouchedPix.fill()
         ltouchtex = Texture(laserTouchedPix)
 
@@ -550,7 +550,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         } else null
     }
 
-    private fun moveBlocks(block: Any) {
+    private fun moveBlocks(block: Any, grav: Int) {
         val id: Int
         var gravity: Int
         when (block) {
@@ -576,6 +576,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             }
         }
         gravity = (gravity + 2) % 4
+        gravity = grav
         squareBodies.filter { (it.userData as Square).gravityID == id }.forEach {
             setMove(it, gravity)
             (it.userData as Square).gravity = gravity
@@ -648,6 +649,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     var a: Boolean = false
     var b: Int = 0
     var laser: Vector2 = Vector2(0.0f, 0.0f)
+    var Alpha: Float = 0.0f
 
     class DrawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
@@ -696,12 +698,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                     }
                     screen.jumpButton[1 - screen.b].fillCircle(screen.jumpButton[1 - screen.b].width / 2, screen.jumpButton[1 - screen.b].height / 2, screen.jumpButton[1 - screen.b].width / 4)
 
-                    if (screen.laserTouched >= 0) {
+                    if (screen.laserTouched >= 0 && screen.laserFixture == null) {
                         if (touchCoordinate[screen.laserTouched] == null) {
+                            screen.Alpha = 0.0f
                             screen.laserTouched = -1
                         } else {
-                            screen.laserButton[1 - screen.b].setColor(0.0f, 0.0f, 0.0f, 0.0f)
-                            screen.laserButton[1 - screen.b].fill()
                             screen.laserButton[1 - screen.b].setColor(1.0f, 0.0f, 0.0f, 0.5f)
                             screen.ldis = screen.calcDistance(touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x, -(touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y), 0.0f, 0.0f)
                             if (screen.ldis == 0.0f) {
@@ -722,6 +723,14 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                             }
                         }
                     }
+
+                    if (screen.laserFixture != null) {
+                        screen.laserButton[1 - screen.b].setColor(0.3f, 0.3f, 0.3f, Math.min(0.5f, screen.Alpha))
+                        screen.laserButton[1 - screen.b].fill()
+
+                        screen.Alpha += Gdx.graphics.deltaTime / 1.25f
+                    }
+
                     screen.a = false
                     while (!screen.a) {
                         sleep(1)
@@ -734,7 +743,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
     }
 
-    private var touchTime: Int = 1000
+    private var touchTime: Int = 10000
 
     private fun drawButton() {
         for (i in 0..4) {
@@ -777,8 +786,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         a = true
 
         if (laserFixture != null) {
-            bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body.toString()}  ${touchTime} MILLISECOND", 0.0f, 50.0f)
-
+            bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body.toString()}  ${touchtime} MILLISECOND", 0.0f, 50.0f)
+            bitmapFont2.draw(spriteBatch, " 　↑　 \n← 　 →\n 　↓　 ", Gdx.graphics.width / 2.0f - 100.0f, Gdx.graphics.height / 2.0f + 100.0f)
             val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
             val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
             val sprite = Sprite(ltouchtex)
@@ -787,11 +796,35 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                     (laserFixture!!.body.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.draw(spriteBatch)
 
-            touchTime += (Gdx.graphics.deltaTime * 1000).toInt()
-            if (touchTime >= 1000) {
-                moveBlocks(laserFixture!!.body.userData)
+            //Gdx.app.log("laser", "${laserTouched}, ${Math.atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI}")
+            if (laserTouched >= 0 && touchCoordinate[laserTouched] == null) {
+                laserTouched = -1
+            } else if (laserTouched >= 0) {
+                laser.x = touchCoordinate[laserTouched]!!.x
+                laser.y = touchCoordinate[laserTouched]!!.y
+            } else if (laserTouched == -1) {
+                laserTouched = -2
+                when (Math.atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI) {
+                    in -135.0..-45.0 -> {
+                        moveBlocks(laserFixture!!.body.userData, 0)
+                    }
+                    in -45.0..45.0 -> {
+                        moveBlocks(laserFixture!!.body.userData, 3)
+                    }
+                    in 45.0..135.0 -> {
+                        moveBlocks(laserFixture!!.body.userData, 2)
+                    }
+                    else -> {
+                        moveBlocks(laserFixture!!.body.userData, 1)
+                    }
+                }
                 laserFixture = null
             }
+            /*touchtime += (Gdx.graphics.deltaTime * 1000).toInt()
+            if (touchtime >= 1000) {
+                moveBlocks(laserFixture!!.body.userData)
+                laserFixture = null
+            }*/
         }
     }
 
