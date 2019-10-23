@@ -33,7 +33,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 15f
+    private val gridSize2 = Gdx.graphics.width / 12f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
     private val world: World
@@ -374,7 +374,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0f)
+        Gdx.gl.glClearColor(1f, 1f, 1f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.contactList.forEach {
             collisionAction(it.fixtureA.body, it.fixtureB.body)
@@ -392,7 +392,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
-        renderer.render(world, camera.combined)
+        //renderer.render(world, camera.combined)
     }
 
     /**↓ここからデバッグ用*/
@@ -445,7 +445,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     if (nowAngle != null) {
                         touchGravity.forEach {
                             if (abs(it - nowAngle) == 2) {
-                                if (playerBody.linearVelocity.x.toInt() == 0 && playerBody.linearVelocity.y.toInt() == 0) onGameover()
+                                if (playerBody.linearVelocity.x in -0.3..0.3 && playerBody.linearVelocity.y in -0.3..0.3) onGameover()
                             }
                         }
                         touchGravity.add(nowAngle)
@@ -467,7 +467,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     if (nowAngle != null) {
                         touchGravity.forEach {
                             if (abs(it - nowAngle) == 2) {
-                                if (playerBody.linearVelocity.x.toInt() == 0 && playerBody.linearVelocity.y.toInt() == 0) onGameover()
+                                if (playerBody.linearVelocity.x in -0.3..0.3 && playerBody.linearVelocity.y in -0.3..0.3) onGameover()
                             }
                         }
                         touchGravity.add(nowAngle)
@@ -577,19 +577,19 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         body.type = BodyDef.BodyType.DynamicBody
         when (gravity) {
             0 -> {
-                body.applyLinearImpulse(Vector2(blockSpeed * 10000000, 0f), body.worldCenter, false)
+                body.applyLinearImpulse(Vector2(blockSpeed * 100000000, 0f), body.worldCenter, false)
                 body.linearVelocity = Vector2(blockSpeed, 0f)
             }
             1 -> {
-                body.applyLinearImpulse(Vector2(0f, blockSpeed * 10000000), body.worldCenter, false)
+                body.applyLinearImpulse(Vector2(0f, blockSpeed * 100000000), body.worldCenter, false)
                 body.linearVelocity = Vector2(0f, blockSpeed)
             }
             2 -> {
-                body.applyLinearImpulse(Vector2(-blockSpeed * 10000000, 0f), body.worldCenter, false)
+                body.applyLinearImpulse(Vector2(-blockSpeed * 100000000, 0f), body.worldCenter, false)
                 body.linearVelocity = Vector2(-blockSpeed, 0f)
             }
             3 -> {
-                body.applyLinearImpulse(Vector2(0f, -blockSpeed * 10000000), body.worldCenter, false)
+                body.applyLinearImpulse(Vector2(0f, -blockSpeed * 100000000), body.worldCenter, false)
                 body.linearVelocity = Vector2(0f, -blockSpeed)
             }
             else -> Vector2(0f, 0f)
