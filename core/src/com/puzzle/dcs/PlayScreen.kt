@@ -20,6 +20,8 @@ import com.badlogic.gdx.physics.box2d.FixtureDef
 import kotlin.math.*
 import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.RayCastCallback
+import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
+import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
 
 
 class PlayScreen(private val game: Core, fileName: String) : Screen {
@@ -36,6 +38,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val gridSize2 = Gdx.graphics.width / 12f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = gridSize * 0.95f / 2f
+
     private val world: World
     private val renderer: Box2DDebugRenderer
     private val wallSprite: Sprite
@@ -67,6 +70,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val triangleFixtureDef = FixtureDef()
     private val goalFixtureDef = FixtureDef()
     private val playerFixture: Fixture
+    private val joints = mutableListOf<DistanceJoint>()
     private var stage: Stage
 
     private val topList = arrayOf(Vector2(fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, -fixtureGrid), Vector2(fixtureGrid, -fixtureGrid))
@@ -243,6 +247,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             goalFixtureDef.shape = goalShape
             goalBody.createFixture(goalFixtureDef)
         }
+        chooseJointBody()
 
         stage = Stage()
         button = arrayOf(
@@ -373,6 +378,21 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         return list.toTypedArray()
     }
 
+    private fun chooseJointBody() {
+        val idNum = stageData.idMax
+        for (i in 1..idNum) {
+
+        }
+    }
+
+    private fun createJoint(bodyA: Body, bodyB: Body) {
+        val def = DistanceJointDef()
+        val vectorLength = bodyA.position.sub(bodyB.position)
+        def.initialize(bodyA, bodyB, bodyA.position, bodyB.position)
+        def.length = sqrt(vectorLength.x * vectorLength.x + vectorLength.y * vectorLength.y)
+        joints.add(world.createJoint(def) as DistanceJoint)
+    }
+
     override fun render(delta: Float) {
         Gdx.gl.glClearColor(1f, 1f, 1f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
@@ -445,10 +465,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     if (nowAngle != null) {
                         touchGravity.forEach {
                             if (abs(it - nowAngle) == 2) {
-                                if (playerBody.linearVelocity.x in -0.3..0.3 && playerBody.linearVelocity.y in -0.3..0.3) onGameover()
+                                if (playerBody.linearVelocity.x in -0.4..0.4 && playerBody.linearVelocity.y in -0.4..0.4) onGameover()
                             }
                         }
                         touchGravity.add(nowAngle)
+                        isLand = false
                     }
                 } else {
                     isTouchBlock = true
@@ -467,10 +488,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     if (nowAngle != null) {
                         touchGravity.forEach {
                             if (abs(it - nowAngle) == 2) {
-                                if (playerBody.linearVelocity.x in -0.3..0.3 && playerBody.linearVelocity.y in -0.3..0.3) onGameover()
+                                if (playerBody.linearVelocity.x in -0.4..0.4 && playerBody.linearVelocity.y in -0.4..0.4) onGameover()
                             }
                         }
                         touchGravity.add(nowAngle)
+                        isLand = false
                     }
                 } else {
                     isTouchBlock = true

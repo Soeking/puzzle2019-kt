@@ -1,6 +1,7 @@
 package com.puzzle.dcs
 
 data class StageData(
+    val idMax: Int,
     val wall: MutableList<Wall>,
     val square: MutableList<Square>,
     val triangle: MutableList<Triangle>,
@@ -57,4 +58,3 @@ data class Goal(
     var y: Float,
     val gravity: Int
 )
-
