@@ -162,6 +162,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         squareFixtureDef.friction = 1.0f
         squareFixtureDef.restitution = 0.3f
         ladderFixtureDef.shape = ladderShape
+        ladderFixtureDef.density = 1000000f
         ladderFixtureDef.isSensor = true
         triangleFixtureDef.shape = triangleShape
         triangleFixtureDef.density = 1000000f
@@ -576,20 +577,20 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         body.type = BodyDef.BodyType.DynamicBody
         when (gravity) {
             0 -> {
+                body.applyLinearImpulse(Vector2(blockSpeed * 10000000, 0f), body.worldCenter, false)
                 body.linearVelocity = Vector2(blockSpeed, 0f)
-                body.setTransform(body.position.add(Vector2(gridSize / 50f, 0f)), 0f)
             }
             1 -> {
+                body.applyLinearImpulse(Vector2(0f, blockSpeed * 10000000), body.worldCenter, false)
                 body.linearVelocity = Vector2(0f, blockSpeed)
-                body.setTransform(body.position.add(Vector2(0f, gridSize / 50f)), 0f)
             }
             2 -> {
+                body.applyLinearImpulse(Vector2(-blockSpeed * 10000000, 0f), body.worldCenter, false)
                 body.linearVelocity = Vector2(-blockSpeed, 0f)
-                body.setTransform(body.position.add(Vector2(-gridSize / 50f, 0f)), 0f)
             }
             3 -> {
+                body.applyLinearImpulse(Vector2(0f, -blockSpeed * 10000000), body.worldCenter, false)
                 body.linearVelocity = Vector2(0f, -blockSpeed)
-                body.setTransform(body.position.add(Vector2(0f, -gridSize / 50f)), 0f)
             }
             else -> Vector2(0f, 0f)
         }
@@ -615,19 +616,17 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun toStatic(aid: Int, bid: Int) {
-        if (isStatic) {
-            squareBodies.filter { (it.userData as Square).gravityID == aid || (it.userData as Square).gravityID == bid }.forEach {
-                it.type = BodyDef.BodyType.StaticBody
-            }
-            triangleBodies.filter { (it.userData as Triangle).gravityID == aid || (it.userData as Triangle).gravityID == bid }.forEach {
-                it.type = BodyDef.BodyType.StaticBody
-            }
-            ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
-                it.type = BodyDef.BodyType.StaticBody
-            }
-            changeBodies.filter { (it.userData as GravityChange).gravityID == aid || (it.userData as GravityChange).gravityID == bid }.forEach {
-                it.type = BodyDef.BodyType.StaticBody
-            }
+        squareBodies.filter { (it.userData as Square).gravityID == aid || (it.userData as Square).gravityID == bid }.forEach {
+            it.linearVelocity = Vector2(0f, 0f)
+        }
+        triangleBodies.filter { (it.userData as Triangle).gravityID == aid || (it.userData as Triangle).gravityID == bid }.forEach {
+            it.linearVelocity = Vector2(0f, 0f)
+        }
+        ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
+            it.linearVelocity = Vector2(0f, 0f)
+        }
+        changeBodies.filter { (it.userData as GravityChange).gravityID == aid || (it.userData as GravityChange).gravityID == bid }.forEach {
+            it.linearVelocity = Vector2(0f, 0f)
         }
     }
 
