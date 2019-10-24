@@ -162,11 +162,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         playerFixtureDef.friction = 1.0f
         playerFixtureDef.restitution = 0.6f
         squareFixtureDef.shape = boxShape
-        squareFixtureDef.density = 1000000f
+        squareFixtureDef.density = 100000f
         squareFixtureDef.friction = 1.0f
         squareFixtureDef.restitution = 0.3f
         ladderFixtureDef.shape = ladderShape
-        ladderFixtureDef.density = 1000000f
+        ladderFixtureDef.density = 100000f
         ladderFixtureDef.isSensor = true
         triangleFixtureDef.shape = triangleShape
         triangleFixtureDef.density = 1000000f
@@ -381,7 +381,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun chooseJointBody() {
         val idNum = stageData.idMax
         for (i in 1..idNum) {
-
+            val bodyList = mutableListOf<Body>()
+            bodyList.addAll(squareBodies.filter { (it.userData as Square).gravityID == i })
+            bodyList.addAll(triangleBodies.filter { (it.userData as Triangle).gravityID == i })
+            bodyList.addAll(ladderBodies.filter { (it.userData as Ladder).gravityID == i })
+            bodyList.addAll(changeBodies.filter { (it.userData as GravityChange).gravityID == i })
+            for (j in bodyList.indices) createJoint(bodyList[j], bodyList[(j + 1) % bodyList.size])
         }
     }
 
@@ -389,7 +394,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         val def = DistanceJointDef()
         val vectorLength = bodyA.position.sub(bodyB.position)
         def.initialize(bodyA, bodyB, bodyA.position, bodyB.position)
-        def.length = sqrt(vectorLength.x * vectorLength.x + vectorLength.y * vectorLength.y)
+        //def.length = sqrt(vectorLength.x * vectorLength.x + vectorLength.y * vectorLength.y)
         joints.add(world.createJoint(def) as DistanceJoint)
     }
 
@@ -412,7 +417,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
-        //renderer.render(world, camera.combined)
+        renderer.render(world, camera.combined)
     }
 
     /**↓ここからデバッグ用*/
