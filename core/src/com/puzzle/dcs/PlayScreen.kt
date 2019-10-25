@@ -80,7 +80,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var isLand = false
     private var isTouchBlock = false
     private var touchGravity = mutableListOf<Int>()
-    private var isStatic = true
+    private var isStatic = 2
 
     private val fontGenerator: FreeTypeFontGenerator
     private val fontGenerator2: FreeTypeFontGenerator
@@ -147,6 +147,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         dynamicDef.type = BodyDef.BodyType.DynamicBody
         staticDef.type = BodyDef.BodyType.StaticBody
         dynamicDef.gravityScale = 0f
+        dynamicDef.fixedRotation = true
+        staticDef.fixedRotation = true
 
         circleShape = CircleShape()
         circleShape.radius = gridSize / 3f
@@ -162,11 +164,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         playerFixtureDef.friction = 1.0f
         playerFixtureDef.restitution = 0.6f
         squareFixtureDef.shape = boxShape
-        squareFixtureDef.density = 100000f
+        squareFixtureDef.density = 1000000f
         squareFixtureDef.friction = 1.0f
         squareFixtureDef.restitution = 0.3f
         ladderFixtureDef.shape = ladderShape
-        ladderFixtureDef.density = 100000f
+        ladderFixtureDef.density = 1000000f
         ladderFixtureDef.isSensor = true
         triangleFixtureDef.shape = triangleShape
         triangleFixtureDef.density = 1000000f
@@ -392,7 +394,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun createJoint(bodyA: Body, bodyB: Body) {
         val def = DistanceJointDef()
-        val vectorLength = bodyA.position.sub(bodyB.position)
+        //val vectorLength = bodyA.position.sub(bodyB.position)
         def.initialize(bodyA, bodyB, bodyA.position, bodyB.position)
         //def.length = sqrt(vectorLength.x * vectorLength.x + vectorLength.y * vectorLength.y)
         joints.add(world.createJoint(def) as DistanceJoint)
@@ -413,7 +415,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         spriteBatch.end()
 
         isTouchBlock = false
-        isStatic = true
+        isStatic++
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
@@ -604,24 +606,24 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         body.type = BodyDef.BodyType.DynamicBody
         when (gravity) {
             0 -> {
-                body.applyLinearImpulse(Vector2(blockSpeed * 100000000, 0f), body.worldCenter, false)
+                //body.applyLinearImpulse(Vector2(blockSpeed * 100000000, 0f), body.worldCenter, false)
                 body.linearVelocity = Vector2(blockSpeed, 0f)
             }
             1 -> {
-                body.applyLinearImpulse(Vector2(0f, blockSpeed * 100000000), body.worldCenter, false)
+                //body.applyLinearImpulse(Vector2(0f, blockSpeed * 100000000), body.worldCenter, false)
                 body.linearVelocity = Vector2(0f, blockSpeed)
             }
             2 -> {
-                body.applyLinearImpulse(Vector2(-blockSpeed * 100000000, 0f), body.worldCenter, false)
+                //body.applyLinearImpulse(Vector2(-Float.MAX_VALUE, 0f), body.worldCenter, false)
                 body.linearVelocity = Vector2(-blockSpeed, 0f)
             }
             3 -> {
-                body.applyLinearImpulse(Vector2(0f, -blockSpeed * 100000000), body.worldCenter, false)
+                //body.applyLinearImpulse(Vector2(0f, -blockSpeed * 100000000), body.worldCenter, false)
                 body.linearVelocity = Vector2(0f, -blockSpeed)
             }
             else -> Vector2(0f, 0f)
         }
-        isStatic = false
+        isStatic = 0
     }
 
     private fun idCheck(a: Any, b: Any): Triple<Boolean, Int, Int> {
@@ -643,17 +645,23 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun toStatic(aid: Int, bid: Int) {
-        squareBodies.filter { (it.userData as Square).gravityID == aid || (it.userData as Square).gravityID == bid }.forEach {
-            it.linearVelocity = Vector2(0f, 0f)
-        }
-        triangleBodies.filter { (it.userData as Triangle).gravityID == aid || (it.userData as Triangle).gravityID == bid }.forEach {
-            it.linearVelocity = Vector2(0f, 0f)
-        }
-        ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
-            it.linearVelocity = Vector2(0f, 0f)
-        }
-        changeBodies.filter { (it.userData as GravityChange).gravityID == aid || (it.userData as GravityChange).gravityID == bid }.forEach {
-            it.linearVelocity = Vector2(0f, 0f)
+        if (isStatic > 5) {
+            squareBodies.filter { (it.userData as Square).gravityID == aid || (it.userData as Square).gravityID == bid }.forEach {
+                //it.type=BodyDef.BodyType.StaticBody
+                it.linearVelocity = Vector2(0f, 0f)
+            }
+            triangleBodies.filter { (it.userData as Triangle).gravityID == aid || (it.userData as Triangle).gravityID == bid }.forEach {
+                //it.type=BodyDef.BodyType.StaticBody
+                it.linearVelocity = Vector2(0f, 0f)
+            }
+            ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
+                //it.type=BodyDef.BodyType.StaticBody
+                it.linearVelocity = Vector2(0f, 0f)
+            }
+            changeBodies.filter { (it.userData as GravityChange).gravityID == aid || (it.userData as GravityChange).gravityID == bid }.forEach {
+                //it.type=BodyDef.BodyType.StaticBody
+                it.linearVelocity = Vector2(0f, 0f)
+            }
         }
     }
 
