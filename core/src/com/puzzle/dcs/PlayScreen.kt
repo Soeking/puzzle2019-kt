@@ -37,7 +37,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 12f
     private val halfGrid2 = gridSize2 / 2.0f
-    private val fixtureGrid = gridSize * 0.95f / 2f
+    private val fixtureGrid = halfGrid * 0.95f
 
     private val world: World
     private val renderer: Box2DDebugRenderer
@@ -478,7 +478,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                             }
                         }
                         touchGravity.add(nowAngle)
-                        isLand = false
+                        //isLand = false
                     }
                 } else {
                     isTouchBlock = true
@@ -501,7 +501,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                             }
                         }
                         touchGravity.add(nowAngle)
-                        isLand = false
+                        //isLand = false
                     }
                 } else {
                     isTouchBlock = true
@@ -527,13 +527,13 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun jumpCheck(playerPosition: Vector2, objectPosition: Vector2) {
         if (world.gravity.x > 0f) {
-            if (playerPosition.x <= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+            if (playerPosition.x <= objectPosition.x + gridSize / 6f && playerPosition.y in (objectPosition.y - halfGrid)..(objectPosition.y + halfGrid)) isLand = true
         } else if (world.gravity.x < 0f) {
-            if (playerPosition.x >= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+            if (playerPosition.x >= objectPosition.x - gridSize / 6f && playerPosition.y in (objectPosition.y - halfGrid)..(objectPosition.y + halfGrid)) isLand = true
         } else if (world.gravity.y > 0f) {
-            if (playerPosition.y <= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+            if (playerPosition.y <= objectPosition.y + gridSize / 6f && playerPosition.x in (objectPosition.x - halfGrid)..(objectPosition.x + halfGrid)) isLand = true
         } else if (world.gravity.y < 0f) {
-            if (playerPosition.y >= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+            if (playerPosition.y >= objectPosition.y - gridSize / 6f && playerPosition.x in (objectPosition.x - halfGrid)..(objectPosition.x + halfGrid)) isLand = true
         }
     }
 
