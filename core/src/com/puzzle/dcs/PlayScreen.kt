@@ -48,6 +48,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerSprite: Sprite
     private val goalSprite: Sprite
     private val changeSprite: Sprite
+    private val backgroundSprite: Sprite
     private val button: Array<ImageButton>
     private val playerDef = BodyDef()
     private val dynamicDef = BodyDef()
@@ -114,6 +115,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/warphole.png")))
         changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
+        backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle back.png")))
 
         wallSprite.setOrigin(0.0f, 0.0f)
         wallSprite.setScale(gridSize2 / wallSprite.width)
@@ -766,6 +768,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     e.stackTrace
                 }
             }
+            screen.moveButton[0].dispose()
+            screen.moveButton[1].dispose()
+            screen.jumpButton[0].dispose()
+            screen.jumpButton[1].dispose()
+            screen.laserButton[0].dispose()
+            screen.laserButton[1].dispose()
         }
     }
 
