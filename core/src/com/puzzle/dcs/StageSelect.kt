@@ -38,7 +38,7 @@ class StageSelect(private val game: Core) : Screen {
     private val previewPixel: Int
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
-    private val previewWidthAndHeight: Int = 16
+    private val previewWidthAndHeight: Int = 10
 
     init {
         stage = Stage()
