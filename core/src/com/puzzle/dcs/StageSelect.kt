@@ -38,6 +38,7 @@ class StageSelect(private val game: Core) : Screen {
     private val previewPixel: Int
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
+    private val previewWidthAndHeight: Int = 16
 
     init {
         stage = Stage()
@@ -59,7 +60,7 @@ class StageSelect(private val game: Core) : Screen {
         bitmapFont = fontGenerator.generateFont(param)
 
         //stage preview start
-        onePixel = (Gdx.graphics.height / 35.0 * 2.0).toInt()
+        onePixel = (Gdx.graphics.height / 5.0 / previewWidthAndHeight * 2.0).toInt()
         previewPixel = Gdx.graphics.height / 5 * 2
 
         wall = Texture(Gdx.files.internal("images/puzzle cube.png"))
@@ -122,25 +123,25 @@ class StageSelect(private val game: Core) : Screen {
 //                    pixmap.setColor(0f, 0f, 0f, 0f)
 //                    pixmap.fill()
                 stageData.wall.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), wall)
+                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), wall, 0)
                 }
                 stageData.square.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), square)
+                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), square, 0)
                 }
                 stageData.triangle.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), triangle)
+                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), triangle, it.rotate)
                 }
                 stageData.ladder.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), ladder)
+                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), ladder, it.rotate)
                 }
                 stageData.start.let {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), player)
+                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), player, it.gravity + 1)
                 }
                 stageData.goal.let {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), goal)
+                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), goal, it.gravity + 1)
                 }
                 stageData.gravityChange.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), change)
+                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), change, it.setGravity + 1)
                 }
                 stageSelectImage.add(pixmap)
 //                stageSelectImageTexture.add(Texture(pixmap))
@@ -153,14 +154,19 @@ class StageSelect(private val game: Core) : Screen {
         }
     }
 
-    private fun drawPixmap(pixmap: Pixmap, x1: Int, y1: Int, texture: Texture) {
-        if (x1 >= 6 || y1 >= 6) return
+    private fun drawPixmap(pixmap: Pixmap, x1: Int, y1: Int, texture: Texture, rotation: Int) {
+        if (x1 >= previewWidthAndHeight - 1 || y1 >= previewWidthAndHeight - 1) return
         texture.textureData.prepare()
         var pixmap2: Pixmap = texture.textureData.consumePixmap()
-        for (x in 0..(onePixel - 1)) {
-            for (y in 0..(onePixel - 1)) {
+        for (x in 0..onePixel) {
+            for (y in 0..onePixel) {
                 try {
-                    pixmap.drawPixel(x + x1 * onePixel, previewPixel - (y1 * onePixel + y), pixmap2.getPixel((texture.width.toFloat() / onePixel * x).toInt(), texture.height - (texture.height.toFloat() / onePixel * y).toInt()))
+                    when (rotation % 4) {
+                        0 -> pixmap.drawPixel(x + x1 * onePixel, previewPixel - (y + y1 * onePixel), pixmap2.getPixel((texture.width.toFloat() / onePixel * x).toInt(), texture.height - (texture.height.toFloat() / onePixel * y).toInt()))
+                        3 -> pixmap.drawPixel(y + x1 * onePixel, previewPixel - ((onePixel - x) + y1 * onePixel), pixmap2.getPixel((texture.width.toFloat() / onePixel * x).toInt(), texture.height - (texture.height.toFloat() / onePixel * y).toInt()))
+                        1 -> pixmap.drawPixel((onePixel - y) + x1 * onePixel, previewPixel - (x + y1 * onePixel), pixmap2.getPixel((texture.width.toFloat() / onePixel * x).toInt(), texture.height - (texture.height.toFloat() / onePixel * y).toInt()))
+                        2 -> pixmap.drawPixel((onePixel - x) + x1 * onePixel, previewPixel - ((onePixel - y) + y1 * onePixel), pixmap2.getPixel((texture.width.toFloat() / onePixel * x).toInt(), texture.height - (texture.height.toFloat() / onePixel * y).toInt()))
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -182,7 +188,7 @@ class StageSelect(private val game: Core) : Screen {
 
         for (it in 0..(stageSelectImageTexture.size - 1)) {
             spriteBatch.draw(stageSelectImageTexture[it], previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
-            bitmapFont.draw(spriteBatch, stageSelectFile[it].name().substring(0,  stageSelectFile[it].name().length - 5), previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 25.0f)
+            bitmapFont.draw(spriteBatch, stageSelectFile[it].name().substring(0, stageSelectFile[it].name().length - 5), previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 25.0f)
         }
 
         if (finishedTexture < stageSelectImage.size) {
