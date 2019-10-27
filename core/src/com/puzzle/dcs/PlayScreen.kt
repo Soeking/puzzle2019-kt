@@ -107,12 +107,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         createCollision()
 
         file = Gdx.files.internal("stages/$fileName")
-        wallSprite = Sprite(Texture(Gdx.files.internal("images/wall.png")))
-        squareSprite = Sprite(Texture(Gdx.files.internal("images/square.png")))
+        wallSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cube.png")))
+        squareSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepattern.png")))
         triangleSprite = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
-        ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder.png")))
+        ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder (2).png")))
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
-        goalSprite = Sprite(Texture(Gdx.files.internal("images/goal.png")))
+        goalSprite = Sprite(Texture(Gdx.files.internal("images/warphole.png")))
         changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
 
         wallSprite.setOrigin(0.0f, 0.0f)
