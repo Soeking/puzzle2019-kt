@@ -160,7 +160,7 @@ class StageSelect(private val game: Core) : Screen {
         for (x in 0..(onePixel - 1)) {
             for (y in 0..(onePixel - 1)) {
                 try {
-                    pixmap.drawPixel(x + x1 * onePixel, previewPixel - (y1 * onePixel + y), pixmap2.getPixel(texture.width / onePixel * x, texture.height - texture.height / onePixel * y))
+                    pixmap.drawPixel(x + x1 * onePixel, previewPixel - (y1 * onePixel + y), pixmap2.getPixel((texture.width.toFloat() / onePixel * x).toInt(), texture.height - (texture.height.toFloat() / onePixel * y).toInt()))
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
