@@ -3,13 +3,12 @@ package com.puzzle.dcs
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.files.FileHandle
-import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.TextureData
+import com.badlogic.gdx.graphics.*
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -22,20 +21,23 @@ class StageSelect(private val game: Core) : Screen {
     private val spriteBatch = SpriteBatch()
     private val stageList = mutableListOf<Pair<ImageButton, String>>()
 
-    public var stageSelectX: Int
-    public val stageSelectMaxX: Int
-    public var stageSelectImage: ArrayList<Pixmap> = ArrayList()
-    public var stageSelectImageTexture: ArrayList<Texture> = ArrayList()
-    public val stageSelectFile: ArrayList<FileHandle> = ArrayList()
-    public val json = Gson()
-    public val wall: Texture
-    public val square: Texture
-    public val triangle: Texture
-    public val ladder: Texture
-    public val player: Texture
-    public val goal: Texture
-    public val change: Texture
-    public val onePixel: Int
+    private var stageSelectX: Int
+    private val stageSelectMaxX: Int
+    private var stageSelectImage: ArrayList<Pixmap> = ArrayList()
+    private var stageSelectImageTexture: ArrayList<Texture> = ArrayList()
+    private val stageSelectFile: ArrayList<FileHandle> = ArrayList()
+    private val json = Gson()
+    private val wall: Texture
+    private val square: Texture
+    private val triangle: Texture
+    private val ladder: Texture
+    private val player: Texture
+    private val goal: Texture
+    private val change: Texture
+    private val onePixel: Int
+    private val previewPixel: Int
+    private val fontGenerator: FreeTypeFontGenerator
+    private val bitmapFont: BitmapFont
 
     init {
         stage = Stage()
@@ -48,8 +50,17 @@ class StageSelect(private val game: Core) : Screen {
             stage.addActor(stageList[i].first)
         }
 
+        // create fonts
+        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/meiryo.ttc"))
+        val param = FreeTypeFontGenerator.FreeTypeFontParameter()
+        param.size = Gdx.graphics.height / 25
+        param.color = Color.BLACK
+        param.incremental = true
+        bitmapFont = fontGenerator.generateFont(param)
+
         //stage preview start
         onePixel = (Gdx.graphics.height / 35.0 * 2.0).toInt()
+        previewPixel = Gdx.graphics.height / 5 * 2
 
         wall = Texture(Gdx.files.internal("images/puzzle cube.png"))
         square = Texture(Gdx.files.internal("images/puzzle cubepattern.png"))
@@ -107,7 +118,7 @@ class StageSelect(private val game: Core) : Screen {
         stageSelectFile.forEach() {
             if (it.exists()) {
                 var stageData: StageData = json.fromJson(it.readString(), StageData::class.java)
-                var pixmap: Pixmap = Pixmap(Gdx.graphics.height / 5 * 2, Gdx.graphics.height / 5 * 2, Pixmap.Format.RGBA8888)
+                var pixmap: Pixmap = Pixmap(previewPixel, previewPixel, Pixmap.Format.RGBA8888)
 //                    pixmap.setColor(0f, 0f, 0f, 0f)
 //                    pixmap.fill()
                 stageData.wall.forEach {
@@ -149,7 +160,7 @@ class StageSelect(private val game: Core) : Screen {
         for (x in 0..(onePixel - 1)) {
             for (y in 0..(onePixel - 1)) {
                 try {
-                    pixmap.drawPixel(x + x1 * onePixel, Gdx.graphics.height / 5 * 2 - (y1 * onePixel + y), pixmap2.getPixel(texture.width / onePixel * x, texture.height - texture.height / onePixel * y))
+                    pixmap.drawPixel(x + x1 * onePixel, previewPixel - (y1 * onePixel + y), pixmap2.getPixel(texture.width / onePixel * x, texture.height - texture.height / onePixel * y))
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -170,12 +181,13 @@ class StageSelect(private val game: Core) : Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         for (it in 0..(stageSelectImageTexture.size - 1)) {
-            spriteBatch.draw(stageSelectImageTexture[it], Gdx.graphics.height / 5 * 2 * (it / 2).toFloat() + stageSelectX, Gdx.graphics.height / 5 * 2 - Gdx.graphics.height / 5 * 2 * (it % 2).toFloat())
+            spriteBatch.draw(stageSelectImageTexture[it], previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
+            bitmapFont.draw(spriteBatch, stageSelectFile[it].name().substring(0,  stageSelectFile[it].name().length - 5), previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 25.0f)
         }
 
-        if(finishedTexture < stageSelectImage.size){
+        if (finishedTexture < stageSelectImage.size) {
             stageSelectImageTexture.add(Texture(stageSelectImage[finishedTexture++]))
-            stageSelectImage[finishedTexture-1].dispose()
+            stageSelectImage[finishedTexture - 1].dispose()
         }
 
         spriteBatch.end()
