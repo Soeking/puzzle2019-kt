@@ -109,7 +109,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         file = Gdx.files.internal("stages/$fileName")
         wallSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cube.png")))
         squareSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepattern.png")))
-        triangleSprite = Sprite(Texture(Gdx.files.internal("images/triangle.png")))
+        triangleSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepatternT.png")))
         ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder (2).png")))
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/warphole.png")))
