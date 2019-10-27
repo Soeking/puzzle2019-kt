@@ -388,15 +388,17 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             bodyList.addAll(triangleBodies.filter { (it.userData as Triangle).gravityID == i })
             bodyList.addAll(ladderBodies.filter { (it.userData as Ladder).gravityID == i })
             bodyList.addAll(changeBodies.filter { (it.userData as GravityChange).gravityID == i })
-            for (j in bodyList.indices) createJoint(bodyList[j], bodyList[(j + 1) % bodyList.size])
+            for (j in bodyList.indices) {
+                createJoint(bodyList[j], bodyList[(j + 1) % bodyList.size])
+                createJoint(bodyList[j], bodyList[(j + 2) % bodyList.size])
+                createJoint(bodyList[j], bodyList[(j + 3) % bodyList.size])
+            }
         }
     }
 
     private fun createJoint(bodyA: Body, bodyB: Body) {
         val def = DistanceJointDef()
-        //val vectorLength = bodyA.position.sub(bodyB.position)
         def.initialize(bodyA, bodyB, bodyA.position, bodyB.position)
-        //def.length = sqrt(vectorLength.x * vectorLength.x + vectorLength.y * vectorLength.y)
         joints.add(world.createJoint(def) as DistanceJoint)
     }
 
@@ -538,7 +540,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun ladderAction() {
         playerBody.gravityScale = 0f
         playerBody.linearDamping = 2f
-        isLand = true
+        //isLand = true
     }
 
     private fun changeGravity(switch: GravityChange) {
@@ -927,6 +929,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         world.destroyBody(playerBody)
         world.destroyBody(goalBody)
+        joints.forEach {
+            world.destroyJoint(it)
+        }
         spriteBatch.dispose()
         stage.dispose()
     }
