@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
+import java.util.*
 
 class Title(private val game: Core) : Screen {
     private val batch: SpriteBatch
@@ -18,6 +19,9 @@ class Title(private val game: Core) : Screen {
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
     private var first: Boolean
+    private var colorR: Float
+    private var colorG: Float
+    private var colorB: Float
 
     init {
         batch = SpriteBatch()
@@ -39,19 +43,23 @@ class Title(private val game: Core) : Screen {
         param.incremental = true
         bitmapFont = fontGenerator.generateFont(param)
 
+        colorR = 0.1f
+        colorG = 0.25f
+        colorB = 0.2f
+
         first = true
 
         titleMilliseconds = 0
     }
 
     override fun render(delta: Float) {
-        if (Gdx.input.justTouched() && titleMilliseconds >= 1000) {
+        if (Gdx.input.justTouched() && titleMilliseconds >= 2000) {
             game.screen = GameMain(game)
         }
 
         batch.begin()
 
-        Gdx.gl.glClearColor(0.1f, 0.25f, 0.2f, 0f)
+        Gdx.gl.glClearColor(colorR, colorG, colorB, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         //font.draw(batch, "TITLE", Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         if (titleMilliseconds <= 2000) {
@@ -59,7 +67,7 @@ class Title(private val game: Core) : Screen {
 //            titleImage.setPosition(0.0f, 0.0f)
             titleImage.setColor(titleImage.color.r, titleImage.color.g, titleImage.color.b, 1.0f - Math.abs(1.0f - titleMilliseconds / 1000.0f))
             titleImage.draw(batch)
-        } else {
+        } else if (titleMilliseconds >= 2500) {
             titleImage.setPosition(Gdx.graphics.width / 2.0f - titleImage.width / 2.0f, Gdx.graphics.height / 8.0f * 5.0f - titleImage.height / 2.0f)
             var xSize: Float = Gdx.graphics.width / titleImage.width / 1.5f
             var ySize: Float = Gdx.graphics.height / titleImage.height / 1.5f
@@ -76,6 +84,12 @@ class Title(private val game: Core) : Screen {
             titleMilliseconds = 0
         } else {
             titleMilliseconds += (Gdx.graphics.deltaTime * 1000.0f).toInt()
+        }
+        if(titleMilliseconds >= 3500){
+            titleMilliseconds -= 1000
+            colorR = Random().nextFloat()
+            colorG = Random().nextFloat()
+            colorB = Random().nextFloat()
         }
         //Gdx.app.log("times", "${titleMilliseconds}")
     }
