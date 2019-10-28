@@ -400,6 +400,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         val def = DistanceJointDef()
         def.initialize(bodyA, bodyB, bodyA.position, bodyB.position)
         joints.add(world.createJoint(def) as DistanceJoint)
+        def.initialize(bodyA, bodyB, bodyA.position.sub(fixtureGrid, fixtureGrid), bodyB.position.add(fixtureGrid, fixtureGrid))
+        joints.add(world.createJoint(def) as DistanceJoint)
     }
 
     override fun render(delta: Float) {
@@ -421,7 +423,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
-        renderer.render(world, camera.combined)
+        //renderer.render(world, camera.combined)
     }
 
     /**↓ここからデバッグ用*/
