@@ -37,7 +37,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 12f
     private val halfGrid2 = gridSize2 / 2.0f
-    private val fixtureGrid = gridSize * 0.95f / 2f
+    private val fixtureGrid = halfGrid * 0.95f
 
     private val world: World
     private val renderer: Box2DDebugRenderer
@@ -390,15 +390,19 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             bodyList.addAll(triangleBodies.filter { (it.userData as Triangle).gravityID == i })
             bodyList.addAll(ladderBodies.filter { (it.userData as Ladder).gravityID == i })
             bodyList.addAll(changeBodies.filter { (it.userData as GravityChange).gravityID == i })
-            for (j in bodyList.indices) createJoint(bodyList[j], bodyList[(j + 1) % bodyList.size])
+            for (j in bodyList.indices) {
+                createJoint(bodyList[j], bodyList[(j + 1) % bodyList.size])
+                createJoint(bodyList[j], bodyList[(j + 2) % bodyList.size])
+                createJoint(bodyList[j], bodyList[(j + 3) % bodyList.size])
+            }
         }
     }
 
     private fun createJoint(bodyA: Body, bodyB: Body) {
         val def = DistanceJointDef()
-        //val vectorLength = bodyA.position.sub(bodyB.position)
         def.initialize(bodyA, bodyB, bodyA.position, bodyB.position)
-        //def.length = sqrt(vectorLength.x * vectorLength.x + vectorLength.y * vectorLength.y)
+        joints.add(world.createJoint(def) as DistanceJoint)
+        def.initialize(bodyA, bodyB, bodyA.position.sub(fixtureGrid, fixtureGrid), bodyB.position.add(fixtureGrid, fixtureGrid))
         joints.add(world.createJoint(def) as DistanceJoint)
     }
 
@@ -421,7 +425,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
-        renderer.render(world, camera.combined)
+        //renderer.render(world, camera.combined)
     }
 
     /**↓ここからデバッグ用*/
@@ -478,7 +482,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                             }
                         }
                         touchGravity.add(nowAngle)
-                        isLand = false
+                        //isLand = false
                     }
                 } else {
                     isTouchBlock = true
@@ -501,7 +505,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                             }
                         }
                         touchGravity.add(nowAngle)
-                        isLand = false
+                        //isLand = false
                     }
                 } else {
                     isTouchBlock = true
@@ -527,20 +531,20 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun jumpCheck(playerPosition: Vector2, objectPosition: Vector2) {
         if (world.gravity.x > 0f) {
-            if (playerPosition.x <= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+            if (playerPosition.x <= objectPosition.x + gridSize / 6f && playerPosition.y in (objectPosition.y - halfGrid)..(objectPosition.y + halfGrid)) isLand = true
         } else if (world.gravity.x < 0f) {
-            if (playerPosition.x >= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+            if (playerPosition.x >= objectPosition.x - gridSize / 6f && playerPosition.y in (objectPosition.y - halfGrid)..(objectPosition.y + halfGrid)) isLand = true
         } else if (world.gravity.y > 0f) {
-            if (playerPosition.y <= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+            if (playerPosition.y <= objectPosition.y + gridSize / 6f && playerPosition.x in (objectPosition.x - halfGrid)..(objectPosition.x + halfGrid)) isLand = true
         } else if (world.gravity.y < 0f) {
-            if (playerPosition.y >= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+            if (playerPosition.y >= objectPosition.y - gridSize / 6f && playerPosition.x in (objectPosition.x - halfGrid)..(objectPosition.x + halfGrid)) isLand = true
         }
     }
 
     private fun ladderAction() {
         playerBody.gravityScale = 0f
         playerBody.linearDamping = 2f
-        isLand = true
+        //isLand = true
     }
 
     private fun changeGravity(switch: GravityChange) {
@@ -935,6 +939,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         world.destroyBody(playerBody)
         world.destroyBody(goalBody)
+        joints.forEach {
+            world.destroyJoint(it)
+        }
         spriteBatch.dispose()
         stage.dispose()
     }
