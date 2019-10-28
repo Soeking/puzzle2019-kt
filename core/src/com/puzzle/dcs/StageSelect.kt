@@ -1,6 +1,7 @@
 package com.puzzle.dcs
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.*
@@ -9,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -22,6 +24,7 @@ class StageSelect(private val game: Core) : Screen {
     private val stageList = mutableListOf<Pair<ImageButton, String>>()
 
     private var stageSelectX: Int
+    private var oldStageSelectX: Int
     private val stageSelectMaxX: Int
     private var stageSelectImage: ArrayList<Pixmap> = ArrayList()
     private var stageSelectImageTexture: ArrayList<Texture> = ArrayList()
@@ -39,6 +42,10 @@ class StageSelect(private val game: Core) : Screen {
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
     private val previewWidthAndHeight: Int = 10
+
+    private var firstTouch: Vector2?
+    private var isTap: Boolean
+    private var checkTap: Boolean
 
     init {
         stage = Stage()
@@ -61,7 +68,7 @@ class StageSelect(private val game: Core) : Screen {
 
         //stage preview start
         onePixel = (Gdx.graphics.height / 5.0 / previewWidthAndHeight * 2.0).toInt()
-        previewPixel = Gdx.graphics.height / 5 * 2
+        previewPixel = (Gdx.graphics.height / 5.0 * 2).toInt()
 
         wall = Texture(Gdx.files.internal("images/puzzle cube.png"))
         square = Texture(Gdx.files.internal("images/puzzle cubepattern.png"))
@@ -86,17 +93,32 @@ class StageSelect(private val game: Core) : Screen {
 //        goal.setScale(Gdx.graphics.height / 25 * 2 / goal.height)
 //        change.setScale(Gdx.graphics.height / 25 * 2 / change.height)
 
-        stageSelectFile.add(Gdx.files.internal("stages/kari.json"))
-        stageSelectFile.add(Gdx.files.internal("stages/new.json"))
-        stageSelectFile.add(Gdx.files.internal("stages/saishin.json"))
+        val files = Gdx.files.internal("stages/").list()
+
+        files.forEach {
+            //            Gdx.app.log("files", "${it.file().name}, ${it.file().isFile}, ${it.file().name.endsWith(".json")}")
+//            stageSelectFile.add(it)
+            if (it.file().name.endsWith(".json")) {
+                stageSelectFile.add(it)
+            }
+        }
+
+//        stageSelectFile.add(Gdx.files.internal("stages/kari.json"))
+//        stageSelectFile.add(Gdx.files.internal("stages/new.json"))
+//        stageSelectFile.add(Gdx.files.internal("stages/saishin.json"))
 
 //        for (i in 0..(stageSelectFile.size - 1)) {
 //            var pixmap: Pixmap = Pixmap(Gdx.graphics.width / 5 * 2, Gdx.graphics.width / 5 * 2, Pixmap.Format.RGBA8888)
 //            stageSelectImage.add(pixmap)
 //        }
 
+        oldStageSelectX = 0
         stageSelectX = 0
-        stageSelectMaxX = Math.max(0, Gdx.graphics.width - Gdx.graphics.height / 5 * 2 * ((stageList.size + 1) / 2))
+        stageSelectMaxX = Math.max(0, Gdx.graphics.width - Gdx.graphics.height / 5 * 2 * ((stageSelectFile.size + 1) / 2))
+
+        firstTouch = null
+        isTap = false
+        checkTap = true
 
         var th = DrawButtonThread(this)
         th.start()
@@ -104,7 +126,10 @@ class StageSelect(private val game: Core) : Screen {
 
         //stage preview end
 
-        Gdx.input.inputProcessor = stage
+        val mu = InputMultiplexer()
+        mu.addProcessor(Touch())
+//        mu.addProcessor(stage)
+        Gdx.input.inputProcessor = mu
     }
 
 
@@ -186,9 +211,20 @@ class StageSelect(private val game: Core) : Screen {
         Gdx.gl.glClearColor(0.7f, 0.9f, 0.3f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
+        touch()
+
         for (it in 0..(stageSelectImageTexture.size - 1)) {
             spriteBatch.draw(stageSelectImageTexture[it], previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
             bitmapFont.draw(spriteBatch, stageSelectFile[it].name().substring(0, stageSelectFile[it].name().length - 5), previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 25.0f)
+
+            if (isTap && firstTouch != null) {
+                if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
+                    isTap = false
+                    firstTouch = null
+                    game.screen = PlayScreen(game, stageSelectFile[it].name())
+                }
+            }
+
         }
 
         if (finishedTexture < stageSelectImage.size) {
@@ -198,8 +234,36 @@ class StageSelect(private val game: Core) : Screen {
 
         spriteBatch.end()
 
-        stage.act(Gdx.graphics.deltaTime)
-        stage.draw()
+//        stage.act(Gdx.graphics.deltaTime)
+//        stage.draw()
+    }
+
+    private fun touch() {
+        if (touchCoordinate[0] != null) {
+            if (firstTouch == null) {
+                firstTouch = Vector2(touchCoordinate[0]!!.x, touchCoordinate[0]!!.y)
+                oldStageSelectX = stageSelectX
+            }
+            if (firstTouch != null) {
+                if (checkTap) {
+                    if (firstTouch!!.x != touchCoordinate[0]!!.x || firstTouch!!.y != touchCoordinate[0]!!.y) {
+                        checkTap = false
+                    }
+                } else {
+                    stageSelectX = Math.min(stageSelectMaxX, Math.max(0, oldStageSelectX + (touchCoordinate[0]!!.x - firstTouch!!.x).toInt()))
+                }
+            }
+        } else {
+            if (firstTouch != null) {
+                if (checkTap) isTap = true
+                else {
+                    isTap = false
+                    checkTap = true
+                    firstTouch = null
+                }
+            }
+        }
+//        Gdx.app.log("touch", "${isTap}, ${checkTap}, ${firstTouch}")
     }
 
     override fun resize(width: Int, height: Int) {
