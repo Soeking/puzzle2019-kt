@@ -20,9 +20,11 @@ import com.badlogic.gdx.physics.box2d.FixtureDef
 import kotlin.math.*
 import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.RayCastCallback
+import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
+import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
 
 
-class PlayScreen(private val game: Core, private val fileName: String) : Screen {
+class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val camera: OrthographicCamera
     private val spriteBatch = SpriteBatch()
     private val file: FileHandle
@@ -33,9 +35,10 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 15f
+    private val gridSize2 = Gdx.graphics.width / 12f
     private val halfGrid2 = gridSize2 / 2.0f
-    private val fixtureGrid = gridSize * 0.95f / 2f
+    private val fixtureGrid = halfGrid * 0.95f
+
     private val world: World
     private val renderer: Box2DDebugRenderer
     private val wallSprite: Sprite
@@ -67,6 +70,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private val triangleFixtureDef = FixtureDef()
     private val goalFixtureDef = FixtureDef()
     private val playerFixture: Fixture
+    private val joints = mutableListOf<DistanceJoint>()
     private var stage: Stage
 
     private val topList = arrayOf(Vector2(fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, -fixtureGrid), Vector2(fixtureGrid, -fixtureGrid))
@@ -76,22 +80,23 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     private var isLand = false
     private var isTouchBlock = false
     private var touchGravity = mutableListOf<Int>()
+    private var isStatic = 2
 
     private val fontGenerator: FreeTypeFontGenerator
     private val fontGenerator2: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
     private val bitmapFont2: BitmapFont
 
-    var moveButton: Array<Pixmap>//Pixmap
-    var tex: Array<Texture>
-    var jumpButton: Array<Pixmap>
-    var jtex: Array<Texture>
-    var laserButton: Array<Pixmap>
-    var ltex: Array<Texture>
-    var callback: RayCastCallback
-    var laserFixture: Fixture? = null
-    var laserTouchedPix: Pixmap
-    var ltouchtex: Texture
+    private var moveButton: Array<Pixmap>//Pixmap
+    private var tex: Array<Texture>
+    private var jumpButton: Array<Pixmap>
+    private var jtex: Array<Texture>
+    private var laserButton: Array<Pixmap>
+    private var ltex: Array<Texture>
+    private var callback: RayCastCallback
+    private var laserFixture: Fixture? = null
+    private var laserTouchedPix: Pixmap
+    private var ltouchtex: Texture
 
     init {
         Box2D.init()
@@ -142,6 +147,8 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         dynamicDef.type = BodyDef.BodyType.DynamicBody
         staticDef.type = BodyDef.BodyType.StaticBody
         dynamicDef.gravityScale = 0f
+        dynamicDef.fixedRotation = true
+        staticDef.fixedRotation = true
 
         circleShape = CircleShape()
         circleShape.radius = gridSize / 3f
@@ -161,6 +168,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         squareFixtureDef.friction = 1.0f
         squareFixtureDef.restitution = 0.3f
         ladderFixtureDef.shape = ladderShape
+        ladderFixtureDef.density = 1000000f
         ladderFixtureDef.isSensor = true
         triangleFixtureDef.shape = triangleShape
         triangleFixtureDef.density = 1000000f
@@ -241,6 +249,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
             goalFixtureDef.shape = goalShape
             goalBody.createFixture(goalFixtureDef)
         }
+        chooseJointBody()
 
         stage = Stage()
         button = arrayOf(
@@ -275,12 +284,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         Gdx.input.inputProcessor = mu
 
         /**↓ここからデバッグ用*/
-        squareBodies.filter { (it.userData as Square).gravityID == 2 }.forEach {
-            it.setLinearVelocity(0f, -0.3f)
-        }
-        triangleBodies.filter { (it.userData as Triangle).gravityID == 2 }.forEach {
-            it.setLinearVelocity(0f, -0.3f)
-        }
 
         //フォント生成
         fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Black.ttf"))
@@ -377,8 +380,32 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         return list.toTypedArray()
     }
 
+    private fun chooseJointBody() {
+        val idNum = stageData.idMax
+        for (i in 1..idNum) {
+            val bodyList = mutableListOf<Body>()
+            bodyList.addAll(squareBodies.filter { (it.userData as Square).gravityID == i })
+            bodyList.addAll(triangleBodies.filter { (it.userData as Triangle).gravityID == i })
+            bodyList.addAll(ladderBodies.filter { (it.userData as Ladder).gravityID == i })
+            bodyList.addAll(changeBodies.filter { (it.userData as GravityChange).gravityID == i })
+            for (j in bodyList.indices) {
+                createJoint(bodyList[j], bodyList[(j + 1) % bodyList.size])
+                createJoint(bodyList[j], bodyList[(j + 2) % bodyList.size])
+                createJoint(bodyList[j], bodyList[(j + 3) % bodyList.size])
+            }
+        }
+    }
+
+    private fun createJoint(bodyA: Body, bodyB: Body) {
+        val def = DistanceJointDef()
+        def.initialize(bodyA, bodyB, bodyA.position, bodyB.position)
+        joints.add(world.createJoint(def) as DistanceJoint)
+        def.initialize(bodyA, bodyB, bodyA.position.sub(fixtureGrid, fixtureGrid), bodyB.position.add(fixtureGrid, fixtureGrid))
+        joints.add(world.createJoint(def) as DistanceJoint)
+    }
+
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 0f)
+        Gdx.gl.glClearColor(1f, 1f, 1f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.contactList.forEach {
             collisionAction(it.fixtureA.body, it.fixtureB.body)
@@ -392,10 +419,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         spriteBatch.end()
 
         isTouchBlock = false
+        isStatic++
         touchGravity.clear()
         camera.update()
-        world.step(1 / 60f, 8, 3)
-        renderer.render(world, camera.combined)
+        world.step(1 / 45f, 8, 3)
+        //renderer.render(world, camera.combined)
     }
 
     /**↓ここからデバッグ用*/
@@ -448,10 +476,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                     if (nowAngle != null) {
                         touchGravity.forEach {
                             if (abs(it - nowAngle) == 2) {
-                                if (playerBody.linearVelocity.x.toInt() == 0 && playerBody.linearVelocity.y.toInt() == 0) onGameover()
+                                if (playerBody.linearVelocity.x in -0.4..0.4 && playerBody.linearVelocity.y in -0.4..0.4) onGameover()
                             }
                         }
                         touchGravity.add(nowAngle)
+                        //isLand = false
                     }
                 } else {
                     isTouchBlock = true
@@ -470,10 +499,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                     if (nowAngle != null) {
                         touchGravity.forEach {
                             if (abs(it - nowAngle) == 2) {
-                                if (playerBody.linearVelocity.x.toInt() == 0 && playerBody.linearVelocity.y.toInt() == 0) onGameover()
+                                if (playerBody.linearVelocity.x in -0.4..0.4 && playerBody.linearVelocity.y in -0.4..0.4) onGameover()
                             }
                         }
                         touchGravity.add(nowAngle)
+                        //isLand = false
                     }
                 } else {
                     isTouchBlock = true
@@ -499,20 +529,20 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private fun jumpCheck(playerPosition: Vector2, objectPosition: Vector2) {
         if (world.gravity.x > 0f) {
-            if (playerPosition.x <= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+            if (playerPosition.x <= objectPosition.x + gridSize / 6f && playerPosition.y in (objectPosition.y - halfGrid)..(objectPosition.y + halfGrid)) isLand = true
         } else if (world.gravity.x < 0f) {
-            if (playerPosition.x >= objectPosition.x && playerPosition.y in objectPosition.y - fixtureGrid..objectPosition.y + fixtureGrid) isLand = true
+            if (playerPosition.x >= objectPosition.x - gridSize / 6f && playerPosition.y in (objectPosition.y - halfGrid)..(objectPosition.y + halfGrid)) isLand = true
         } else if (world.gravity.y > 0f) {
-            if (playerPosition.y <= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+            if (playerPosition.y <= objectPosition.y + gridSize / 6f && playerPosition.x in (objectPosition.x - halfGrid)..(objectPosition.x + halfGrid)) isLand = true
         } else if (world.gravity.y < 0f) {
-            if (playerPosition.y >= objectPosition.y && playerPosition.x in objectPosition.x - fixtureGrid..objectPosition.x + fixtureGrid) isLand = true
+            if (playerPosition.y >= objectPosition.y - gridSize / 6f && playerPosition.x in (objectPosition.x - halfGrid)..(objectPosition.x + halfGrid)) isLand = true
         }
     }
 
     private fun ladderAction() {
         playerBody.gravityScale = 0f
         playerBody.linearDamping = 2f
-        isLand = true
+        //isLand = true
     }
 
     private fun changeGravity(switch: GravityChange) {
@@ -552,21 +582,11 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private fun moveBlocks(block: Any, gravity: Int) {
         val id: Int = when (block) {
-            is Square -> {
-                block.gravityID
-            }
-            is Triangle -> {
-                block.gravityID
-            }
-            is Ladder -> {
-                block.gravityID
-            }
-            is GravityChange -> {
-                block.gravityID
-            }
-            else -> {
-                99
-            }
+            is Square -> block.gravityID
+            is Triangle -> block.gravityID
+            is Ladder -> block.gravityID
+            is GravityChange -> block.gravityID
+            else -> 99
         }
         squareBodies.filter { (it.userData as Square).gravityID == id }.forEach {
             setMove(it, gravity)
@@ -588,13 +608,26 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
 
     private fun setMove(body: Body, gravity: Int) {
         body.type = BodyDef.BodyType.DynamicBody
-        body.linearVelocity = when (gravity) {
-            0 -> Vector2(blockSpeed, 0f)
-            1 -> Vector2(0f, blockSpeed)
-            2 -> Vector2(-blockSpeed, 0f)
-            3 -> Vector2(0f, -blockSpeed)
+        when (gravity) {
+            0 -> {
+                //body.applyLinearImpulse(Vector2(blockSpeed * 100000000, 0f), body.worldCenter, false)
+                body.linearVelocity = Vector2(blockSpeed, 0f)
+            }
+            1 -> {
+                //body.applyLinearImpulse(Vector2(0f, blockSpeed * 100000000), body.worldCenter, false)
+                body.linearVelocity = Vector2(0f, blockSpeed)
+            }
+            2 -> {
+                //body.applyLinearImpulse(Vector2(-Float.MAX_VALUE, 0f), body.worldCenter, false)
+                body.linearVelocity = Vector2(-blockSpeed, 0f)
+            }
+            3 -> {
+                //body.applyLinearImpulse(Vector2(0f, -blockSpeed * 100000000), body.worldCenter, false)
+                body.linearVelocity = Vector2(0f, -blockSpeed)
+            }
             else -> Vector2(0f, 0f)
         }
+        isStatic = 0
     }
 
     private fun idCheck(a: Any, b: Any): Triple<Boolean, Int, Int> {
@@ -616,17 +649,23 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
     }
 
     private fun toStatic(aid: Int, bid: Int) {
-        squareBodies.filter { (it.userData as Square).gravityID == aid || (it.userData as Square).gravityID == bid }.forEach {
-            it.type = BodyDef.BodyType.StaticBody
-        }
-        triangleBodies.filter { (it.userData as Triangle).gravityID == aid || (it.userData as Triangle).gravityID == bid }.forEach {
-            it.type = BodyDef.BodyType.StaticBody
-        }
-        ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
-            it.type = BodyDef.BodyType.StaticBody
-        }
-        changeBodies.filter { (it.userData as GravityChange).gravityID == aid || (it.userData as GravityChange).gravityID == bid }.forEach {
-            it.type = BodyDef.BodyType.StaticBody
+        if (isStatic > 5) {
+            squareBodies.filter { (it.userData as Square).gravityID == aid || (it.userData as Square).gravityID == bid }.forEach {
+                //it.type=BodyDef.BodyType.StaticBody
+                it.linearVelocity = Vector2(0f, 0f)
+            }
+            triangleBodies.filter { (it.userData as Triangle).gravityID == aid || (it.userData as Triangle).gravityID == bid }.forEach {
+                //it.type=BodyDef.BodyType.StaticBody
+                it.linearVelocity = Vector2(0f, 0f)
+            }
+            ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
+                //it.type=BodyDef.BodyType.StaticBody
+                it.linearVelocity = Vector2(0f, 0f)
+            }
+            changeBodies.filter { (it.userData as GravityChange).gravityID == aid || (it.userData as GravityChange).gravityID == bid }.forEach {
+                //it.type=BodyDef.BodyType.StaticBody
+                it.linearVelocity = Vector2(0f, 0f)
+            }
         }
     }
 
@@ -787,7 +826,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                     (laserFixture!!.body.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
             sprite.draw(spriteBatch)
 
-            //Gdx.app.log("laser", "${laserTouched}, ${Math.atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI}")
             if (laserTouched >= 0 && touchCoordinate[laserTouched] == null) {
                 laserTouched = -1
             } else if (laserTouched >= 0) {
@@ -795,7 +833,7 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 laser.y = touchCoordinate[laserTouched]!!.y
             } else if (laserTouched == -1) {
                 laserTouched = -2
-                when (Math.atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI) {
+                when (atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI) {
                     in -135.0..-45.0 -> {
                         moveBlocks(laserFixture!!.body.userData, 0)
                     }
@@ -811,11 +849,6 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
                 }
                 laserFixture = null
             }
-            /*touchtime += (Gdx.graphics.deltaTime * 1000).toInt()
-            if (touchtime >= 1000) {
-                moveBlocks(laserFixture!!.body.userData)
-                laserFixture = null
-            }*/
         }
     }
 
@@ -898,6 +931,9 @@ class PlayScreen(private val game: Core, private val fileName: String) : Screen 
         }
         world.destroyBody(playerBody)
         world.destroyBody(goalBody)
+        joints.forEach {
+            world.destroyJoint(it)
+        }
         spriteBatch.dispose()
         stage.dispose()
     }
