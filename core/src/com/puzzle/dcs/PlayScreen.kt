@@ -608,23 +608,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun setMove(body: Body, gravity: Int) {
         body.type = BodyDef.BodyType.DynamicBody
-        when (gravity) {
-            0 -> {
-                //body.applyLinearImpulse(Vector2(blockSpeed * 100000000, 0f), body.worldCenter, false)
-                body.linearVelocity = Vector2(blockSpeed, 0f)
-            }
-            1 -> {
-                //body.applyLinearImpulse(Vector2(0f, blockSpeed * 100000000), body.worldCenter, false)
-                body.linearVelocity = Vector2(0f, blockSpeed)
-            }
-            2 -> {
-                //body.applyLinearImpulse(Vector2(-Float.MAX_VALUE, 0f), body.worldCenter, false)
-                body.linearVelocity = Vector2(-blockSpeed, 0f)
-            }
-            3 -> {
-                //body.applyLinearImpulse(Vector2(0f, -blockSpeed * 100000000), body.worldCenter, false)
-                body.linearVelocity = Vector2(0f, -blockSpeed)
-            }
+        body.linearVelocity = when (gravity) {
+            0 -> Vector2(blockSpeed, 0f)
+            1 -> Vector2(0f, blockSpeed)
+            2 -> Vector2(-blockSpeed, 0f)
+            3 -> Vector2(0f, -blockSpeed)
             else -> Vector2(0f, 0f)
         }
         isStatic = 0
@@ -649,22 +637,18 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun toStatic(aid: Int, bid: Int) {
-        if (isStatic > 5) {
+        if (isStatic > 10) {
             squareBodies.filter { (it.userData as Square).gravityID == aid || (it.userData as Square).gravityID == bid }.forEach {
-                //it.type=BodyDef.BodyType.StaticBody
-                it.linearVelocity = Vector2(0f, 0f)
+                it.type = BodyDef.BodyType.StaticBody
             }
             triangleBodies.filter { (it.userData as Triangle).gravityID == aid || (it.userData as Triangle).gravityID == bid }.forEach {
-                //it.type=BodyDef.BodyType.StaticBody
-                it.linearVelocity = Vector2(0f, 0f)
+                it.type = BodyDef.BodyType.StaticBody
             }
             ladderBodies.filter { (it.userData as Ladder).gravityID == aid || (it.userData as Ladder).gravityID == bid }.forEach {
-                //it.type=BodyDef.BodyType.StaticBody
-                it.linearVelocity = Vector2(0f, 0f)
+                it.type = BodyDef.BodyType.StaticBody
             }
             changeBodies.filter { (it.userData as GravityChange).gravityID == aid || (it.userData as GravityChange).gravityID == bid }.forEach {
-                //it.type=BodyDef.BodyType.StaticBody
-                it.linearVelocity = Vector2(0f, 0f)
+                it.type = BodyDef.BodyType.StaticBody
             }
         }
     }
