@@ -35,7 +35,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 12f
+    private val gridSize2 = Gdx.graphics.width / 20f
     private val halfGrid2 = gridSize2 / 2.0f
     private val fixtureGrid = halfGrid * 0.95f
 
@@ -101,6 +101,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private var moveGravityGroup: Int
     private var spriteAlpha: Float
+
+    private var ladderTouchCount: Int
 
     init {
         Box2D.init()
@@ -255,6 +257,13 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             goalBody.createFixture(goalFixtureDef)
         }
         chooseJointBody()
+        world.gravity=when(stageData.start.gravity){
+            0-> Vector2(gravityValue,0f)
+            1-> Vector2(0f, gravityValue)
+            2-> Vector2(-gravityValue,0f)
+            3-> Vector2(0f, -gravityValue)
+            else-> Vector2(gravityValue,0f)
+        }
 
         stage = Stage()
         button = arrayOf(
@@ -339,6 +348,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         moveGravityGroup = -1
         spriteAlpha = 1.0f
 
+        ladderTouchCount = 0
+
         ThreadEnabled = true
         val th = DrawButtonThread(this)
         th.start()
@@ -360,10 +371,15 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
             override fun endContact(contact: Contact?) {
                 contact?.let {
+                    if (contact.fixtureA.body.userData is Ladder || contact.fixtureB.body.userData is Ladder) {
+                        ladderTouchCount--
+                    }
                     if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) {
                         isLand = false
-                        playerBody.gravityScale = 1f
-                        playerBody.linearDamping = 0.6f
+                        if (ladderTouchCount <= 0) {
+                            playerBody.gravityScale = 1f
+                            playerBody.linearDamping = 0.6f
+                        }
                         isTouchBlock = false
                     }
                 }
@@ -548,6 +564,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun ladderAction() {
+        ladderTouchCount++
         playerBody.gravityScale = 0f
         playerBody.linearDamping = 2f
         //isLand = true
@@ -913,6 +930,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             drawMain(ladderSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Ladder).rotate, (it.userData as Ladder).gravityID)
         }
         changeBodies.forEach {
+            drawMain(squareSprite, playerX, playerY, it.position.x, it.position.y, it.angle, 0, (it.userData as GravityChange).gravityID)
             drawMain(changeSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as GravityChange).setGravity + 1, (it.userData as GravityChange).gravityID)
         }
         playerBody.let {
