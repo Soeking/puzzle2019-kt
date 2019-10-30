@@ -99,6 +99,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var laserTouchedPix: Pixmap
     private var ltouchtex: Texture
 
+    private var moveGravityGroup: Int
+    private var spriteAlpha: Float
+
     init {
         Box2D.init()
         camera = OrthographicCamera(50.0f, 50.0f / Gdx.graphics.width.toFloat() * Gdx.graphics.height.toFloat())
@@ -332,6 +335,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             fraction
         }
         laserFixture = null
+
+        moveGravityGroup = -1
+        spriteAlpha = 1.0f
 
         ThreadEnabled = true
         val th = DrawButtonThread(this)
@@ -824,39 +830,68 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         a = true
 
         if (laserFixture != null) {
-            bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body}  $touchTime MILLISECOND", 0.0f, 50.0f)
+            //bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body}  $touchTime MILLISECOND", 0.0f, 50.0f)
             bitmapFont2.draw(spriteBatch, " 　↑　 \n← 　 →\n 　↓　 ", Gdx.graphics.width / 2.0f - 100.0f, Gdx.graphics.height / 2.0f + 100.0f)
-            val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
-            val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
-            val sprite = Sprite(ltouchtex)
-            sprite.setOriginCenter()
-            sprite.setPosition((laserFixture!!.body.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2,
-                    (laserFixture!!.body.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-            sprite.draw(spriteBatch)
 
-            if (laserTouched >= 0 && touchCoordinate[laserTouched] == null) {
-                laserTouched = -1
-            } else if (laserTouched >= 0) {
-                laser.x = touchCoordinate[laserTouched]!!.x
-                laser.y = touchCoordinate[laserTouched]!!.y
-            } else if (laserTouched == -1) {
-                laserTouched = -2
-                when (atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI) {
-                    in -135.0..-45.0 -> {
-                        moveBlocks(laserFixture!!.body.userData, 0)
-                    }
-                    in -45.0..45.0 -> {
-                        moveBlocks(laserFixture!!.body.userData, 3)
-                    }
-                    in 45.0..135.0 -> {
-                        moveBlocks(laserFixture!!.body.userData, 2)
-                    }
-                    else -> {
-                        moveBlocks(laserFixture!!.body.userData, 1)
-                    }
+            spriteAlpha -= Gdx.graphics.deltaTime
+            if (spriteAlpha < 0.0f) spriteAlpha += 1.0f
+
+            when (laserFixture!!.body.userData) {
+                is Square -> {
+                    moveGravityGroup = (laserFixture!!.body.userData as Square).gravityID
                 }
-                laserFixture = null
+                is Triangle -> {
+                    moveGravityGroup = (laserFixture!!.body.userData as Triangle).gravityID
+                }
+                is Ladder -> {
+                    moveGravityGroup = (laserFixture!!.body.userData as Ladder).gravityID
+                }
+                is GravityChange -> {
+                    moveGravityGroup = (laserFixture!!.body.userData as GravityChange).gravityID
+                }
+                else -> {
+                    laserFixture = null
+                }
             }
+            try {
+//                val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
+//                val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
+//                val sprite = Sprite(ltouchtex)
+//                sprite.setOriginCenter()
+//                sprite.setPosition((laserFixture!!.body.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2,
+//                        (laserFixture!!.body.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
+//                sprite.draw(spriteBatch)
+
+                if (laserTouched >= 0 && touchCoordinate[laserTouched] == null) {
+                    laserTouched = -1
+                } else if (laserTouched >= 0) {
+                    laser.x = touchCoordinate[laserTouched]!!.x
+                    laser.y = touchCoordinate[laserTouched]!!.y
+                } else if (laserTouched == -1) {
+                    laserTouched = -2
+                    when (atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI) {
+                        in -135.0..-45.0 -> {
+                            moveBlocks(laserFixture!!.body.userData, 0)
+                        }
+                        in -45.0..45.0 -> {
+                            moveBlocks(laserFixture!!.body.userData, 3)
+                        }
+                        in 45.0..135.0 -> {
+                            moveBlocks(laserFixture!!.body.userData, 2)
+                        }
+                        else -> {
+                            moveBlocks(laserFixture!!.body.userData, 1)
+                        }
+                    }
+                    spriteAlpha = 1.0f
+                    laserFixture = null
+                }
+            } catch (e: java.lang.Exception) {
+
+            }
+        } else if (moveGravityGroup != -1) {
+            moveGravityGroup = -1
+            spriteAlpha = 1.0f
         }
     }
 
@@ -866,31 +901,35 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
         val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
         wallBodies.forEach {
-            drawMain(wallSprite, playerX, playerY, it.position.x, it.position.y, it.angle, 0)
+            drawMain(wallSprite, playerX, playerY, it.position.x, it.position.y, it.angle, 0, -2)
         }
         squareBodies.forEach {
-            drawMain(squareSprite, playerX, playerY, it.position.x, it.position.y, it.angle, 0)
+            drawMain(squareSprite, playerX, playerY, it.position.x, it.position.y, it.angle, 0, (it.userData as Square).gravityID)
         }
         triangleBodies.forEach {
-            drawMain(triangleSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Triangle).rotate)
+            drawMain(triangleSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Triangle).rotate, (it.userData as Triangle).gravityID)
         }
         ladderBodies.forEach {
-            drawMain(ladderSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Ladder).rotate)
+            drawMain(ladderSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Ladder).rotate, (it.userData as Ladder).gravityID)
         }
         changeBodies.forEach {
-            drawMain(changeSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as GravityChange).setGravity + 1)
+            drawMain(changeSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as GravityChange).setGravity + 1, (it.userData as GravityChange).gravityID)
         }
         playerBody.let {
-            drawMain(playerSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Start).gravity + 1)
+            drawMain(playerSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Start).gravity + 1, -2)
         }
         goalBody.let {
-            drawMain(goalSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Goal).gravity + 1)
+            drawMain(goalSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Goal).gravity + 1, -2)
         }
     }
 
-    private fun drawMain(sprite: Sprite, playerX: Float, playerY: Float, x: Float, y: Float, angle: Float, rotate: Int) {
+    private fun drawMain(sprite: Sprite, playerX: Float, playerY: Float, x: Float, y: Float, angle: Float, rotate: Int, gravityGroup: Int) {
         sprite.setPosition((x - playerX) * gridSize2 / gridSize - sprite.width / 2f + halfGrid2, (y - playerY) * gridSize2 / gridSize - sprite.width / 2f + halfGrid2)
         sprite.rotation = angle / PI.toFloat() * 180f + rotate * 90f
+        if (moveGravityGroup != -1) {
+            if (gravityGroup == moveGravityGroup) sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, spriteAlpha)
+            else sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, 1.0f)
+        }
         sprite.draw(spriteBatch)
     }
 

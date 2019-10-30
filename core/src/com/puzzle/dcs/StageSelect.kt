@@ -96,8 +96,8 @@ class StageSelect(private val game: Core) : Screen {
         val files = Gdx.files.internal("stages/").list()
 
         files.forEach {
-            //            Gdx.app.log("files", "${it.file().name}, ${it.file().isFile}, ${it.file().name.endsWith(".json")}")
-//            stageSelectFile.add(it)
+//            Gdx.app.log("files", "${it.file().name}, ${it.file().isFile}, ${it.file().name.endsWith(".json")}")
+//            stageSelectFile.add(it)z
             if (it.file().name.endsWith(".json")) {
                 stageSelectFile.add(it)
             }
