@@ -177,6 +177,7 @@ class StageSelect(private val game: Core) : Screen {
                     drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), goal, it.gravity + 1)
                 }
                 stageData.gravityChange.forEach {
+                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), square, it.setGravity + 1)
                     drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), change, it.setGravity + 1)
                 }
                 stageSelectImage.add(pixmap)
