@@ -421,7 +421,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
         spriteBatch.begin()
         checkPlayer()
-        bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
+        //bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
         drawSprites()
         drawButton()
         spriteBatch.end()
@@ -818,7 +818,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             touchTime = 0
         }
 
-        bitmapFont.draw(spriteBatch, "$a", 0.0f, 30.0f)
+        //bitmapFont.draw(spriteBatch, "$a", 0.0f, 30.0f)
 
         tex[0].draw(moveButton[b], 0, 0)
         spriteBatch.draw(tex[0], 0.0f, 0.0f)

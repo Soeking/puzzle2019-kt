@@ -41,6 +41,8 @@ class StageSelect(private val game: Core) : Screen {
     private val previewPixel: Int
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
+    private val fontGenerator2: FreeTypeFontGenerator
+    private val bitmapFont2: BitmapFont
     private val previewWidthAndHeight: Int = 10
 
     private var firstTouch: Vector2?
@@ -65,6 +67,13 @@ class StageSelect(private val game: Core) : Screen {
         param.color = Color.BLACK
         param.incremental = true
         bitmapFont = fontGenerator.generateFont(param)
+
+        fontGenerator2 = FreeTypeFontGenerator(Gdx.files.internal("fonts/meiryo.ttc"))
+        val param2 = FreeTypeFontGenerator.FreeTypeFontParameter()
+        param2.size = Gdx.graphics.height / 20
+        param2.color = Color.RED
+        param2.incremental = true
+        bitmapFont2 = fontGenerator.generateFont(param2)
 
         //stage preview start
         onePixel = (Gdx.graphics.height / 5.0 / previewWidthAndHeight * 2.0).toInt()
@@ -96,7 +105,7 @@ class StageSelect(private val game: Core) : Screen {
         val files = Gdx.files.internal("stages/").list()
 
         files.forEach {
-//            Gdx.app.log("files", "${it.file().name}, ${it.file().isFile}, ${it.file().name.endsWith(".json")}")
+            //            Gdx.app.log("files", "${it.file().name}, ${it.file().isFile}, ${it.file().name.endsWith(".json")}")
 //            stageSelectFile.add(it)z
             if (it.file().name.endsWith(".json")) {
                 stageSelectFile.add(it)
@@ -202,6 +211,9 @@ class StageSelect(private val game: Core) : Screen {
 
     private var finishedTexture: Int = 0
 
+    private var loadingTime: Int = 0
+    private var loadingString: String = "loading"
+
     override fun render(delta: Float) {
         stageList.forEach {
             if (it.first.isPressed) game.screen = PlayScreen(game, it.second)
@@ -224,7 +236,17 @@ class StageSelect(private val game: Core) : Screen {
                     game.screen = PlayScreen(game, stageSelectFile[it].name())
                 }
             }
-
+        }
+        for (it in (stageSelectImageTexture.size)..(stageSelectFile.size - 1)) {
+            loadingTime += (Gdx.graphics.deltaTime * 1000.0f / (stageSelectFile.size - stageSelectImageTexture.size)).toInt()
+            loadingTime %= 1000
+            when(loadingTime){
+                in 0..250->loadingString = "loading"
+                in 250..500->loadingString = "loading."
+                in 500..750->loadingString = "loading.."
+                in 750..1000->loadingString = "loading..."
+            }
+            bitmapFont2.draw(spriteBatch, loadingString, previewPixel * (it / 2).toFloat() + stageSelectX + Gdx.graphics.height / 15.0f, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 20.0f + Gdx.graphics.height / 10.0f)
         }
 
         if (finishedTexture < stageSelectImage.size) {
@@ -246,7 +268,7 @@ class StageSelect(private val game: Core) : Screen {
             }
             if (firstTouch != null) {
                 if (checkTap) {
-                    if (firstTouch!!.x != touchCoordinate[0]!!.x || firstTouch!!.y != touchCoordinate[0]!!.y) {
+                    if (!(firstTouch!!.x - touchCoordinate[0]!!.x in -2.0f..2.0f && firstTouch!!.y - touchCoordinate[0]!!.y in -2.0f..2.0f)) {
                         checkTap = false
                     }
                 } else {
