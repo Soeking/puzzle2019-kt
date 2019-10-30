@@ -17,6 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import java.io.File
 import java.lang.Exception
+import kotlin.math.max
+import kotlin.math.min
 
 class StageSelect(private val game: Core) : Screen {
     private val stage: Stage
@@ -114,13 +116,13 @@ class StageSelect(private val game: Core) : Screen {
 
         oldStageSelectX = 0
         stageSelectX = 0
-        stageSelectMaxX = Math.max(0, Gdx.graphics.width - Gdx.graphics.height / 5 * 2 * ((stageSelectFile.size + 1) / 2))
+        stageSelectMaxX = max(0, Gdx.graphics.width - Gdx.graphics.height / 5 * 2 * ((stageSelectFile.size + 1) / 2))
 
         firstTouch = null
         isTap = false
         checkTap = true
 
-        var th = DrawButtonThread(this)
+        val th = DrawButtonThread(this)
         th.start()
 //        createPreview()
 
@@ -140,11 +142,11 @@ class StageSelect(private val game: Core) : Screen {
         }
     }
 
-    public fun createPreview() {
+    fun createPreview() {
         stageSelectFile.forEach() {
             if (it.exists()) {
-                var stageData: StageData = json.fromJson(it.readString(), StageData::class.java)
-                var pixmap: Pixmap = Pixmap(previewPixel, previewPixel, Pixmap.Format.RGBA8888)
+                val stageData: StageData = json.fromJson(it.readString(), StageData::class.java)
+                val pixmap = Pixmap(previewPixel, previewPixel, Pixmap.Format.RGBA8888)
 //                    pixmap.setColor(0f, 0f, 0f, 0f)
 //                    pixmap.fill()
                 stageData.wall.forEach {
@@ -182,7 +184,7 @@ class StageSelect(private val game: Core) : Screen {
     private fun drawPixmap(pixmap: Pixmap, x1: Int, y1: Int, texture: Texture, rotation: Int) {
         if (x1 >= previewWidthAndHeight - 1 || y1 >= previewWidthAndHeight - 1) return
         texture.textureData.prepare()
-        var pixmap2: Pixmap = texture.textureData.consumePixmap()
+        val pixmap2: Pixmap = texture.textureData.consumePixmap()
         for (x in 0..onePixel) {
             for (y in 0..onePixel) {
                 try {
@@ -213,7 +215,7 @@ class StageSelect(private val game: Core) : Screen {
 
         touch()
 
-        for (it in 0..(stageSelectImageTexture.size - 1)) {
+        for (it in 0 until stageSelectImageTexture.size) {
             spriteBatch.draw(stageSelectImageTexture[it], previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
             bitmapFont.draw(spriteBatch, stageSelectFile[it].name().substring(0, stageSelectFile[it].name().length - 5), previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 25.0f)
 
@@ -250,7 +252,7 @@ class StageSelect(private val game: Core) : Screen {
                         checkTap = false
                     }
                 } else {
-                    stageSelectX = Math.min(stageSelectMaxX, Math.max(0, oldStageSelectX + (touchCoordinate[0]!!.x - firstTouch!!.x).toInt()))
+                    stageSelectX = min(stageSelectMaxX, max(0, oldStageSelectX + (touchCoordinate[0]!!.x - firstTouch!!.x).toInt()))
                 }
             }
         } else {
