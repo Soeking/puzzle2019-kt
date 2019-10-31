@@ -3,6 +3,7 @@ package com.puzzle.dcs
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -15,11 +16,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
-import java.io.File
 import java.lang.Exception
-import javax.xml.soap.Text
 import kotlin.math.max
 import kotlin.math.min
+
 
 class StageSelect(private val game: Core) : Screen {
     private val stage: Stage
@@ -56,6 +56,8 @@ class StageSelect(private val game: Core) : Screen {
     private var firstTouch: Vector2?
     private var isTap: Boolean
     private var checkTap: Boolean
+
+    private val sound: Sound
 
     init {
         stage = Stage()
@@ -165,6 +167,12 @@ class StageSelect(private val game: Core) : Screen {
         frameTexture2 = Texture(frame2)
         //create frame end
 
+        //prepare sound
+
+        sound = Gdx.audio.newSound(Gdx.files.internal("sounds/cymbal.mp3"))
+
+        //prepare sound finish
+
         val mu = InputMultiplexer()
         mu.addProcessor(Touch())
 //        mu.addProcessor(stage)
@@ -259,6 +267,7 @@ class StageSelect(private val game: Core) : Screen {
         for (it in 0 until stageSelectImageTexture.size) {
             if (isTap && firstTouch != null) {
                 if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
+                    sound.play()
                     spriteBatch.draw(frameTexture2, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
                 } else {
                     spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
@@ -273,6 +282,7 @@ class StageSelect(private val game: Core) : Screen {
                 if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
                     isTap = false
                     firstTouch = null
+                    sound.dispose()
                     game.screen = PlayScreen(game, stageSelectFile[it].name())
                 }
             }
@@ -350,6 +360,7 @@ class StageSelect(private val game: Core) : Screen {
     }
 
     override fun dispose() {
+        sound.dispose()
         spriteBatch.dispose()
         stage.dispose()
     }
