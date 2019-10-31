@@ -37,6 +37,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val halfGrid = gridSize / 2.0f
     private val gridSize2 = Gdx.graphics.width / 20f
     private val halfGrid2 = gridSize2 / 2.0f
+    private val backgroundSize = Gdx.graphics.width / 1.0f
+    private val halfbackground = backgroundSize / 2.0f
     private val fixtureGrid = halfGrid * 0.95f
 
     private val world: World
@@ -124,7 +126,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/warphole.png")))
         changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
-        backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle back.png")))
+        backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle haikei.png")))
 
         wallSprite.setOrigin(0.0f, 0.0f)
         wallSprite.setScale(gridSize2 / wallSprite.width)
@@ -153,6 +155,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         goalSprite.setOrigin(0.0f, 0.0f)
         goalSprite.setScale(gridSize2 / goalSprite.width)
         goalSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
+
+        backgroundSprite.setOrigin(0.0f, 0.0f)
+        backgroundSprite.setScale(backgroundSize / goalSprite.width)
+        backgroundSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
 
         playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.DynamicBody
@@ -459,6 +465,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
 
         spriteBatch.begin()
+        drawBackground()
         //checkPlayer()
         //bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
         drawSprites()
@@ -931,6 +938,25 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float) = sqrt(Math.pow(x1 - x2.toDouble(), 2.0) + Math.pow(y1 - y2.toDouble(), 2.0)).toFloat()
 
+    private fun drawBackground() {
+        repeat(9) {
+            backgroundSprite.setPosition((if (it % 3 == 0) {
+                -1f
+            } else if (it % 3 == 1) {
+                0f
+            } else {
+                1f
+            }) * backgroundSize - ((playerBody.position.x * halfGrid2 / halfGrid / 2.5f + halfbackground - backgroundSprite.width / 2.0f) % backgroundSize) + Gdx.graphics.width / 2.0f, (if (it / 3 == 0) {
+                -1f
+            } else if (it / 3 == 1) {
+                0f
+            } else {
+                1f
+            }) * backgroundSize - ((playerBody.position.y * halfGrid2 / halfGrid / 2.5f + halfbackground - backgroundSprite.height / 2.0f) % backgroundSize) + Gdx.graphics.height / 2.0f)
+            backgroundSprite.draw(spriteBatch)
+        }
+    }
+
     private fun drawSprites() {
         val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
         val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
@@ -956,10 +982,26 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         goalBody.let {
             drawMain(goalSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Goal).gravity + 1, -2)
         }
+
+//        repeat(9) {
+//            bitmapFont.draw(spriteBatch, "${it}: (${((if (it % 3 == 0) {
+//                -0.5f
+//            } else if (it % 3 == 1) {
+//                0.5f
+//            } else {
+//                1.5f
+//            }) * backgroundSize - ((playerBody.position.x * halfGrid2 + halfbackground - backgroundSprite.width / 2.0f) % backgroundSize)).toInt()}, ${((if (it / 3 == 0) {
+//                -0.5f
+//            } else if (it / 3 == 1) {
+//                0.5f
+//            } else {
+//                1.5f
+//            }) * backgroundSize - ((playerBody.position.y * halfGrid2 + halfbackground - backgroundSprite.height / 2.0f) % backgroundSize)).toInt()})", 0.0f, 30.0f + 30.0f * it)
+//        }
     }
 
     private fun drawMain(sprite: Sprite, playerX: Float, playerY: Float, x: Float, y: Float, angle: Float, rotate: Int, gravityGroup: Int) {
-        sprite.setPosition((x - playerX) * gridSize2 / gridSize - sprite.width / 2f + halfGrid2, (y - playerY) * gridSize2 / gridSize - sprite.width / 2f + halfGrid2)
+        sprite.setPosition((x - playerX) * gridSize2 / gridSize - sprite.width / 2f + halfGrid2, (y - playerY) * gridSize2 / gridSize - sprite.height / 2f + halfGrid2)
         sprite.rotation = angle / PI.toFloat() * 180f + rotate * 90f
         if (moveGravityGroup != -1) {
             if (gravityGroup == moveGravityGroup) sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, spriteAlpha)
