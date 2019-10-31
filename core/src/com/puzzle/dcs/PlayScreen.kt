@@ -22,6 +22,10 @@ import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.RayCastCallback
 import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
+import java.io.File
+import java.io.FileOutputStream
+import javax.naming.Context
+import kotlin.concurrent.thread
 
 
 class PlayScreen(private val game: Core, fileName: String) : Screen {
@@ -106,6 +110,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var moveGravityGroup: Int
     private var spriteAlpha: Float
 
+    private val stageName: String
+
     private var ladderTouchCount: Int
 
     private val deadLine: Array<Int>
@@ -118,12 +124,14 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         renderer = Box2DDebugRenderer()
         createCollision()
 
+        stageName = fileName
+
         file = Gdx.files.internal("stages/$fileName")
         wallSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cube.png")))
         squareSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepattern.png")))
         triangleSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepatternT.png")))
         ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder (2).png")))
-        playerSprite = Sprite(Texture(Gdx.files.internal("images/ball.png")))
+        playerSprite = Sprite(Texture(Gdx.files.internal("images/iOS の画像.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/warphole.png")))
         changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
         backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle haikei.png")))
@@ -1017,7 +1025,13 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
     }
 
+    private var isGameover: Boolean = false
+
     private fun onGameover() {
+        isGameover = true
+    }
+
+    private fun changeStageSelect() {
         ThreadEnabled = false
         game.screen = StageSelect(game)
     }
@@ -1025,11 +1039,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var deadTime: Int = 0
 
     private fun checkFalled() {
-        if (!(playerBody.position.x in (-5 * gridSize)..deadLine[0].toFloat() && playerBody.position.y in (-5 * gridSize)..deadLine[1].toFloat())) {
+        if (!(playerBody.position.x in (-5 * gridSize)..deadLine[0].toFloat() && playerBody.position.y in (-5 * gridSize)..deadLine[1].toFloat()) || isGameover) {
             bitmapFont3.setColor(bitmapFont3.color.r, bitmapFont3.color.g, bitmapFont3.color.b, Math.min(deadTime / 2000.0f, 1.0f))
-            bitmapFont3.draw(spriteBatch, "GAMEOVER", Gdx.graphics.width / 5.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
+            if (isGameover) bitmapFont3.draw(spriteBatch, " PRESSED\nGAMEOVER", Gdx.graphics.width / 5.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
+            else bitmapFont3.draw(spriteBatch, " FALLED \nGAMEOVER", Gdx.graphics.width / 5.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
             deadTime += (Gdx.graphics.deltaTime * 1000.0).toInt()
-            if (deadTime >= 1500) onGameover()
+            if (deadTime >= 1500) changeStageSelect()
         }
     }
 

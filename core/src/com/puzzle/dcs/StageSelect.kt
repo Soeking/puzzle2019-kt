@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import java.io.File
 import java.lang.Exception
+import javax.xml.soap.Text
 import kotlin.math.max
 import kotlin.math.min
 
@@ -46,6 +47,11 @@ class StageSelect(private val game: Core) : Screen {
     private val fontGenerator2: FreeTypeFontGenerator
     private val bitmapFont2: BitmapFont
     private val previewWidthAndHeight: Int = 10
+
+    private var frame: Pixmap
+    private var frameTexture: Texture
+    private var frame2: Pixmap
+    private var frameTexture2: Texture
 
     private var firstTouch: Vector2?
     private var isTap: Boolean
@@ -85,7 +91,7 @@ class StageSelect(private val game: Core) : Screen {
         square = Texture(Gdx.files.internal("images/puzzle cubepattern.png"))
         triangle = Texture(Gdx.files.internal("images/puzzle cubepatternT.png"))
         ladder = Texture(Gdx.files.internal("images/ladder (2).png"))
-        player = Texture(Gdx.files.internal("images/ball.png"))
+        player = Texture(Gdx.files.internal("images/iOS の画像.png"))
         goal = Texture(Gdx.files.internal("images/warphole.png"))
         change = Texture(Gdx.files.internal("images/change.png"))
 //        wall.textureData.prepare()
@@ -125,7 +131,7 @@ class StageSelect(private val game: Core) : Screen {
 
         oldStageSelectX = 0
         stageSelectX = 0
-        stageSelectMaxX = max(0, Gdx.graphics.width - Gdx.graphics.height / 5 * 2 * ((stageSelectFile.size + 1) / 2))
+        stageSelectMaxX = min(0, Gdx.graphics.width - Gdx.graphics.height / 5 * 2 * ((stageSelectFile.size + 1) / 2))
 
         firstTouch = null
         isTap = false
@@ -136,6 +142,28 @@ class StageSelect(private val game: Core) : Screen {
 //        createPreview()
 
         //stage preview end
+
+        //create frame start
+        frame = Pixmap(previewPixel, previewPixel, Pixmap.Format.RGBA8888)
+        frame.setColor(0.0f, 0.0f, 0.0f, 0.0f)
+        frame.fill()
+        frame.setColor(1.0f, 1.0f, 1.0f, 1.0f)
+        frame.fillRectangle(0, 0, onePixel, previewPixel)
+        frame.fillRectangle(0, 0, previewPixel, onePixel)
+        frame.fillRectangle(0, previewPixel - onePixel, previewPixel, onePixel)
+        frame.fillRectangle(previewPixel - onePixel, 0, onePixel, previewPixel)
+        frameTexture = Texture(frame)
+
+        frame2 = Pixmap(previewPixel, previewPixel, Pixmap.Format.RGBA8888)
+        frame2.setColor(0.0f, 0.0f, 0.0f, 0.0f)
+        frame2.fill()
+        frame2.setColor(1.0f, 0.0f, 0.0f, 1.0f)
+        frame2.fillRectangle(0, 0, onePixel, previewPixel)
+        frame2.fillRectangle(0, 0, previewPixel, onePixel)
+        frame2.fillRectangle(0, previewPixel - onePixel, previewPixel, onePixel)
+        frame2.fillRectangle(previewPixel - onePixel, 0, onePixel, previewPixel)
+        frameTexture2 = Texture(frame2)
+        //create frame end
 
         val mu = InputMultiplexer()
         mu.addProcessor(Touch())
@@ -229,6 +257,15 @@ class StageSelect(private val game: Core) : Screen {
         touch()
 
         for (it in 0 until stageSelectImageTexture.size) {
+            if (isTap && firstTouch != null) {
+                if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
+                    spriteBatch.draw(frameTexture2, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
+                } else {
+                    spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
+                }
+            } else {
+                spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
+            }
             spriteBatch.draw(stageSelectImageTexture[it], previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
             bitmapFont.draw(spriteBatch, stageSelectFile[it].name().substring(0, stageSelectFile[it].name().length - 5), previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 25.0f)
 
@@ -241,13 +278,14 @@ class StageSelect(private val game: Core) : Screen {
             }
         }
         for (it in (stageSelectImageTexture.size)..(stageSelectFile.size - 1)) {
+            spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
             loadingTime += (Gdx.graphics.deltaTime * 1000.0f / (stageSelectFile.size - stageSelectImageTexture.size)).toInt()
             loadingTime %= 1000
-            when(loadingTime){
-                in 0..250->loadingString = "loading"
-                in 250..500->loadingString = "loading."
-                in 500..750->loadingString = "loading.."
-                in 750..1000->loadingString = "loading..."
+            when (loadingTime) {
+                in 0..250 -> loadingString = "loading"
+                in 250..500 -> loadingString = "loading."
+                in 500..750 -> loadingString = "loading.."
+                in 750..1000 -> loadingString = "loading..."
             }
             bitmapFont2.draw(spriteBatch, loadingString, previewPixel * (it / 2).toFloat() + stageSelectX + Gdx.graphics.height / 15.0f, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 20.0f + Gdx.graphics.height / 10.0f)
         }
@@ -275,7 +313,7 @@ class StageSelect(private val game: Core) : Screen {
                         checkTap = false
                     }
                 } else {
-                    stageSelectX = min(stageSelectMaxX, max(0, oldStageSelectX + (touchCoordinate[0]!!.x - firstTouch!!.x).toInt()))
+                    stageSelectX = min(0, max(stageSelectMaxX, oldStageSelectX + (touchCoordinate[0]!!.x - firstTouch!!.x).toInt()))
                 }
             }
         } else {
