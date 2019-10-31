@@ -1018,14 +1018,16 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         sprite.draw(spriteBatch)
     }
 
+    private var isGameover: Boolean = false
+    private var isClear: Boolean = false
+
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
-            ThreadEnabled = false
-            game.screen = StageSelect(game)
+            isClear = true
+//            ThreadEnabled = false
+//            game.screen = StageSelect(game)
         }
     }
-
-    private var isGameover: Boolean = false
 
     private fun onGameover() {
         isGameover = true
@@ -1039,7 +1041,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var deadTime: Int = 0
 
     private fun checkFalled() {
-        if (!(playerBody.position.x in (-5 * gridSize)..deadLine[0].toFloat() && playerBody.position.y in (-5 * gridSize)..deadLine[1].toFloat()) || isGameover) {
+        if (isClear) {
+            bitmapFont3.draw(spriteBatch, "CLEAR!!!".substring(0, Math.min(deadTime / 100, 8)), Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
+            deadTime += (Gdx.graphics.deltaTime * 1000.0).toInt()
+            if (deadTime >= 1500) changeStageSelect()
+        } else if (!(playerBody.position.x in (-5 * gridSize)..deadLine[0].toFloat() && playerBody.position.y in (-5 * gridSize)..deadLine[1].toFloat()) || isGameover) {
             bitmapFont3.setColor(bitmapFont3.color.r, bitmapFont3.color.g, bitmapFont3.color.b, Math.min(deadTime / 2000.0f, 1.0f))
             if (isGameover) bitmapFont3.draw(spriteBatch, " PRESSED\nGAMEOVER", Gdx.graphics.width / 5.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
             else bitmapFont3.draw(spriteBatch, " FALLED \nGAMEOVER", Gdx.graphics.width / 5.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
