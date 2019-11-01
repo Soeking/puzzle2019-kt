@@ -134,7 +134,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         playerSprite = Sprite(Texture(Gdx.files.internal("images/iOS の画像.png")))
         goalSprite = Sprite(Texture(Gdx.files.internal("images/warphole.png")))
         changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
-        backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle haikei2.png")))
+        backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle haikei4.png")))
 
         wallSprite.setOrigin(0.0f, 0.0f)
         wallSprite.setScale(gridSize2 / wallSprite.width)
