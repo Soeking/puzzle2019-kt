@@ -93,7 +93,7 @@ class StageSelect(private val game: Core) : Screen {
         square = Texture(Gdx.files.internal("images/puzzle cubepattern.png"))
         triangle = Texture(Gdx.files.internal("images/puzzle cubepatternT.png"))
         ladder = Texture(Gdx.files.internal("images/ladder (2).png"))
-        player = Texture(Gdx.files.internal("images/iOS の画像.png"))
+        player = Texture(Gdx.files.internal("images/player.png"))
         goal = Texture(Gdx.files.internal("images/warphole.png"))
         change = Texture(Gdx.files.internal("images/change.png"))
 //        wall.textureData.prepare()
