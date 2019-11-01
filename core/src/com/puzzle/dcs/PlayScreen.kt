@@ -169,7 +169,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         backgroundSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
 
         playerDef.type = BodyDef.BodyType.DynamicBody
-        dynamicDef.type = BodyDef.BodyType.DynamicBody
+        dynamicDef.type = BodyDef.BodyType.StaticBody
         staticDef.type = BodyDef.BodyType.StaticBody
         dynamicDef.gravityScale = 0f
         dynamicDef.fixedRotation = true
