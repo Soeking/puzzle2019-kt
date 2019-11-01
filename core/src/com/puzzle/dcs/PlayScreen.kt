@@ -199,6 +199,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         triangleFixtureDef.density = 1000000f
         triangleFixtureDef.friction = 1.0f
         triangleFixtureDef.restitution = 0.3f
+        goalFixtureDef.shape = goalShape
+        goalFixtureDef.isSensor = true
 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
@@ -278,7 +280,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             goalBody = world.createBody(staticDef)
             goalBody.userData = it
             goalShape.set(if (it.gravity % 2 == 0) goalX else goalY)
-            goalFixtureDef.shape = goalShape
             goalBody.createFixture(goalFixtureDef)
         }
         chooseJointBody()
@@ -393,8 +394,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun setDeadLine(X: Int, Y: Int) {
-        deadLine[0] = Math.max(deadLine[0], X + gridSize.toInt() * 5)
-        deadLine[1] = Math.max(deadLine[1], Y + gridSize.toInt() * 5)
+        deadLine[0] = max(deadLine[0], X + gridSize.toInt() * 5)
+        deadLine[1] = max(deadLine[1], Y + gridSize.toInt() * 5)
     }
 
     private fun createCollision() {
@@ -947,18 +948,14 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun drawBackground() {
         repeat(9) {
-            backgroundSprite.setPosition((if (it % 3 == 0) {
-                -1f
-            } else if (it % 3 == 1) {
-                0f
-            } else {
-                1f
-            }) * backgroundSize - ((playerBody.position.x * halfGrid2 / halfGrid / 2.5f + halfbackground - backgroundSprite.width / 2.0f) % backgroundSize) + Gdx.graphics.width / 2.0f, (if (it / 3 == 0) {
-                -1f
-            } else if (it / 3 == 1) {
-                0f
-            } else {
-                1f
+            backgroundSprite.setPosition((when {
+                it % 3 == 0 -> -1f
+                it % 3 == 1 -> 0f
+                else -> 1f
+            }) * backgroundSize - ((playerBody.position.x * halfGrid2 / halfGrid / 2.5f + halfbackground - backgroundSprite.width / 2.0f) % backgroundSize) + Gdx.graphics.width / 2.0f, (when {
+                it / 3 == 0 -> -1f
+                it / 3 == 1 -> 0f
+                else -> 1f
             }) * backgroundSize - ((playerBody.position.y * halfGrid2 / halfGrid / 2.5f + halfbackground - backgroundSprite.height / 2.0f) % backgroundSize) + Gdx.graphics.height / 2.0f)
             backgroundSprite.draw(spriteBatch)
         }
@@ -1023,6 +1020,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
             isClear = true
+            playerBody.linearDamping = 3f
 //            ThreadEnabled = false
 //            game.screen = StageSelect(game)
         }
@@ -1041,11 +1039,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun checkFalled() {
         if (isClear) {
-            bitmapFont3.draw(spriteBatch, "CLEAR!!!".substring(0, Math.min(deadTime / 100, 8)), Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
+            bitmapFont3.draw(spriteBatch, "CLEAR!!!".substring(0, min(deadTime / 100, 8)), Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
             deadTime += (Gdx.graphics.deltaTime * 1000.0).toInt()
             if (deadTime >= 1500) changeStageSelect()
         } else if (!(playerBody.position.x in (-5 * gridSize)..deadLine[0].toFloat() && playerBody.position.y in (-5 * gridSize)..deadLine[1].toFloat()) || isGameover) {
-            bitmapFont3.setColor(bitmapFont3.color.r, bitmapFont3.color.g, bitmapFont3.color.b, Math.min(deadTime / 2000.0f, 1.0f))
+            bitmapFont3.setColor(bitmapFont3.color.r, bitmapFont3.color.g, bitmapFont3.color.b, min(deadTime / 2000.0f, 1.0f))
             if (isGameover) bitmapFont3.draw(spriteBatch, " PRESSED\nGAMEOVER", Gdx.graphics.width / 5.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
             else bitmapFont3.draw(spriteBatch, " FALLED \nGAMEOVER", Gdx.graphics.width / 5.0f, Gdx.graphics.height / 2.0f + Gdx.graphics.width / 10.0f)
             deadTime += (Gdx.graphics.deltaTime * 1000.0).toInt()

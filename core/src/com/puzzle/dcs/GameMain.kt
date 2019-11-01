@@ -32,7 +32,7 @@ class GameMain(private val game: Core) : Screen {
     }
 
     override fun render(delta: Float) {
-        if (button.isPressed) {
+        if (true) {
             game.screen = StageSelect(game)
         }
 
