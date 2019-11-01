@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import java.util.*
+import kotlin.math.min
 
 class Title(private val game: Core) : Screen {
     private val batch: SpriteBatch
@@ -30,9 +31,9 @@ class Title(private val game: Core) : Screen {
         font.data.setScale(10f)
 
         titleImage = Sprite(Texture(Gdx.files.internal("images/InvertRoom.png")))
-        var xSize: Float = Gdx.graphics.width / titleImage.width
-        var ySize: Float = Gdx.graphics.height / titleImage.height
-        titleImage.setScale(Math.min(xSize, ySize))
+        val xSize: Float = Gdx.graphics.width / titleImage.width
+        val ySize: Float = Gdx.graphics.height / titleImage.height
+        titleImage.setScale(min(xSize, ySize))
         titleImage.setOriginCenter()
 
         // create fonts
