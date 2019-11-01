@@ -393,7 +393,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             for (j in bodyList.indices) {
                 createJoint(bodyList[j], bodyList[(j + 1) % bodyList.size])
                 createJoint(bodyList[j], bodyList[(j + 2) % bodyList.size])
-                createJoint(bodyList[j], bodyList[(j + 3) % bodyList.size])
             }
         }
     }
@@ -897,7 +896,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun hide() {
-
+        stage.dispose()
+        spriteBatch.dispose()
     }
 
     override fun pause() {

@@ -4,6 +4,7 @@
 
     <application
         android:allowBackup="true"
+        android:vmSafeMode="true"
         android:icon="@drawable/ic_launcher"
         android:isGame="true"
         android:appCategory="game"
