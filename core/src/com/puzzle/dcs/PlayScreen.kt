@@ -486,7 +486,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
-        renderer.render(world, camera.combined)
+        //renderer.render(world, camera.combined)
     }
 
     /**↓ここからデバッグ用*/
@@ -533,7 +533,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         if (a == playerBody) {
             if (b == goalBody) onGoal(a, b)
             else if (b.userData is GravityChange) {
-                if (abs(a.position.x - b.position.x) < gridSize * 47 / 60f || abs(a.position.y - b.position.y) < gridSize * 47 / 60f)
+                if (abs(a.position.x - b.position.x) < gridSize * 3 / 4f || abs(a.position.y - b.position.y) < gridSize * 3 / 4f)
                     changeGravity(b.userData as GravityChange)
             }
             if (b.userData !is Ladder && b.userData !is Goal) {
@@ -558,7 +558,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         } else if (b == playerBody) {
             if (a == goalBody) onGoal(b, a)
             else if (a.userData is GravityChange) {
-                if (abs(a.position.x - b.position.x) < gridSize * 47 / 60f || abs(a.position.y - b.position.y) < gridSize * 47 / 60f)
+                if (abs(a.position.x - b.position.x) < gridSize * 3 / 4f || abs(a.position.y - b.position.y) < gridSize * 3 / 4f)
                     changeGravity(a.userData as GravityChange)
             }
             if (a.userData !is Ladder && a.userData !is Goal) {
@@ -704,7 +704,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun toStatic(aid: Int, bid: Int) {
-        if (isStatic > 10) {
+        if (isStatic > 5) {
             squareBodies.filter { (it.userData as Square).gravityID == aid || (it.userData as Square).gravityID == bid }.forEach {
                 it.setTransform((it.position.x + 0.5f).toInt().toFloat(), (it.position.y + 0.5f).toInt().toFloat(), it.angle)
                 it.type = BodyDef.BodyType.StaticBody
