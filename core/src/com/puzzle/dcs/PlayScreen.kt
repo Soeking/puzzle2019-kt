@@ -43,7 +43,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val halfGrid2 = gridSize2 / 2.0f
     private val backgroundSize = Gdx.graphics.width / 1.0f
     private val halfbackground = backgroundSize / 2.0f
-    private val fixtureGrid = halfGrid * 0.95f
+    private val fixtureGrid = halfGrid * 0.91f
 
     private val world: World
     private val renderer: Box2DDebugRenderer
@@ -532,7 +532,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
             if (b == goalBody) onGoal(a, b)
-            else if (b.userData is GravityChange) changeGravity(b.userData as GravityChange)
+            else if (b.userData is GravityChange) {
+                if (abs(a.position.x - b.position.x) < gridSize * 47 / 60f || abs(a.position.y - b.position.y) < gridSize * 47 / 60f)
+                    changeGravity(b.userData as GravityChange)
+            }
             if (b.userData !is Ladder && b.userData !is Goal) {
                 if (isTouchBlock) {
                     val nowAngle = checkTouch(b)
@@ -554,7 +557,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             }
         } else if (b == playerBody) {
             if (a == goalBody) onGoal(b, a)
-            else if (a.userData is GravityChange) changeGravity(a.userData as GravityChange)
+            else if (a.userData is GravityChange) {
+                if (abs(a.position.x - b.position.x) < gridSize * 47 / 60f || abs(a.position.y - b.position.y) < gridSize * 47 / 60f)
+                    changeGravity(a.userData as GravityChange)
+            }
             if (a.userData !is Ladder && a.userData !is Goal) {
                 if (isTouchBlock) {
                     val nowAngle = checkTouch(a)
