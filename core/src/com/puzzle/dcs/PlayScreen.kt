@@ -604,7 +604,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ladderTouchCount++
         playerBody.gravityScale = 0f
         playerBody.linearDamping = 2f
-        //isLand = true
     }
 
     private fun changeGravity(switch: GravityChange) {
@@ -633,10 +632,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         val playerY = playerBody.position.y
         val blockX = block.position.x
         val blockY = block.position.y
-        return if (abs(playerX - blockX) <= fixtureGrid) {
+        return if (abs(playerX - blockX) <= halfGrid) {
             if (playerY > blockY) 3
             else 1
-        } else if (abs(playerY - blockY) <= fixtureGrid) {
+        } else if (abs(playerY - blockY) <= halfGrid) {
             if (playerX > blockX) 2
             else 0
         } else null
