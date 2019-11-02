@@ -486,7 +486,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
-        //renderer.render(world, camera.combined)
+        renderer.render(world, camera.combined)
     }
 
     /**↓ここからデバッグ用*/
@@ -533,7 +533,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         if (a == playerBody) {
             if (b == goalBody) onGoal(a, b)
             else if (b.userData is GravityChange) changeGravity(b.userData as GravityChange)
-            if (b.userData !is Ladder) {
+            if (b.userData !is Ladder && b.userData !is Goal) {
                 if (isTouchBlock) {
                     val nowAngle = checkTouch(b)
                     if (nowAngle != null) {
@@ -543,7 +543,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                             }
                         }
                         touchGravity.add(nowAngle)
-                        //isLand = false
                     }
                 } else {
                     isTouchBlock = true
@@ -556,7 +555,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         } else if (b == playerBody) {
             if (a == goalBody) onGoal(b, a)
             else if (a.userData is GravityChange) changeGravity(a.userData as GravityChange)
-            if (a.userData !is Ladder) {
+            if (a.userData !is Ladder && a.userData !is Goal) {
                 if (isTouchBlock) {
                     val nowAngle = checkTouch(a)
                     if (nowAngle != null) {
@@ -566,7 +565,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                             }
                         }
                         touchGravity.add(nowAngle)
-                        //isLand = false
                     }
                 } else {
                     isTouchBlock = true
