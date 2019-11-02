@@ -1023,7 +1023,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun onGoal(a: Body, b: Body) {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
             isClear = true
-            playerBody.linearDamping = 3f
+            playerBody.linearDamping = 4.3f
 //            ThreadEnabled = false
 //            game.screen = StageSelect(game)
         }
@@ -1065,6 +1065,23 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     override fun hide() {
         stage.dispose()
         spriteBatch.dispose()
+        world.destroyBody(goalBody)
+        joints.forEach {
+            world.destroyJoint(it)
+        }
+        wallBodies.forEach {
+            world.destroyBody(it)
+        }
+        squareBodies.forEach {
+            world.destroyBody(it)
+        }
+        triangleBodies.forEach {
+            world.destroyBody(it)
+        }
+        ladderBodies.forEach {
+            world.destroyBody(it)
+        }
+        world.destroyBody(playerBody)
     }
 
     override fun pause() {
