@@ -542,7 +542,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     if (nowAngle != null) {
                         touchGravity.forEach {
                             if (abs(it - nowAngle) == 2) {
-                                if (playerBody.linearVelocity.x.toInt() == 0 && playerBody.linearVelocity.y.toInt() == 0) onGameover()
+                                if (it.isOdd() && playerBody.linearVelocity.y.toInt() == 0) onGameover()
+                                if (it.isEven() && playerBody.linearVelocity.x.toInt() == 0) onGameover()
                             }
                         }
                         touchGravity.add(nowAngle)
@@ -567,7 +568,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     if (nowAngle != null) {
                         touchGravity.forEach {
                             if (abs(it - nowAngle) == 2) {
-                                if (playerBody.linearVelocity.x in -0.4..0.4 && playerBody.linearVelocity.y in -0.4..0.4) onGameover()
+                                if (it.isOdd() && playerBody.linearVelocity.y.toInt() == 0) onGameover()
+                                if (it.isEven() && playerBody.linearVelocity.x.toInt() == 0) onGameover()
                             }
                         }
                         touchGravity.add(nowAngle)
