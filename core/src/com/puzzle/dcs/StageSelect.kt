@@ -356,7 +356,9 @@ class StageSelect(private val game: Core) : Screen {
     }
 
     override fun hide() {
-
+        stage.dispose()
+        spriteBatch.dispose()
+        sound.dispose()
     }
 
     override fun dispose() {
