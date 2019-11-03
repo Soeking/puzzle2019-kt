@@ -66,6 +66,7 @@ class StageSelect(private val game: Core) : Screen {
 
     private val sound: Sound
     private val soundDisposed: Sound
+    private val soundDisposed2: Sound
 
     init {
         stage = Stage()
@@ -200,6 +201,7 @@ class StageSelect(private val game: Core) : Screen {
 
         sound = Gdx.audio.newSound(Gdx.files.internal("sounds/cymbal.mp3"))
         soundDisposed = Gdx.audio.newSound(Gdx.files.internal("sounds/09_delicious_y_kapo_2_y_44_c4.wav"))
+        soundDisposed2 = Gdx.audio.newSound(Gdx.files.internal("sounds/VO_YS_OVTAK2.rwav.wav"))
 
         //prepare sound finish
 
@@ -299,6 +301,10 @@ class StageSelect(private val game: Core) : Screen {
         if(disposed){
             soundDisposed.play()
             disposed = false
+        }
+        if(disposed2){
+            soundDisposed2.play()
+            disposed2 = false
         }
 
         spriteBatch.begin()
@@ -432,6 +438,7 @@ class StageSelect(private val game: Core) : Screen {
         stageSelectFile.clear()
         sound.dispose()
         soundDisposed.dispose()
-        disposed = true
+        soundDisposed2.dispose()
+        disposed2 = true
     }
 }

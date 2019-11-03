@@ -8,6 +8,7 @@ import javax.lang.model.type.NullType
 public var touchCoordinate: Array<Vector2?> = arrayOfNulls(5)
 public var ThreadEnabled: Boolean = false
 public var disposed: Boolean = false
+public var disposed2: Boolean = false
 
 class Touch : InputProcessor {
 

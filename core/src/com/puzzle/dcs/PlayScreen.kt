@@ -120,6 +120,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val runtime: Runtime
 
     private val soundDisposed: Sound
+    private val soundDisposed2: Sound
 
     init {
         runtime = Runtime.getRuntime()
@@ -395,6 +396,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         th.start()
 
         soundDisposed = Gdx.audio.newSound(Gdx.files.internal("sounds/09_delicious_y_kapo_2_y_44_c4.wav"))
+        soundDisposed2 = Gdx.audio.newSound(Gdx.files.internal("sounds/VO_YS_OVTAK2.rwav.wav"))
 
         circleShape.dispose()
         boxShape.dispose()
@@ -484,6 +486,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         if(disposed){
             soundDisposed.play()
             disposed = false
+        }
+        if(disposed2){
+            soundDisposed2.play()
+            disposed2 = false
         }
 
         spriteBatch.begin()
@@ -1221,6 +1227,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ltouchtex.textureData.disposePixmap()
         ltouchtex.dispose()
         soundDisposed.dispose()
+        soundDisposed2.dispose()
         disposed = true
 //        Gdx.app.log("finalize", "PlayScreen button is disposed")
     }
