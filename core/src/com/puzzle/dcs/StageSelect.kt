@@ -167,7 +167,7 @@ class StageSelect(private val game: Core) : Screen {
         isTap = false
         checkTap = true
 
-        val th = DrawButtonThread(this)
+        val th = createPreviewThread(this)
         th.start()
 //        createPreview()
 
@@ -208,7 +208,7 @@ class StageSelect(private val game: Core) : Screen {
     }
 
 
-    class DrawButtonThread(private val stageselect: StageSelect) : Thread() {
+    class createPreviewThread(private val stageselect: StageSelect) : Thread() {
         override fun run() {
             stageselect.createPreview()
 
@@ -219,6 +219,8 @@ class StageSelect(private val game: Core) : Screen {
 //            stageselect.playerPixmap.dispose()
 //            stageselect.goalPixmap.dispose()
 //            stageselect.changePixmap.dispose()
+
+            Gdx.app.log("thread", "createPreviewThread is dead")
 
             super.run()
         }
