@@ -1,1 +1,545 @@
-{"idMax":9,"wall":[{"x":3,"y":8},{"x":4,"y":8},{"x":5,"y":8},{"x":6,"y":8},{"x":7,"y":8},{"x":8,"y":8},{"x":9,"y":8},{"x":10,"y":8},{"x":11,"y":8},{"x":12,"y":8},{"x":3,"y":11},{"x":3,"y":12},{"x":3,"y":13},{"x":3,"y":14},{"x":3,"y":15},{"x":4,"y":15},{"x":5,"y":15},{"x":6,"y":15},{"x":7,"y":15},{"x":8,"y":15},{"x":9,"y":15},{"x":10,"y":15},{"x":11,"y":15},{"x":12,"y":15},{"x":12,"y":14},{"x":12,"y":13},{"x":12,"y":12},{"x":12,"y":11},{"x":11,"y":12},{"x":10,"y":13},{"x":9,"y":14},{"x":2,"y":5},{"x":3,"y":5},{"x":4,"y":5},{"x":5,"y":5},{"x":6,"y":5},{"x":7,"y":5},{"x":8,"y":5},{"x":9,"y":5},{"x":10,"y":5},{"x":11,"y":5},{"x":12,"y":5},{"x":12,"y":7},{"x":12,"y":6},{"x":1,"y":5},{"x":1,"y":6},{"x":1,"y":7},{"x":1,"y":8},{"x":1,"y":9},{"x":1,"y":10},{"x":1,"y":11},{"x":2,"y":11},{"x":12,"y":4},{"x":12,"y":3},{"x":12,"y":2},{"x":11,"y":2},{"x":10,"y":3},{"x":9,"y":4},{"x":12,"y":1},{"x":10,"y":1},{"x":11,"y":1},{"x":9,"y":1},{"x":8,"y":1},{"x":7,"y":1},{"x":6,"y":1},{"x":5,"y":1},{"x":4,"y":1},{"x":3,"y":1},{"x":3,"y":2},{"x":3,"y":3},{"x":3,"y":4}],"square":[{"x":11,"y":13,"gravityID":3,"gravity":3},{"x":11,"y":14,"gravityID":7,"gravity":3},{"x":4,"y":7,"gravityID":7,"gravity":3},{"x":10,"y":12,"gravityID":4,"gravity":3},{"x":7,"y":13,"gravityID":8,"gravity":3},{"x":5,"y":7,"gravityID":8,"gravity":3},{"x":9,"y":12,"gravityID":5,"gravity":3},{"x":9,"y":13,"gravityID":9,"gravity":3},{"x":7,"y":7,"gravityID":9,"gravity":3},{"x":5,"y":12,"gravityID":6,"gravity":3},{"x":5,"y":13,"gravityID":8,"gravity":3},{"x":11,"y":3,"gravityID":3,"gravity":3},{"x":11,"y":4,"gravityID":7,"gravity":3},{"x":10,"y":2,"gravityID":4,"gravity":3},{"x":9,"y":2,"gravityID":5,"gravity":3},{"x":5,"y":2,"gravityID":6,"gravity":3},{"x":7,"y":3,"gravityID":8,"gravity":3},{"x":5,"y":3,"gravityID":8,"gravity":3},{"x":9,"y":3,"gravityID":9,"gravity":3},{"x":2,"y":13,"gravityID":1,"gravity":3}],"triangle":[],"ladder":[{"x":2,"y":7,"gravityID":2,"gravity":3,"rotate":0},{"x":2,"y":8,"gravityID":2,"gravity":3,"rotate":0},{"x":2,"y":9,"gravityID":2,"gravity":3,"rotate":0},{"x":2,"y":6,"gravityID":2,"gravity":3,"rotate":0},{"x":2,"y":10,"gravityID":2,"gravity":3,"rotate":0}],"gravityChange":[{"x":11,"y":11,"gravityID":1,"gravity":3,"setGravity":1},{"x":10,"y":11,"gravityID":1,"gravity":3,"setGravity":1},{"x":9,"y":11,"gravityID":1,"gravity":3,"setGravity":1},{"x":8,"y":11,"gravityID":1,"gravity":3,"setGravity":1},{"x":7,"y":11,"gravityID":1,"gravity":3,"setGravity":1},{"x":6,"y":11,"gravityID":1,"gravity":3,"setGravity":1},{"x":5,"y":11,"gravityID":1,"gravity":3,"setGravity":1},{"x":4,"y":11,"gravityID":1,"gravity":3,"setGravity":1},{"x":6,"y":9,"gravityID":3,"gravity":3,"setGravity":1},{"x":7,"y":9,"gravityID":4,"gravity":3,"setGravity":1},{"x":8,"y":9,"gravityID":5,"gravity":3,"setGravity":1},{"x":9,"y":9,"gravityID":6,"gravity":3,"setGravity":1}],"start":{"x":3,"y":9,"gravity":3},"goal":{"x":12,"y":9,"gravity":3}}
+{
+  "idMax": 9,
+  "wall": [
+    {
+      "x": 3,
+      "y": 8
+    },
+    {
+      "x": 4,
+      "y": 8
+    },
+    {
+      "x": 5,
+      "y": 8
+    },
+    {
+      "x": 6,
+      "y": 8
+    },
+    {
+      "x": 7,
+      "y": 8
+    },
+    {
+      "x": 8,
+      "y": 8
+    },
+    {
+      "x": 9,
+      "y": 8
+    },
+    {
+      "x": 10,
+      "y": 8
+    },
+    {
+      "x": 11,
+      "y": 8
+    },
+    {
+      "x": 12,
+      "y": 8
+    },
+    {
+      "x": 3,
+      "y": 11
+    },
+    {
+      "x": 3,
+      "y": 12
+    },
+    {
+      "x": 3,
+      "y": 13
+    },
+    {
+      "x": 3,
+      "y": 14
+    },
+    {
+      "x": 3,
+      "y": 15
+    },
+    {
+      "x": 4,
+      "y": 15
+    },
+    {
+      "x": 5,
+      "y": 15
+    },
+    {
+      "x": 6,
+      "y": 15
+    },
+    {
+      "x": 7,
+      "y": 15
+    },
+    {
+      "x": 8,
+      "y": 15
+    },
+    {
+      "x": 9,
+      "y": 15
+    },
+    {
+      "x": 10,
+      "y": 15
+    },
+    {
+      "x": 11,
+      "y": 15
+    },
+    {
+      "x": 12,
+      "y": 15
+    },
+    {
+      "x": 12,
+      "y": 14
+    },
+    {
+      "x": 12,
+      "y": 13
+    },
+    {
+      "x": 12,
+      "y": 12
+    },
+    {
+      "x": 12,
+      "y": 11
+    },
+    {
+      "x": 11,
+      "y": 12
+    },
+    {
+      "x": 10,
+      "y": 13
+    },
+    {
+      "x": 9,
+      "y": 14
+    },
+    {
+      "x": 2,
+      "y": 5
+    },
+    {
+      "x": 3,
+      "y": 5
+    },
+    {
+      "x": 4,
+      "y": 5
+    },
+    {
+      "x": 5,
+      "y": 5
+    },
+    {
+      "x": 6,
+      "y": 5
+    },
+    {
+      "x": 7,
+      "y": 5
+    },
+    {
+      "x": 8,
+      "y": 5
+    },
+    {
+      "x": 9,
+      "y": 5
+    },
+    {
+      "x": 10,
+      "y": 5
+    },
+    {
+      "x": 11,
+      "y": 5
+    },
+    {
+      "x": 12,
+      "y": 5
+    },
+    {
+      "x": 12,
+      "y": 7
+    },
+    {
+      "x": 12,
+      "y": 6
+    },
+    {
+      "x": 1,
+      "y": 5
+    },
+    {
+      "x": 1,
+      "y": 6
+    },
+    {
+      "x": 1,
+      "y": 7
+    },
+    {
+      "x": 1,
+      "y": 8
+    },
+    {
+      "x": 1,
+      "y": 9
+    },
+    {
+      "x": 1,
+      "y": 10
+    },
+    {
+      "x": 1,
+      "y": 11
+    },
+    {
+      "x": 2,
+      "y": 11
+    },
+    {
+      "x": 12,
+      "y": 4
+    },
+    {
+      "x": 12,
+      "y": 3
+    },
+    {
+      "x": 12,
+      "y": 2
+    },
+    {
+      "x": 11,
+      "y": 2
+    },
+    {
+      "x": 10,
+      "y": 3
+    },
+    {
+      "x": 9,
+      "y": 4
+    },
+    {
+      "x": 12,
+      "y": 1
+    },
+    {
+      "x": 10,
+      "y": 1
+    },
+    {
+      "x": 11,
+      "y": 1
+    },
+    {
+      "x": 9,
+      "y": 1
+    },
+    {
+      "x": 8,
+      "y": 1
+    },
+    {
+      "x": 7,
+      "y": 1
+    },
+    {
+      "x": 6,
+      "y": 1
+    },
+    {
+      "x": 5,
+      "y": 1
+    },
+    {
+      "x": 4,
+      "y": 1
+    },
+    {
+      "x": 3,
+      "y": 1
+    },
+    {
+      "x": 3,
+      "y": 2
+    },
+    {
+      "x": 3,
+      "y": 3
+    },
+    {
+      "x": 3,
+      "y": 4
+    }
+  ],
+  "square": [
+    {
+      "x": 11,
+      "y": 13,
+      "gravityID": 3,
+      "gravity": 3
+    },
+    {
+      "x": 11,
+      "y": 14,
+      "gravityID": 7,
+      "gravity": 3
+    },
+    {
+      "x": 4,
+      "y": 7,
+      "gravityID": 7,
+      "gravity": 3
+    },
+    {
+      "x": 10,
+      "y": 12,
+      "gravityID": 4,
+      "gravity": 3
+    },
+    {
+      "x": 7,
+      "y": 13,
+      "gravityID": 8,
+      "gravity": 3
+    },
+    {
+      "x": 5,
+      "y": 7,
+      "gravityID": 8,
+      "gravity": 3
+    },
+    {
+      "x": 9,
+      "y": 12,
+      "gravityID": 5,
+      "gravity": 3
+    },
+    {
+      "x": 9,
+      "y": 13,
+      "gravityID": 9,
+      "gravity": 3
+    },
+    {
+      "x": 7,
+      "y": 7,
+      "gravityID": 9,
+      "gravity": 3
+    },
+    {
+      "x": 5,
+      "y": 12,
+      "gravityID": 6,
+      "gravity": 3
+    },
+    {
+      "x": 5,
+      "y": 13,
+      "gravityID": 8,
+      "gravity": 3
+    },
+    {
+      "x": 11,
+      "y": 3,
+      "gravityID": 3,
+      "gravity": 3
+    },
+    {
+      "x": 11,
+      "y": 4,
+      "gravityID": 7,
+      "gravity": 3
+    },
+    {
+      "x": 10,
+      "y": 2,
+      "gravityID": 4,
+      "gravity": 3
+    },
+    {
+      "x": 9,
+      "y": 2,
+      "gravityID": 5,
+      "gravity": 3
+    },
+    {
+      "x": 5,
+      "y": 2,
+      "gravityID": 6,
+      "gravity": 3
+    },
+    {
+      "x": 7,
+      "y": 3,
+      "gravityID": 8,
+      "gravity": 3
+    },
+    {
+      "x": 5,
+      "y": 3,
+      "gravityID": 8,
+      "gravity": 3
+    },
+    {
+      "x": 9,
+      "y": 3,
+      "gravityID": 9,
+      "gravity": 3
+    },
+    {
+      "x": 2,
+      "y": 13,
+      "gravityID": 1,
+      "gravity": 3
+    }
+  ],
+  "triangle": [],
+  "ladder": [
+    {
+      "x": 2,
+      "y": 7,
+      "gravityID": 2,
+      "gravity": 3,
+      "rotate": 0
+    },
+    {
+      "x": 2,
+      "y": 8,
+      "gravityID": 2,
+      "gravity": 3,
+      "rotate": 0
+    },
+    {
+      "x": 2,
+      "y": 9,
+      "gravityID": 2,
+      "gravity": 3,
+      "rotate": 0
+    },
+    {
+      "x": 2,
+      "y": 6,
+      "gravityID": 2,
+      "gravity": 3,
+      "rotate": 0
+    },
+    {
+      "x": 2,
+      "y": 10,
+      "gravityID": 2,
+      "gravity": 3,
+      "rotate": 0
+    }
+  ],
+  "gravityChange": [
+    {
+      "x": 11,
+      "y": 11,
+      "gravityID": 1,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 10,
+      "y": 11,
+      "gravityID": 1,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 9,
+      "y": 11,
+      "gravityID": 1,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 8,
+      "y": 11,
+      "gravityID": 1,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 7,
+      "y": 11,
+      "gravityID": 1,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 6,
+      "y": 11,
+      "gravityID": 1,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 5,
+      "y": 11,
+      "gravityID": 1,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 4,
+      "y": 11,
+      "gravityID": 1,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 6,
+      "y": 9,
+      "gravityID": 3,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 7,
+      "y": 9,
+      "gravityID": 4,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 8,
+      "y": 9,
+      "gravityID": 5,
+      "gravity": 3,
+      "setGravity": 1
+    },
+    {
+      "x": 9,
+      "y": 9,
+      "gravityID": 6,
+      "gravity": 3,
+      "setGravity": 1
+    }
+  ],
+  "start": {
+    "x": 3,
+    "y": 9,
+    "gravity": 3
+  },
+  "goal": {
+    "x": 12,
+    "y": 9,
+    "gravity": 3
+  }
+}
