@@ -3,6 +3,7 @@ package com.puzzle.dcs
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -117,6 +118,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val deadLine: Array<Int>
 
     private val runtime: Runtime
+
+    private val soundDisposed: Sound
 
     init {
         runtime = Runtime.getRuntime()
@@ -391,6 +394,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         val th = DrawButtonThread(this)
         th.start()
 
+        soundDisposed = Gdx.audio.newSound(Gdx.files.internal("sounds/09_delicious_y_kapo_2_y_44_c4.wav"))
+
         circleShape.dispose()
         boxShape.dispose()
         ladderShape.dispose()
@@ -474,6 +479,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.contactList.forEach {
             collisionAction(it.fixtureA.body, it.fixtureB.body)
+        }
+
+        if(disposed){
+            soundDisposed.play()
+            disposed = false
         }
 
         spriteBatch.begin()
@@ -1210,6 +1220,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         laserTouchedPix.dispose()
         ltouchtex.textureData.disposePixmap()
         ltouchtex.dispose()
+        soundDisposed.dispose()
+        disposed = true
 //        Gdx.app.log("finalize", "PlayScreen button is disposed")
     }
 }

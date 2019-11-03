@@ -65,6 +65,7 @@ class StageSelect(private val game: Core) : Screen {
     private var checkTap: Boolean
 
     private val sound: Sound
+    private val soundDisposed: Sound
 
     init {
         stage = Stage()
@@ -198,6 +199,7 @@ class StageSelect(private val game: Core) : Screen {
         //prepare sound
 
         sound = Gdx.audio.newSound(Gdx.files.internal("sounds/cymbal.mp3"))
+        soundDisposed = Gdx.audio.newSound(Gdx.files.internal("sounds/09_delicious_y_kapo_2_y_44_c4.wav"))
 
         //prepare sound finish
 
@@ -292,6 +294,11 @@ class StageSelect(private val game: Core) : Screen {
     override fun render(delta: Float) {
         stageList.forEach {
             if (it.first.isPressed) game.screen = PlayScreen(game, it.second)
+        }
+
+        if(disposed){
+            soundDisposed.play()
+            disposed = false
         }
 
         spriteBatch.begin()
@@ -424,5 +431,7 @@ class StageSelect(private val game: Core) : Screen {
         stageSelectImageTexture.clear()
         stageSelectFile.clear()
         sound.dispose()
+        soundDisposed.dispose()
+        disposed = true
     }
 }
