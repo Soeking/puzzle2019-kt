@@ -299,12 +299,10 @@ class StageSelect(private val game: Core) : Screen {
         }
 
         if(disposed){
-            soundDisposed.play()
-            disposed = false
+            disposed = (soundDisposed.play() == -1L)
         }
         if(disposed2){
-            soundDisposed2.play()
-            disposed2 = false
+            disposed2 = (soundDisposed2.play() == -1L)
         }
 
         spriteBatch.begin()
