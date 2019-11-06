@@ -15,11 +15,11 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.GdxRuntimeException
 import com.google.gson.Gson
 import java.lang.Exception
 import kotlin.math.max
 import kotlin.math.min
-
 
 class StageSelect(private val game: Core) : Screen {
     private val stage: Stage
@@ -68,7 +68,11 @@ class StageSelect(private val game: Core) : Screen {
     private val soundDisposed: Sound
     private val soundDisposed2: Sound
 
+    private val cachePath: String
+
     init {
+        cachePath = Gdx.files.absolute("${Gdx.files.local("").file().parent}/cache/").path()
+
         stage = Stage()
         stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/kari.png"))))), "kari.json"))
         stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/new.png"))))), "new.json"))
@@ -233,36 +237,41 @@ class StageSelect(private val game: Core) : Screen {
     fun createPreview() {
         stageSelectFile.forEach() {
             if (it.exists()) {
-                val stageData: StageData = json.fromJson(it.readString(), StageData::class.java)
-                val pixmap = Pixmap(previewPixel, previewPixel, Pixmap.Format.RGBA8888)
+                try {
+                    val pixmap = PixmapIO.readCIM(Gdx.files.absolute("${cachePath}/${it.name().substring(0, it.name().length - 5)}"))
+                    stageSelectImage.add(pixmap)
+                } catch (e: Exception) {
+                    val stageData: StageData = json.fromJson(it.readString(), StageData::class.java)
+                    val pixmap = Pixmap(previewPixel, previewPixel, Pixmap.Format.RGBA8888)
 //                    pixmap.setColor(0f, 0f, 0f, 0f)
 //                    pixmap.fill()
-                stageData.wall.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), wallPixmap, 0)
-                }
-                stageData.square.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), squarePixmap, 0)
-                }
-                stageData.triangle.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), trianglePixmap, it.rotate)
-                }
-                stageData.ladder.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), ladderPixmap, it.rotate)
-                }
-                stageData.start.let {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), playerPixmap, it.gravity + 1)
-                }
-                stageData.goal.let {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), goalPixmap, it.gravity + 1)
-                }
-                stageData.gravityChange.forEach {
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), squarePixmap, it.setGravity + 1)
-                    drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), changePixmap, it.setGravity + 1)
-                }
-                stageSelectImage.add(pixmap)
+                    stageData.wall.forEach {
+                        drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), wallPixmap, 0)
+                    }
+                    stageData.square.forEach {
+                        drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), squarePixmap, 0)
+                    }
+                    stageData.triangle.forEach {
+                        drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), trianglePixmap, it.rotate)
+                    }
+                    stageData.ladder.forEach {
+                        drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), ladderPixmap, it.rotate)
+                    }
+                    stageData.start.let {
+                        drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), playerPixmap, it.gravity + 1)
+                    }
+                    stageData.goal.let {
+                        drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), goalPixmap, it.gravity + 1)
+                    }
+                    stageData.gravityChange.forEach {
+                        drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), squarePixmap, it.setGravity + 1)
+                        drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), changePixmap, it.setGravity + 1)
+                    }
+                    stageSelectImage.add(pixmap)
 //                stageSelectImageTexture.add(Texture(pixmap))
 //                stageSelectImageTexture[stageSelectImageTexture.size-1].draw(pixmap, 0, 0)
 //                pixmap.dispose()
+                }
             } else {
                 dispose()
                 game.screen = StageSelect(game)
@@ -298,10 +307,10 @@ class StageSelect(private val game: Core) : Screen {
             if (it.first.isPressed) game.screen = PlayScreen(game, it.second)
         }
 
-        if(disposed){
+        if (disposed) {
             disposed = (soundDisposed.play() == -1L)
         }
-        if(disposed2){
+        if (disposed2) {
             disposed2 = (soundDisposed2.play() == -1L)
         }
 
@@ -368,6 +377,13 @@ class StageSelect(private val game: Core) : Screen {
 
         if (finishedTexture < stageSelectImage.size) {
             stageSelectImageTexture.add(Texture(stageSelectImage[finishedTexture++]))
+//            Gdx.app.log("file", "${cachePath}/${stageSelectFile[finishedTexture - 1].name().substring(0, stageSelectFile[finishedTexture - 1].name().length - 5)}")
+            try {
+                PixmapIO.writeCIM(Gdx.files.absolute("${cachePath}/${stageSelectFile[finishedTexture - 1].name().substring(0, stageSelectFile[finishedTexture - 1].name().length - 5)}"), stageSelectImage[finishedTexture - 1])
+            } catch (e: GdxRuntimeException) {
+                Gdx.files.absolute("${cachePath}/").mkdirs()
+                PixmapIO.writeCIM(Gdx.files.absolute("${cachePath}/${stageSelectFile[finishedTexture - 1].name().substring(0, stageSelectFile[finishedTexture - 1].name().length - 5)}"), stageSelectImage[finishedTexture - 1])
+            }
             stageSelectImage[finishedTexture - 1].dispose()
         }
 
@@ -433,7 +449,7 @@ class StageSelect(private val game: Core) : Screen {
 //        stage.dispose()
     }
 
-    protected fun finalize(){
+    protected fun finalize() {
         Gdx.app.log("finalize", "StageSelect is disposed")
         wallPixmap.dispose()
         squarePixmap.dispose()
