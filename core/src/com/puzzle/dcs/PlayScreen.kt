@@ -414,7 +414,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             override fun beginContact(contact: Contact?) {
                 contact?.let {
                     if (contact.fixtureA.body == playerBody && contact.fixtureB.body.userData is Ladder) ladderAction()
-                    if (contact.fixtureB.body == playerBody && contact.fixtureA.body.userData is Ladder) ladderAction()
+                    else if (contact.fixtureB.body == playerBody && contact.fixtureA.body.userData is Ladder) ladderAction()
                 }
             }
 
@@ -749,7 +749,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     var jumpTouched: Int = -1
     var coordinate: Vector2 = Vector2(0.0f, 0.0f)
     var dis: Float = 0.0f
-    var laserTouched: Int = -1
+    var laserTouched: Int = -2
     var firstLaser: Vector2 = Vector2(0.0f, 0.0f)
     var ldis: Float = 0.0f
     var a: Boolean = false

@@ -335,7 +335,17 @@ class StageSelect(private val game: Core) : Screen {
             }
         }
         for (it in (stageSelectImageTexture.size)..(stageSelectFile.size - 1)) {
-            spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
+            if (isTap && firstTouch != null) {
+                if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
+                    sound.play()
+                    spriteBatch.draw(frameTexture2, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
+                } else {
+                    spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
+                }
+            } else {
+                spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
+            }
+
             loadingTime += (Gdx.graphics.deltaTime * 1000.0f / (stageSelectFile.size - stageSelectImageTexture.size)).toInt()
             loadingTime %= 1000
             when (loadingTime) {
@@ -345,6 +355,15 @@ class StageSelect(private val game: Core) : Screen {
                 in 750..1000 -> loadingString = "loading..."
             }
             bitmapFont2.draw(spriteBatch, loadingString, previewPixel * (it / 2).toFloat() + stageSelectX + Gdx.graphics.height / 15.0f, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 20.0f + Gdx.graphics.height / 10.0f)
+
+            if (isTap && firstTouch != null) {
+                if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
+                    isTap = false
+                    firstTouch = null
+                    game.screen = PlayScreen(game, stageSelectFile[it].name())
+//                    game.screen = StageSelect(game)
+                }
+            }
         }
 
         if (finishedTexture < stageSelectImage.size) {
