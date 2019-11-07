@@ -9,11 +9,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
-<<<<<<< HEAD
-=======
 import java.util.*
 import kotlin.math.min
->>>>>>> memory
 
 class Title(private val game: Core) : Screen {
     private val batch: SpriteBatch
