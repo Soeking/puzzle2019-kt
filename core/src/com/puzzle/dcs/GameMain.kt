@@ -25,7 +25,7 @@ class GameMain(private val game: Core) : Screen {
         font = BitmapFont()
         font.color = Color.BLACK
         font.data.setScale(10f)
-        button = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/play.png")))))
+        button = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/play.png")))))
         button.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         button.setScale(10f)
         stage.addActor(button)
@@ -33,7 +33,7 @@ class GameMain(private val game: Core) : Screen {
     }
 
     override fun render(delta: Float) {
-        if (button.isPressed) {
+        if (true) {
             game.screen = StageSelect(game)
         }
 
@@ -41,9 +41,9 @@ class GameMain(private val game: Core) : Screen {
         Gdx.gl.glClearColor(0.9f, 0.1f, 0.5f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         font.draw(batch, "GAME", Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
+        batch.end()
         stage.act(Gdx.graphics.deltaTime)
         stage.draw()
-        batch.end()
     }
 
     override fun show() {
@@ -67,6 +67,7 @@ class GameMain(private val game: Core) : Screen {
     }
 
     override fun dispose() {
-
+        batch.dispose()
+        stage.dispose()
     }
 }
