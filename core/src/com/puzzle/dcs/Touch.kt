@@ -9,6 +9,7 @@ public var touchCoordinate: Array<Vector2?> = arrayOfNulls(5)
 public var ThreadEnabled: Boolean = false
 public var disposed: Boolean = false
 public var disposed2: Boolean = false
+public var StageLoaded = false
 
 class Touch : InputProcessor {
 

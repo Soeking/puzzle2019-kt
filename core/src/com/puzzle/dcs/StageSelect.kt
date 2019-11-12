@@ -338,7 +338,9 @@ class StageSelect(private val game: Core) : Screen {
                 if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
                     isTap = false
                     firstTouch = null
+                    StageLoaded = false
                     game.screen = PlayScreen(game, stageSelectFile[it].name())
+//                    game.screen = LoadingDisplay(game, stageSelectFile[it].name())
 //                    game.screen = StageSelect(game)
                 }
             }
@@ -369,7 +371,9 @@ class StageSelect(private val game: Core) : Screen {
                 if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
                     isTap = false
                     firstTouch = null
+                    StageLoaded = false
                     game.screen = PlayScreen(game, stageSelectFile[it].name())
+//                    game.screen = LoadingDisplay(game, stageSelectFile[it].name())
 //                    game.screen = StageSelect(game)
                 }
             }
@@ -391,6 +395,10 @@ class StageSelect(private val game: Core) : Screen {
 
 //        stage.act(Gdx.graphics.deltaTime)
 //        stage.draw()
+
+        if (game.screen != this) {
+            remove()
+        }
     }
 
     private fun touch() {
@@ -449,8 +457,7 @@ class StageSelect(private val game: Core) : Screen {
 //        stage.dispose()
     }
 
-    protected fun finalize() {
-        Gdx.app.log("finalize", "StageSelect is disposed")
+    private fun remove() {
         wallPixmap.dispose()
         squarePixmap.dispose()
         trianglePixmap.dispose()
@@ -469,9 +476,42 @@ class StageSelect(private val game: Core) : Screen {
         }
         stageSelectImageTexture.clear()
         stageSelectFile.clear()
+        spriteBatch.dispose()
         sound.dispose()
         soundDisposed.dispose()
         soundDisposed2.dispose()
-        disposed2 = true
+
+        alreadyRemoved = true
+    }
+
+    private var alreadyRemoved: Boolean = false;
+
+    protected fun finalize() {
+        Gdx.app.log("finalize", "StageSelect is disposed")
+        if (!alreadyRemoved) {
+            wallPixmap.dispose()
+            squarePixmap.dispose()
+            trianglePixmap.dispose()
+            ladderPixmap.dispose()
+            playerPixmap.dispose()
+            goalPixmap.dispose()
+            changePixmap.dispose()
+            fontGenerator.dispose()
+            fontGenerator2.dispose()
+            bitmapFont.dispose()
+            bitmapFont2.dispose()
+            stageSelectImage.clear()
+            stageSelectImageTexture.forEach {
+                it.textureData.disposePixmap()
+                it.dispose()
+            }
+            stageSelectImageTexture.clear()
+            stageSelectFile.clear()
+            spriteBatch.dispose()
+            sound.dispose()
+            soundDisposed.dispose()
+            soundDisposed2.dispose()
+            disposed2 = true
+        }
     }
 }

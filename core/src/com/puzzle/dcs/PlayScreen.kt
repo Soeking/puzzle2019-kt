@@ -56,7 +56,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val goalSprite: Sprite
     private val changeSprite: Sprite
     private val backgroundSprite: Sprite
-    private val button: Array<ImageButton>
+    //    private val button: Array<ImageButton>
     private val playerDef = BodyDef()
     private val dynamicDef = BodyDef()
     private val staticDef = BodyDef()
@@ -300,32 +300,32 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
 
         stage = Stage()
-        button = arrayOf(
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/jumpbutton.png")))))
-        )
-        repeat(5) {
-            button[it].image.setScale(Gdx.graphics.width / 10.0f / button[it].width)
-            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b, 0.5f)
-            button[it].setScale(Gdx.graphics.width / 10.0f / button[it].width / 1f)
-            button[it].setOrigin(0.0f, 0.0f)
-            if (it == jump) {
-                button[it].setPosition(
-                        Gdx.graphics.width / 10.0f / 3.0f * 24.0f,
-                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f
-                )
-            } else {
-                button[it].setPosition(
-                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
-                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
-                )
-                button[it].color.set(Color.BLACK)
-            }
-            stage.addActor(button[it])
-        }
+//        button = arrayOf(
+//                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
+//                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
+//                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
+//                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))),
+//                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/jumpbutton.png")))))
+//        )
+//        repeat(5) {
+//            button[it].image.setScale(Gdx.graphics.width / 10.0f / button[it].width)
+//            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b, 0.5f)
+//            button[it].setScale(Gdx.graphics.width / 10.0f / button[it].width / 1f)
+//            button[it].setOrigin(0.0f, 0.0f)
+//            if (it == jump) {
+//                button[it].setPosition(
+//                        Gdx.graphics.width / 10.0f / 3.0f * 24.0f,
+//                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f
+//                )
+//            } else {
+//                button[it].setPosition(
+//                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
+//                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
+//                )
+//                button[it].color.set(Color.BLACK)
+//            }
+//            stage.addActor(button[it])
+//        }
         val mu = InputMultiplexer()
         mu.addProcessor(Touch())
         mu.addProcessor(stage)
@@ -402,6 +402,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         boxShape.dispose()
         ladderShape.dispose()
         triangleShape.dispose()
+
+        StageLoaded = true
     }
 
     private fun setDeadLine(X: Int, Y: Int) {
@@ -483,10 +485,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             collisionAction(it.fixtureA.body, it.fixtureB.body)
         }
 
-        if(disposed){
+        if (disposed) {
             disposed = (soundDisposed.play() == -1L)
         }
-        if(disposed2){
+        if (disposed2) {
             disposed2 = (soundDisposed2.play() == -1L)
         }
 
@@ -506,6 +508,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         camera.update()
         world.step(1 / 45f, 8, 3)
         //renderer.render(world, camera.combined)
+
+        if (game.screen != this) {
+            remove()
+        }
     }
 
     /**↓ここからデバッグ用*/
@@ -1138,19 +1144,16 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 //        stage.dispose()
     }
 
-    protected fun finalize() {
-        Gdx.app.log("finalize", "PlayScreen is disposed")
+    private fun remove() {
         joints.forEach {
             world.destroyJoint(it)
         }
-//        Gdx.app.log("finalize", "PlayScreen joint is disposed")
         wallBodies.forEach {
             for (i in (0..it.fixtureList.size - 1)) {
                 it.destroyFixture(it.fixtureList[i])
             }
             world.destroyBody(it)
         }
-//        Gdx.app.log("finalize", "PlayScreen wall is disposed")
         wallBodies.clear()
         squareBodies.forEach {
             for (i in (0..it.fixtureList.size - 1)) {
@@ -1158,7 +1161,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             }
             world.destroyBody(it)
         }
-//        Gdx.app.log("finalize", "PlayScreen square is disposed")
         squareBodies.clear()
         triangleBodies.forEach {
             for (i in (0..it.fixtureList.size - 1)) {
@@ -1166,7 +1168,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             }
             world.destroyBody(it)
         }
-//        Gdx.app.log("finalize", "PlayScreen triangle is disposed")
         triangleBodies.clear()
         ladderBodies.forEach {
             for (i in (0..it.fixtureList.size - 1)) {
@@ -1174,7 +1175,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             }
             world.destroyBody(it)
         }
-//        Gdx.app.log("finalize", "PlayScreen ladder is disposed")
         ladderBodies.clear()
         changeBodies.forEach {
             for (i in (0..it.fixtureList.size - 1)) {
@@ -1182,26 +1182,16 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             }
             world.destroyBody(it)
         }
-//        Gdx.app.log("finalize", "PlayScreen change is disposed")
         changeBodies.clear()
         for (i in (0..playerBody.fixtureList.size - 1)) {
             playerBody.destroyFixture(playerBody.fixtureList[i])
         }
         world.destroyBody(playerBody)
-//        Gdx.app.log("finalize", "PlayScreen player is disposed")
         for (i in (0..goalBody.fixtureList.size - 1)) {
             goalBody.destroyFixture(goalBody.fixtureList[i])
         }
         world.destroyBody(goalBody)
-//        Gdx.app.log("finalize", "PlayScreen goal is disposed")
         world.dispose()
-//        Gdx.app.log("finalize", "PlayScreen world is disposed")
-//        circleShape.dispose()
-//        boxShape.dispose()
-//        ladderShape.dispose()
-//        triangleShape.dispose()
-//        goalShape.dispose()
-//        Gdx.app.log("finalize", "PlayScreen shape is disposed")
         spriteBatch.dispose()
         fontGenerator.dispose()
         fontGenerator2.dispose()
@@ -1209,7 +1199,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         bitmapFont.dispose()
         bitmapFont2.dispose()
         bitmapFont3.dispose()
-//        Gdx.app.log("finalize", "PlayScreen font is disposed")
         for (it in 0..1) {
             moveButton[it].dispose()
             jumpButton[it].dispose()
@@ -1226,7 +1215,103 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ltouchtex.dispose()
         soundDisposed.dispose()
         soundDisposed2.dispose()
-        disposed = true
+
+        alreadyRemoved = true
+    }
+
+    private var alreadyRemoved: Boolean = false;
+
+    protected fun finalize() {
+        Gdx.app.log("finalize", "PlayScreen is disposed")
+        if (!alreadyRemoved) {
+            joints.forEach {
+                world.destroyJoint(it)
+            }
+//        Gdx.app.log("finalize", "PlayScreen joint is disposed")
+            wallBodies.forEach {
+                for (i in (0..it.fixtureList.size - 1)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+//        Gdx.app.log("finalize", "PlayScreen wall is disposed")
+            wallBodies.clear()
+            squareBodies.forEach {
+                for (i in (0..it.fixtureList.size - 1)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+//        Gdx.app.log("finalize", "PlayScreen square is disposed")
+            squareBodies.clear()
+            triangleBodies.forEach {
+                for (i in (0..it.fixtureList.size - 1)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+//        Gdx.app.log("finalize", "PlayScreen triangle is disposed")
+            triangleBodies.clear()
+            ladderBodies.forEach {
+                for (i in (0..it.fixtureList.size - 1)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+//        Gdx.app.log("finalize", "PlayScreen ladder is disposed")
+            ladderBodies.clear()
+            changeBodies.forEach {
+                for (i in (0..it.fixtureList.size - 1)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+//        Gdx.app.log("finalize", "PlayScreen change is disposed")
+            changeBodies.clear()
+            for (i in (0..playerBody.fixtureList.size - 1)) {
+                playerBody.destroyFixture(playerBody.fixtureList[i])
+            }
+            world.destroyBody(playerBody)
+//        Gdx.app.log("finalize", "PlayScreen player is disposed")
+            for (i in (0..goalBody.fixtureList.size - 1)) {
+                goalBody.destroyFixture(goalBody.fixtureList[i])
+            }
+            world.destroyBody(goalBody)
+//        Gdx.app.log("finalize", "PlayScreen goal is disposed")
+            world.dispose()
+//        Gdx.app.log("finalize", "PlayScreen world is disposed")
+//        circleShape.dispose()
+//        boxShape.dispose()
+//        ladderShape.dispose()
+//        triangleShape.dispose()
+//        goalShape.dispose()
+//        Gdx.app.log("finalize", "PlayScreen shape is disposed")
+            spriteBatch.dispose()
+            fontGenerator.dispose()
+            fontGenerator2.dispose()
+            fontGenerator3.dispose()
+            bitmapFont.dispose()
+            bitmapFont2.dispose()
+            bitmapFont3.dispose()
+//        Gdx.app.log("finalize", "PlayScreen font is disposed")
+            for (it in 0..1) {
+                moveButton[it].dispose()
+                jumpButton[it].dispose()
+                laserButton[it].dispose()
+                tex[it].textureData.disposePixmap()
+                tex[it].dispose()
+                jtex[it].textureData.disposePixmap()
+                jtex[it].dispose()
+                ltex[it].textureData.disposePixmap()
+                ltex[it].dispose()
+            }
+            laserTouchedPix.dispose()
+            ltouchtex.textureData.disposePixmap()
+            ltouchtex.dispose()
+            soundDisposed.dispose()
+            soundDisposed2.dispose()
+            disposed = true
 //        Gdx.app.log("finalize", "PlayScreen button is disposed")
+        }
     }
 }
