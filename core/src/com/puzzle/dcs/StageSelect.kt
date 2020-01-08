@@ -339,9 +339,10 @@ class StageSelect(private val game: Core) : Screen {
                     isTap = false
                     firstTouch = null
                     StageLoaded = false
-                    game.screen = PlayScreen(game, stageSelectFile[it].name())
+//                    game.screen = PlayScreen(game, stageSelectFile[it].name())
 //                    game.screen = LoadingDisplay(game, stageSelectFile[it].name())
 //                    game.screen = StageSelect(game)
+                    game.screen = Loading(game, stageSelectFile[it].name())
                 }
             }
         }
@@ -372,9 +373,10 @@ class StageSelect(private val game: Core) : Screen {
                     isTap = false
                     firstTouch = null
                     StageLoaded = false
-                    game.screen = PlayScreen(game, stageSelectFile[it].name())
+//                    game.screen = PlayScreen(game, stageSelectFile[it].name())
 //                    game.screen = LoadingDisplay(game, stageSelectFile[it].name())
 //                    game.screen = StageSelect(game)
+                    game.screen = Loading(game, stageSelectFile[it].name())
                 }
             }
         }
