@@ -32,14 +32,8 @@ class StageSelect(private val game: Core) : Screen {
     private var stageSelectImage: ArrayList<Pixmap> = ArrayList()
     private var stageSelectImageTexture: ArrayList<Texture> = ArrayList()
     private val stageSelectFile: ArrayList<FileHandle> = ArrayList()
+    private val stageSelectFileDisplay: ArrayList<String> = ArrayList()
     private val json = Gson()
-    private val wall: Texture
-    private val square: Texture
-    private val triangle: Texture
-    private val ladder: Texture
-    private val player: Texture
-    private val goal: Texture
-    private val change: Texture
     private val wallPixmap: Pixmap
     private val squarePixmap: Pixmap
     private val trianglePixmap: Pixmap
@@ -102,68 +96,23 @@ class StageSelect(private val game: Core) : Screen {
         onePixel = (Gdx.graphics.height / 5.0 / previewWidthAndHeight * 2.0).toInt()
         previewPixel = (Gdx.graphics.height / 5.0 * 2).toInt()
 
-        wall = Texture(Gdx.files.internal("images/puzzle cube.png"))
-        square = Texture(Gdx.files.internal("images/puzzle cubepattern.png"))
-        triangle = Texture(Gdx.files.internal("images/puzzle cubepatternT.png"))
-        ladder = Texture(Gdx.files.internal("images/ladder (2).png"))
-        player = Texture(Gdx.files.internal("images/player.png"))
-        goal = Texture(Gdx.files.internal("images/warphole.png"))
-        change = Texture(Gdx.files.internal("images/change.png"))
-        wall.textureData.prepare()
-        square.textureData.prepare()
-        triangle.textureData.prepare()
-        ladder.textureData.prepare()
-        player.textureData.prepare()
-        goal.textureData.prepare()
-        change.textureData.prepare()
-        wallPixmap = wall.textureData.consumePixmap();
-        squarePixmap = square.textureData.consumePixmap()
-        trianglePixmap = triangle.textureData.consumePixmap()
-        ladderPixmap = ladder.textureData.consumePixmap()
-        playerPixmap = player.textureData.consumePixmap()
-        goalPixmap = goal.textureData.consumePixmap()
-        changePixmap = change.textureData.consumePixmap()
-        wall.textureData.disposePixmap()
-        square.textureData.disposePixmap()
-        triangle.textureData.disposePixmap()
-        ladder.textureData.disposePixmap()
-        player.textureData.disposePixmap()
-        goal.textureData.disposePixmap()
-        change.textureData.disposePixmap()
-        wall.dispose()
-        square.dispose()
-        triangle.dispose()
-        ladder.dispose()
-        player.dispose()
-        goal.dispose()
-        change.dispose()
-
-//        wall.setScale(Gdx.graphics.height / 25 * 2 / wall.height)
-//        square.setScale(Gdx.graphics.height / 25 * 2 / square.height)
-//        triangle.setScale(Gdx.graphics.height / 25 * 2 / triangle.height)
-//        ladder.setScale(Gdx.graphics.height / 25 * 2 / ladder.height)
-//        player.setScale(Gdx.graphics.height / 25 * 2 / player.height)
-//        goal.setScale(Gdx.graphics.height / 25 * 2 / goal.height)
-//        change.setScale(Gdx.graphics.height / 25 * 2 / change.height)
+        wallPixmap = preparePixmap("images/puzzle cube.png")
+        squarePixmap = preparePixmap("images/puzzle cubepattern.png")
+        trianglePixmap = preparePixmap("images/puzzle cubepatternT.png")
+        ladderPixmap = preparePixmap("images/ladder (2).png")
+        playerPixmap = preparePixmap("images/player.png")
+        goalPixmap = preparePixmap("images/warphole.png")
+        changePixmap = preparePixmap("images/change.png")
 
         val files = Gdx.files.internal("stages/").list()
 
         files.forEach {
-            //            Gdx.app.log("files", "${it.file().name}, ${it.file().isFile}, ${it.file().name.endsWith(".json")}")
-//            stageSelectFile.add(it)z
+//            Gdx.app.log("files", "${it.file().name}, ${it.file().isFile}, ${it.file().name.endsWith(".json")}")
             if (it.file().name.endsWith(".json")) {
                 stageSelectFile.add(it)
+                stageSelectFileDisplay.add(it.file().name.substring(0, it.file().name.length - 5))
             }
         }
-
-//        stageSelectFile.add(Gdx.files.internal("stages/kari.json"))
-//        stageSelectFile.add(Gdx.files.internal("stages/new.json"))
-//        stageSelectFile.add(Gdx.files.internal("stages/saishin.json"))
-
-//        for (i in 0..(stageSelectFile.size - 1)) {
-//            var pixmap: Pixmap = Pixmap(Gdx.graphics.width / 5 * 2, Gdx.graphics.width / 5 * 2, Pixmap.Format.RGBA8888)
-//            stageSelectImage.add(pixmap)
-//        }
 
         oldStageSelectX = 0
         stageSelectX = 0
@@ -215,6 +164,15 @@ class StageSelect(private val game: Core) : Screen {
         Gdx.input.inputProcessor = mu
     }
 
+    private fun preparePixmap(textureName: String): Pixmap {
+//        return PixmapIO.readCIM(Gdx.files.internal(textureName))
+        var texture: Texture = Texture(Gdx.files.internal(textureName))
+        texture.textureData.prepare()
+        var pixmap: Pixmap = texture.textureData.consumePixmap();
+        texture.textureData.disposePixmap()
+        texture.dispose()
+        return pixmap
+    }
 
     class createPreviewThread(private val stageselect: StageSelect) : Thread() {
         override fun run() {
@@ -332,7 +290,7 @@ class StageSelect(private val game: Core) : Screen {
                 spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
             }
             spriteBatch.draw(stageSelectImageTexture[it], previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
-            bitmapFont.draw(spriteBatch, stageSelectFile[it].name().substring(0, stageSelectFile[it].name().length - 5), previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 25.0f)
+            bitmapFont.draw(spriteBatch, stageSelectFileDisplay[it], previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat() + Gdx.graphics.height / 25.0f)
 
             if (isTap && firstTouch != null) {
                 if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
@@ -478,6 +436,7 @@ class StageSelect(private val game: Core) : Screen {
         }
         stageSelectImageTexture.clear()
         stageSelectFile.clear()
+        stageSelectFileDisplay.clear()
         spriteBatch.dispose()
         sound.dispose()
         soundDisposed.dispose()
@@ -509,6 +468,7 @@ class StageSelect(private val game: Core) : Screen {
             }
             stageSelectImageTexture.clear()
             stageSelectFile.clear()
+            stageSelectFileDisplay.clear()
             spriteBatch.dispose()
             sound.dispose()
             soundDisposed.dispose()

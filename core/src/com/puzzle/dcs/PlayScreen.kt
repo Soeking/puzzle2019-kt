@@ -394,6 +394,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ThreadEnabled = true
         val th = DrawButtonThread(this)
         th.start()
+        //ボタン君ここまで
 
         soundDisposed = Gdx.audio.newSound(Gdx.files.internal("sounds/09_delicious_y_kapo_2_y_44_c4.wav"))
         soundDisposed2 = Gdx.audio.newSound(Gdx.files.internal("sounds/VO_YS_OVTAK2.rwav.wav"))
@@ -851,6 +852,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 } catch (e: Exception) {
                     e.stackTrace
                 }
+
+//                Gdx.app.log("thread", "DrawButtonThread is arriving")
             }
 
             Gdx.app.log("thread", "DrawButtonThread is dead")

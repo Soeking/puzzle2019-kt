@@ -2,11 +2,13 @@ package com.puzzle.dcs
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.Thread.sleep
 
@@ -30,33 +32,51 @@ class Loading(private val game: Core, private val fileName: String) : Screen {
         playerSprite.setOrigin(playerSprite.width / 2.0f, playerSprite.height / 2.0f)
     }
 
+    var first: Boolean = true;
+
     override fun render(delta: Float) {
-        if (!loadFinish) {
+        if (first) {
             GlobalScope.launch {
-                while (!loadFinish || System.currentTimeMillis() - loadendtime < 1000) {
-                    var first = System.currentTimeMillis() - loadstarttime
-                    var end = System.currentTimeMillis() - loadendtime
-                    GlobalScope.launch(Dispatchers.Unconfined) {
-                        if (first < 1000) {
-                            Gdx.gl.glClearColor(Math.min(1.0f, first / 1000.0f), Math.min(0.5f, first / 2000.0f), Math.min(0.5f, first / 2000.0f), 1.0f)
-                        } else if (end < 1000) {
-                            Gdx.gl.glClearColor(Math.max(0.0f, 1.0f - end / 1000.0f), Math.max(0.0f, 0.5f - end / 2000.0f), Math.max(0.0f, 0.5f - end / 2000.0f), 1.0f)
-                        } else {
-                            Gdx.gl.glClearColor(1.0f, 0.5f, 0.5f, 1.0f)
-                            spriteBatch.begin()
-                            playerSprite.setPosition(Gdx.graphics.width - gridSize - playerSprite.width / 2f, gridSize - playerSprite.height / 2f)//, )
-                            playerSprite.rotation = first / 1000.0f * -360
-                            playerSprite.draw(spriteBatch)
-                            spriteBatch.end()
-                        }
-                    }.join()
-                    sleep(16);
+                GlobalScope.launch {
+                    while (!loadFinish || System.currentTimeMillis() - loadendtime < 1000) {
+                        var first = System.currentTimeMillis() - loadstarttime
+                        var end = System.currentTimeMillis() - loadendtime
+                        GlobalScope.launch(Dispatchers.Unconfined) {
+                            Gdx.app.postRunnable {
+                                if (first < 1000) {
+                                    Gdx.gl.glClearColor(Math.min(1.0f, first / 1000.0f), Math.min(0.5f, first / 2000.0f), Math.min(0.5f, first / 2000.0f), 1.0f)
+                                    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+                                } else if (end < 1000) {
+                                    Gdx.gl.glClearColor(Math.max(0.0f, 1.0f - end / 1000.0f), Math.max(0.0f, 0.5f - end / 2000.0f), Math.max(0.0f, 0.5f - end / 2000.0f), 1.0f)
+                                    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+                                } else {
+                                    Gdx.gl.glClearColor(1.0f, 0.5f, 0.5f, 1.0f)
+                                    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+                                    spriteBatch.begin()
+                                    playerSprite.setPosition(Gdx.graphics.width - gridSize - playerSprite.width / 2f, gridSize - playerSprite.height / 2f)//, )
+                                    playerSprite.rotation = first / 1000.0f * -360
+                                    playerSprite.draw(spriteBatch)
+                                    spriteBatch.end()
+                                }
+                            }
+//                        Gdx.app.log("loading", "first: ${first}, end: ${end}, currentTime: ${System.currentTimeMillis()}")
+                        }.join()
+                        sleep(16);
+                    }
+                    game.screen = stage
+                    spriteBatch.dispose()
                 }
-                game.screen = stage
+
+                GlobalScope.launch(Dispatchers.Unconfined) {
+                    delay(2500L)
+                    Gdx.app.postRunnable {
+                        stage = PlayScreen(game, fileName)
+                        loadendtime = System.currentTimeMillis()
+                        loadFinish = true
+                    }
+                }.join()
             }
-            stage = PlayScreen(game, fileName)
-            loadendtime = System.currentTimeMillis()
-            loadFinish = true
+            first = false
         }
     }
 
