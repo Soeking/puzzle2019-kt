@@ -22,11 +22,6 @@ import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.RayCastCallback
 import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
-import java.io.File
-import java.io.FileOutputStream
-import javax.naming.Context
-import kotlin.concurrent.thread
-
 
 class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val camera: OrthographicCamera
@@ -373,7 +368,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         callback = RayCastCallback { fixture, point, normal, fraction ->
             laserFixture = fixture
-            //Gdx.app.log("callback", "${fixture.body.position.x}, ${fixture.body.position.y}, ${point.x}, ${point.y}, ${normal.x}, ${normal.y}, $fraction")
             fraction
         }
         laserFixture = null
@@ -474,8 +468,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
         spriteBatch.begin()
         drawBackground()
-        //checkPlayer()
-        //bitmapFont.draw(spriteBatch, "(${playerBody.position.x.toInt()}, ${playerBody.position.y.toInt()})\n(${playerBody.linearVelocity.x.toInt()}, ${playerBody.linearVelocity.y.toInt()})", Gdx.graphics.width - 150.0f, Gdx.graphics.height - 20.0f)
         drawSprites()
         drawButton()
         checkFalled()
@@ -486,48 +478,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
-        //renderer.render(world, camera.combined)
     }
-
-    /**↓ここからデバッグ用*/
-    private var ochitattawa = 1000
-    private var ochita = false
-    private var ochita2 = false
-    private var ochita3 = false
-
-    private fun checkPlayer() {
-        if (playerBody.position.x * world.gravity.x.absoluteValue < 0 || playerBody.position.y * world.gravity.y.absoluteValue < 0) {
-            ochitattawa = 0
-            ochita = true
-            ochita2 = true
-            ochita3 = true
-        }
-        if (ochitattawa < 1000) {
-            ochitattawa += (Gdx.graphics.deltaTime * 1000).toInt()
-            bitmapFont2.draw(spriteBatch, "落っこちんな～？", Gdx.graphics.width / 3.0f, Gdx.graphics.height / 2.0f * 1.5f)
-            if (ochita3) {
-                playerBody.setLinearVelocity((-1.0f - playerBody.position.x) * 5, (0.5f - playerBody.position.y) * 5)
-                if (playerBody.position.x in -1.5..-0.5 &&
-                        playerBody.position.y in 0.0..1.0) {
-                    ochita3 = false
-                }
-            } else if (ochita2) {
-                playerBody.setLinearVelocity((-1.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
-                if (playerBody.position.x in -1.5..-0.5 &&
-                        playerBody.position.y in 9.5..10.5) {
-                    ochita2 = false
-                }
-            } else if (ochita) {
-                playerBody.setLinearVelocity((10.0f - playerBody.position.x) * 5, (10.0f - playerBody.position.y) * 5)
-                if (playerBody.position.x in 9.5..10.5 &&
-                        playerBody.position.y in 9.5..10.5) {
-                    ochita = false
-                }
-            }
-        }
-    }
-
-    /**↑ここまで*/
 
     private fun collisionAction(a: Body, b: Body) {
         if (a == playerBody) {
@@ -867,8 +818,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             touchTime = 0
         }
 
-        //bitmapFont.draw(spriteBatch, "$a", 0.0f, 30.0f)
-
         tex[0].draw(moveButton[b], 0, 0)
         spriteBatch.draw(tex[0], 0.0f, 0.0f)
         jtex[0].draw(jumpButton[b], 0, 0)
@@ -879,7 +828,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         a = true
 
         if (laserFixture != null) {
-//            bitmapFont.draw(spriteBatch, "LASERTOUCHED : (${laserFixture!!.body.position.x}, ${laserFixture!!.body.position.y}), ${laserFixture!!.body}  $touchTime MILLISECOND", 0.0f, 50.0f)
             bitmapFont2.draw(spriteBatch, " 　↑　 \n← 　 →\n 　↓　 ", Gdx.graphics.width / 2.0f - 100.0f, Gdx.graphics.height / 2.0f + 100.0f)
 
             spriteAlpha -= Gdx.graphics.deltaTime
@@ -903,19 +851,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 }
             }
             try {
-                //Gdx.app.log("velocity", "${laserFixture!!.body.linearVelocity.x}, ${laserFixture!!.body.linearVelocity.y}")
                 if (laserFixture!!.body.linearVelocity.x != 0.0f || laserFixture!!.body.linearVelocity.y != 0.0f) laserFixture = null
             } catch (e: java.lang.Exception) {
             }
             try {
-//                val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
-//                val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
-//                val sprite = Sprite(ltouchtex)
-//                sprite.setOriginCenter()
-//                sprite.setPosition((laserFixture!!.body.position.x - playerX) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2,
-//                        (laserFixture!!.body.position.y - playerY) * gridSize2 / gridSize - sprite.width / 2.0f + halfGrid2)
-//                sprite.draw(spriteBatch)
-
                 if (laserTouched >= 0 && touchCoordinate[laserTouched] == null) {
                     laserTouched = -1
                 } else if (laserTouched >= 0) {
@@ -991,22 +930,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         goalBody.let {
             drawMain(goalSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Goal).gravity + 1, -2)
         }
-
-//        repeat(9) {
-//            bitmapFont.draw(spriteBatch, "${it}: (${((if (it % 3 == 0) {
-//                -0.5f
-//            } else if (it % 3 == 1) {
-//                0.5f
-//            } else {
-//                1.5f
-//            }) * backgroundSize - ((playerBody.position.x * halfGrid2 + halfbackground - backgroundSprite.width / 2.0f) % backgroundSize)).toInt()}, ${((if (it / 3 == 0) {
-//                -0.5f
-//            } else if (it / 3 == 1) {
-//                0.5f
-//            } else {
-//                1.5f
-//            }) * backgroundSize - ((playerBody.position.y * halfGrid2 + halfbackground - backgroundSprite.height / 2.0f) % backgroundSize)).toInt()})", 0.0f, 30.0f + 30.0f * it)
-//        }
     }
 
     private fun drawMain(sprite: Sprite, playerX: Float, playerY: Float, x: Float, y: Float, angle: Float, rotate: Int, gravityGroup: Int) {
@@ -1026,8 +949,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
             isClear = true
             playerBody.linearDamping = 4.3f
-//            ThreadEnabled = false
-//            game.screen = StageSelect(game)
         }
     }
 
@@ -1095,24 +1016,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun dispose() {
-        wallBodies.forEach {
-            world.destroyBody(it)
-        }
-        squareBodies.forEach {
-            world.destroyBody(it)
-        }
-        triangleBodies.forEach {
-            world.destroyBody(it)
-        }
-        ladderBodies.forEach {
-            world.destroyBody(it)
-        }
-        world.destroyBody(playerBody)
-        world.destroyBody(goalBody)
-        joints.forEach {
-            world.destroyJoint(it)
-        }
-        spriteBatch.dispose()
-        stage.dispose()
+
     }
 }
