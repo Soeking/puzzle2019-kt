@@ -22,6 +22,7 @@ import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.RayCastCallback
 import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
+import com.puzzle.dcs.util.*
 
 class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val camera: OrthographicCamera
@@ -694,17 +695,23 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             while (ThreadEnabled) {
                 try {
 
-                    screen.moveButton[1 - screen.b].setColor(0.0f, 0.0f, 0.0f, 0.0f)
-                    screen.moveButton[1 - screen.b].fill()
-                    screen.moveButton[1 - screen.b].setColor(0.5f, 0.5f, 0.5f, 0.5f)
-                    screen.moveButton[1 - screen.b].fillCircle(screen.moveButton[1 - screen.b].width / 2, screen.moveButton[1 - screen.b].height / 2, screen.moveButton[1 - screen.b].width / 2)
+                    screen.moveButton[1 - screen.b].apply {
+                        setColor(0.0f, 0.0f, 0.0f, 0.0f)
+                        fill()
+                        setColor(0.5f, 0.5f, 0.5f, 0.5f)
+                        fillCircle(this.width / 2, this.height / 2, this.width / 2)
+                    }
 
-                    screen.jumpButton[1 - screen.b].setColor(0.0f, 0.0f, 0.0f, 0.0f)
-                    screen.jumpButton[1 - screen.b].fill()
-                    screen.jumpButton[1 - screen.b].setColor(0.0f, 1.0f, 0.0f, 0.5f)
+                    screen.jumpButton[1 - screen.b].apply {
+                        setColor(0.0f, 0.0f, 0.0f, 0.0f)
+                        fill()
+                        setColor(0.0f, 1.0f, 0.0f, 0.5f)
+                    }
 
-                    screen.laserButton[1 - screen.b].setColor(0.0f, 0.0f, 0.0f, 0.0f)
-                    screen.laserButton[1 - screen.b].fill()
+                    screen.laserButton[1 - screen.b].apply {
+                        setColor(0.0f, 0.0f, 0.0f, 0.0f)
+                        fill()
+                    }
 
                     if (screen.touched != -1) {
                         if (touchCoordinate[screen.touched] == null) {
@@ -778,12 +785,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     e.stackTrace
                 }
             }
-            screen.moveButton[0].dispose()
-            screen.moveButton[1].dispose()
-            screen.jumpButton[0].dispose()
-            screen.jumpButton[1].dispose()
-            screen.laserButton[0].dispose()
-            screen.laserButton[1].dispose()
+            screen.moveButton.forEach { it.dispose() }
+            screen.jumpButton.forEach { it.dispose() }
+            screen.laserButton.forEach { it.dispose() }
         }
     }
 
