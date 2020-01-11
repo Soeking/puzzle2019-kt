@@ -22,6 +22,7 @@ import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.RayCastCallback
 import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
+import com.puzzle.dcs.type.Gravity
 import com.puzzle.dcs.util.*
 
 class PlayScreen(private val game: Core, fileName: String) : Screen {
@@ -568,19 +569,19 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun changeGravity(switch: GravityChange) {
         when (switch.setGravity) {
-            0 -> {
+            Gravity.EAST.dir -> {
                 world.gravity = Vector2(gravityValue, 0f)
                 (playerBody.userData as Start).gravity = switch.setGravity
             }
-            1 -> {
+            Gravity.NORTH.dir -> {
                 world.gravity = Vector2(0f, gravityValue)
                 (playerBody.userData as Start).gravity = switch.setGravity
             }
-            2 -> {
+            Gravity.WEST.dir -> {
                 world.gravity = Vector2(-gravityValue, 0f)
                 (playerBody.userData as Start).gravity = switch.setGravity
             }
-            3 -> {
+            Gravity.SOUTH.dir -> {
                 world.gravity = Vector2(0f, -gravityValue)
                 (playerBody.userData as Start).gravity = switch.setGravity
             }
@@ -630,10 +631,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun setMove(body: Body, gravity: Int) {
         body.type = BodyDef.BodyType.DynamicBody
         body.linearVelocity = when (gravity) {
-            0 -> Vector2(blockSpeed, 0f)
-            1 -> Vector2(0f, blockSpeed)
-            2 -> Vector2(-blockSpeed, 0f)
-            3 -> Vector2(0f, -blockSpeed)
+            Gravity.EAST.dir -> Vector2(blockSpeed, 0f)
+            Gravity.NORTH.dir -> Vector2(0f, blockSpeed)
+            Gravity.WEST.dir -> Vector2(-blockSpeed, 0f)
+            Gravity.SOUTH.dir -> Vector2(0f, -blockSpeed)
             else -> Vector2(0f, 0f)
         }
         isStatic = 0
@@ -868,16 +869,16 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     laserTouched = -2
                     when (atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI) {
                         in -135.0..-45.0 -> {
-                            moveBlocks(laserFixture!!.body.userData, 0)
+                            moveBlocks(laserFixture!!.body.userData, Gravity.EAST.dir)
                         }
                         in -45.0..45.0 -> {
-                            moveBlocks(laserFixture!!.body.userData, 3)
+                            moveBlocks(laserFixture!!.body.userData, Gravity.SOUTH.dir)
                         }
                         in 45.0..135.0 -> {
-                            moveBlocks(laserFixture!!.body.userData, 2)
+                            moveBlocks(laserFixture!!.body.userData, Gravity.EAST.dir)
                         }
                         else -> {
-                            moveBlocks(laserFixture!!.body.userData, 1)
+                            moveBlocks(laserFixture!!.body.userData, Gravity.NORTH.dir)
                         }
                     }
                     spriteAlpha = 1.0f
