@@ -23,6 +23,7 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback
 import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
 import com.puzzle.dcs.type.Gravity
+import com.puzzle.dcs.type.*
 import com.puzzle.dcs.util.*
 
 class PlayScreen(private val game: Core, fileName: String) : Screen {
@@ -39,7 +40,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val gridSize2 = Gdx.graphics.width / 20f
     private val halfGrid2 = gridSize2 / 2.0f
     private val backgroundSize = Gdx.graphics.width / 1.0f
-    private val halfbackground = backgroundSize / 2.0f
+    private val halfBackGround = backgroundSize / 2.0f
     private val fixtureGrid = halfGrid * 0.91f
 
     private val world: World
@@ -281,12 +282,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         chooseJointBody()
         world.gravity = when (stageData.start.gravity) {
-            0 -> Vector2(gravityValue, 0f)
-            1 -> Vector2(0f, gravityValue)
-            2 -> Vector2(-gravityValue, 0f)
-            3 -> Vector2(0f, -gravityValue)
-            else -> Vector2(gravityValue, 0f)
-        }
+            0 -> Scale.EAST
+            1 -> Scale.NORTH
+            2 -> Scale.WEST
+            3 -> Scale.SOUTH
+            else -> Scale.SOUTH
+        }.mul(gravityValue)
 
         stage = Stage()
         button = arrayOf(
@@ -631,12 +632,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun setMove(body: Body, gravity: Int) {
         body.type = BodyDef.BodyType.DynamicBody
         body.linearVelocity = when (gravity) {
-            Gravity.EAST.dir -> Vector2(blockSpeed, 0f)
-            Gravity.NORTH.dir -> Vector2(0f, blockSpeed)
-            Gravity.WEST.dir -> Vector2(-blockSpeed, 0f)
-            Gravity.SOUTH.dir -> Vector2(0f, -blockSpeed)
-            else -> Vector2(0f, 0f)
-        }
+            Gravity.EAST.dir -> Scale.EAST
+            Gravity.NORTH.dir -> Scale.NORTH
+            Gravity.WEST.dir -> Scale.WEST
+            Gravity.SOUTH.dir -> Scale.SOUTH
+            else -> Scale.ELSE
+        }.mul(blockSpeed)
         isStatic = 0
     }
 
@@ -901,11 +902,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 it % 3 == 0 -> -1f
                 it % 3 == 1 -> 0f
                 else -> 1f
-            }) * backgroundSize - ((playerBody.position.x * halfGrid2 / halfGrid / 2.5f + halfbackground - backgroundSprite.width / 2.0f) % backgroundSize) + Gdx.graphics.width / 2.0f, (when {
+            }) * backgroundSize - ((playerBody.position.x * halfGrid2 / halfGrid / 2.5f + halfBackGround - backgroundSprite.width / 2.0f) % backgroundSize) + Gdx.graphics.width / 2.0f, (when {
                 it / 3 == 0 -> -1f
                 it / 3 == 1 -> 0f
                 else -> 1f
-            }) * backgroundSize - ((playerBody.position.y * halfGrid2 / halfGrid / 2.5f + halfbackground - backgroundSprite.height / 2.0f) % backgroundSize) + Gdx.graphics.height / 2.0f)
+            }) * backgroundSize - ((playerBody.position.y * halfGrid2 / halfGrid / 2.5f + halfBackGround - backgroundSprite.height / 2.0f) % backgroundSize) + Gdx.graphics.height / 2.0f)
             backgroundSprite.draw(spriteBatch)
         }
     }
