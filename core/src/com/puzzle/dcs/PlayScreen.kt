@@ -8,13 +8,10 @@ import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import com.badlogic.gdx.physics.box2d.FixtureDef
 import kotlin.math.*
@@ -80,7 +77,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val topList = arrayOf(Vector2(fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, fixtureGrid), Vector2(-fixtureGrid, -fixtureGrid), Vector2(fixtureGrid, -fixtureGrid))
     private val goalX = arrayOf(Vector2(halfGrid, halfGrid / 2), Vector2(-halfGrid, halfGrid / 2), Vector2(-halfGrid, -halfGrid / 2), Vector2(halfGrid, -halfGrid / 2))
     private val goalY = arrayOf(Vector2(halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, halfGrid), Vector2(-halfGrid / 2, -halfGrid), Vector2(halfGrid / 2, -halfGrid))
-    private val jump = 4
     private var isLand = false
     private var isTouchBlock = false
     private var touchGravity = mutableListOf<Int>()
@@ -339,9 +335,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         laserTouchedPix.fill()
         ltouchtex = Texture(laserTouchedPix)
 
-        repeat(5) {
-            touchCoordinate[it] = null
-        }
+        touchCoordinate.fill(null)
         callback = RayCastCallback { fixture, point, normal, fraction ->
             laserFixture = fixture
             fraction
@@ -361,6 +355,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         boxShape.dispose()
         ladderShape.dispose()
         triangleShape.dispose()
+        goalShape.dispose()
     }
 
     private fun setDeadLine(X: Int, Y: Int) {
