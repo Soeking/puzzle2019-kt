@@ -53,7 +53,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val goalSprite: Sprite
     private val changeSprite: Sprite
     private val backgroundSprite: Sprite
-    private val button: Array<ImageButton>
     private val playerDef = BodyDef()
     private val dynamicDef = BodyDef()
     private val staticDef = BodyDef()
@@ -290,32 +289,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }.mul(gravityValue)
 
         stage = Stage()
-        button = arrayOf(
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow1.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow2.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow3.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/Arrow4.png"))))),
-                ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("images/jumpbutton.png")))))
-        )
-        repeat(5) {
-            button[it].image.setScale(Gdx.graphics.width / 10.0f / button[it].width)
-            button[it].image.setColor(button[it].image.color.r, button[it].image.color.g, button[it].image.color.b, 0.5f)
-            button[it].setScale(Gdx.graphics.width / 10.0f / button[it].width / 1f)
-            button[it].setOrigin(0.0f, 0.0f)
-            if (it == jump) {
-                button[it].setPosition(
-                        Gdx.graphics.width / 10.0f / 3.0f * 24.0f,
-                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f
-                )
-            } else {
-                button[it].setPosition(
-                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (-cos(Math.PI * it / 2.0).toFloat()),
-                        Gdx.graphics.width / 10.0f / 3.0f * 2.0f + Gdx.graphics.width / 10.0f / 3.0f * 2.0f * (sin(Math.PI * it / 2.0).toFloat())
-                )
-                button[it].color.set(Color.BLACK)
-            }
-            stage.addActor(button[it])
-        }
         val mu = InputMultiplexer()
         mu.addProcessor(Touch())
         mu.addProcessor(stage)
