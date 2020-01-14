@@ -10,11 +10,11 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import java.util.*
-import kotlin.math.min
+import kotlin.math.*
 
 class Title(private val game: Core) : Screen {
-    private val batch: SpriteBatch
-    private val font: BitmapFont
+    private val batch: SpriteBatch = SpriteBatch()
+    private val font: BitmapFont = BitmapFont()
     private val titleImage: Sprite
     private var titleMilliseconds: Int
     private val fontGenerator: FreeTypeFontGenerator
@@ -25,8 +25,6 @@ class Title(private val game: Core) : Screen {
     private var colorB: Float
 
     init {
-        batch = SpriteBatch()
-        font = BitmapFont()
         font.color = Color.WHITE
         font.data.setScale(10f)
 
@@ -36,7 +34,6 @@ class Title(private val game: Core) : Screen {
         titleImage.setScale(min(xSize, ySize))
         titleImage.setOriginCenter()
 
-        // create fonts
         fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/meiryo.ttc"))
         val param = FreeTypeFontGenerator.FreeTypeFontParameter()
         param.size = Gdx.graphics.width / 25
@@ -62,17 +59,15 @@ class Title(private val game: Core) : Screen {
 
         Gdx.gl.glClearColor(colorR, colorG, colorB, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        //font.draw(batch, "TITLE", Gdx.graphics.width / 2f, Gdx.graphics.height / 2f)
         if (titleMilliseconds <= 2000) {
             titleImage.setPosition(Gdx.graphics.width / 2.0f - titleImage.width / 2.0f, Gdx.graphics.height / 2.0f - titleImage.height / 2.0f)
-//            titleImage.setPosition(0.0f, 0.0f)
-            titleImage.setColor(titleImage.color.r, titleImage.color.g, titleImage.color.b, 1.0f - Math.abs(1.0f - titleMilliseconds / 1000.0f))
+            titleImage.setColor(titleImage.color.r, titleImage.color.g, titleImage.color.b, 1.0f - abs(1.0f - titleMilliseconds / 1000.0f))
             titleImage.draw(batch)
         } else if (titleMilliseconds >= 2500) {
             titleImage.setPosition(Gdx.graphics.width / 2.0f - titleImage.width / 2.0f, Gdx.graphics.height / 8.0f * 5.0f - titleImage.height / 2.0f)
-            var xSize: Float = Gdx.graphics.width / titleImage.width / 1.5f
-            var ySize: Float = Gdx.graphics.height / titleImage.height / 1.5f
-            titleImage.setScale(Math.min(xSize, ySize))
+            val xSize: Float = Gdx.graphics.width / titleImage.width / 1.5f
+            val ySize: Float = Gdx.graphics.height / titleImage.height / 1.5f
+            titleImage.setScale(min(xSize, ySize))
             titleImage.setColor(titleImage.color.r, titleImage.color.g, titleImage.color.b, 1.0f)
             titleImage.draw(batch)
             if (titleMilliseconds % 1000 < 500) bitmapFont.draw(batch, "tap screen to start game", Gdx.graphics.width / 4.0f, Gdx.graphics.height / 4.0f)
@@ -92,7 +87,6 @@ class Title(private val game: Core) : Screen {
             colorG = Random().nextFloat()
             colorB = Random().nextFloat()
         }
-        //Gdx.app.log("times", "${titleMilliseconds}")
     }
 
     override fun show() {
