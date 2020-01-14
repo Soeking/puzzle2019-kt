@@ -3,10 +3,9 @@ package com.puzzle.dcs
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.math.Vector2
-import javax.lang.model.type.NullType
 
-public var touchCoordinate: Array<Vector2?> = arrayOfNulls(5)
-public var ThreadEnabled: Boolean = false
+var touchCoordinate: Array<Vector2?> = arrayOfNulls(5)
+var ThreadEnabled: Boolean = false
 
 class Touch : InputProcessor {
 
