@@ -844,7 +844,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                             moveBlocks(laserFixture!!.body.userData, Gravity.SOUTH.dir)
                         }
                         in 45.0..135.0 -> {
-                            moveBlocks(laserFixture!!.body.userData, Gravity.EAST.dir)
+                            moveBlocks(laserFixture!!.body.userData, Gravity.WEST.dir)
                         }
                         else -> {
                             moveBlocks(laserFixture!!.body.userData, Gravity.NORTH.dir)
