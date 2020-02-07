@@ -7,14 +7,10 @@ import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.google.gson.Gson
 import java.lang.Exception
 import kotlin.math.max
@@ -22,9 +18,8 @@ import kotlin.math.min
 
 
 class StageSelect(private val game: Core) : Screen {
-    private val stage: Stage
+    private val stage: Stage = Stage()
     private val spriteBatch = SpriteBatch()
-    private val stageList = mutableListOf<Pair<ImageButton, String>>()
 
     private var stageSelectX: Int
     private var oldStageSelectX: Int
@@ -42,7 +37,7 @@ class StageSelect(private val game: Core) : Screen {
     private val change: Texture
     private val onePixel: Int
     private val previewPixel: Int
-    private val fontGenerator: FreeTypeFontGenerator
+    private val fontGenerator: FreeTypeFontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/meiryo.ttc"))
     private val bitmapFont: BitmapFont
     private val fontGenerator2: FreeTypeFontGenerator
     private val bitmapFont2: BitmapFont
@@ -60,18 +55,8 @@ class StageSelect(private val game: Core) : Screen {
     private val sound: Sound
 
     init {
-        stage = Stage()
-        stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/kari.png"))))), "kari.json"))
-        stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/new.png"))))), "new.json"))
-        stageList.add(Pair(ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/saishin.png"))))), "saishin.json"))
-
-        for (i in stageList.indices) {
-            stageList[i].first.setPosition(Gdx.graphics.width / 2f, Gdx.graphics.height / 4f * (3 - i))
-            stage.addActor(stageList[i].first)
-        }
 
         // create fonts
-        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/meiryo.ttc"))
         val param = FreeTypeFontGenerator.FreeTypeFontParameter()
         param.size = Gdx.graphics.height / 25
         param.color = Color.BLACK
@@ -92,44 +77,18 @@ class StageSelect(private val game: Core) : Screen {
         wall = Texture(Gdx.files.internal("images/puzzle cube.png"))
         square = Texture(Gdx.files.internal("images/puzzle cubepattern.png"))
         triangle = Texture(Gdx.files.internal("images/puzzle cubepatternT.png"))
-        ladder = Texture(Gdx.files.internal("images/ladder (2).png"))
+        ladder = Texture(Gdx.files.internal("images/ladder.png"))
         player = Texture(Gdx.files.internal("images/player.png"))
         goal = Texture(Gdx.files.internal("images/warphole.png"))
         change = Texture(Gdx.files.internal("images/change.png"))
-//        wall.textureData.prepare()
-//        square.textureData.prepare()
-//        triangle.textureData.prepare()
-//        ladder.textureData.prepare()
-//        player.textureData.prepare()
-//        goal.textureData.prepare()
-//        change.textureData.prepare()
-
-//        wall.setScale(Gdx.graphics.height / 25 * 2 / wall.height)
-//        square.setScale(Gdx.graphics.height / 25 * 2 / square.height)
-//        triangle.setScale(Gdx.graphics.height / 25 * 2 / triangle.height)
-//        ladder.setScale(Gdx.graphics.height / 25 * 2 / ladder.height)
-//        player.setScale(Gdx.graphics.height / 25 * 2 / player.height)
-//        goal.setScale(Gdx.graphics.height / 25 * 2 / goal.height)
-//        change.setScale(Gdx.graphics.height / 25 * 2 / change.height)
 
         val files = Gdx.files.internal("stages/").list()
 
         files.forEach {
-            //            Gdx.app.log("files", "${it.file().name}, ${it.file().isFile}, ${it.file().name.endsWith(".json")}")
-//            stageSelectFile.add(it)z
             if (it.file().name.endsWith(".json")) {
                 stageSelectFile.add(it)
             }
         }
-
-//        stageSelectFile.add(Gdx.files.internal("stages/kari.json"))
-//        stageSelectFile.add(Gdx.files.internal("stages/new.json"))
-//        stageSelectFile.add(Gdx.files.internal("stages/saishin.json"))
-
-//        for (i in 0..(stageSelectFile.size - 1)) {
-//            var pixmap: Pixmap = Pixmap(Gdx.graphics.width / 5 * 2, Gdx.graphics.width / 5 * 2, Pixmap.Format.RGBA8888)
-//            stageSelectImage.add(pixmap)
-//        }
 
         oldStageSelectX = 0
         stageSelectX = 0
@@ -141,7 +100,6 @@ class StageSelect(private val game: Core) : Screen {
 
         val th = DrawButtonThread(this)
         th.start()
-//        createPreview()
 
         //stage preview end
 
@@ -165,17 +123,11 @@ class StageSelect(private val game: Core) : Screen {
         frame2.fillRectangle(0, previewPixel - onePixel, previewPixel, onePixel)
         frame2.fillRectangle(previewPixel - onePixel, 0, onePixel, previewPixel)
         frameTexture2 = Texture(frame2)
-        //create frame end
-
-        //prepare sound
 
         sound = Gdx.audio.newSound(Gdx.files.internal("sounds/cymbal.mp3"))
 
-        //prepare sound finish
-
         val mu = InputMultiplexer()
         mu.addProcessor(Touch())
-//        mu.addProcessor(stage)
         Gdx.input.inputProcessor = mu
     }
 
@@ -188,12 +140,10 @@ class StageSelect(private val game: Core) : Screen {
     }
 
     fun createPreview() {
-        stageSelectFile.forEach() {
-            if (it.exists()) {
-                val stageData: StageData = json.fromJson(it.readString(), StageData::class.java)
+        stageSelectFile.forEach { sf ->
+            if (sf.exists()) {
+                val stageData: StageData = json.fromJson(sf.readString(), StageData::class.java)
                 val pixmap = Pixmap(previewPixel, previewPixel, Pixmap.Format.RGBA8888)
-//                    pixmap.setColor(0f, 0f, 0f, 0f)
-//                    pixmap.fill()
                 stageData.wall.forEach {
                     drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), wall, 0)
                 }
@@ -217,9 +167,6 @@ class StageSelect(private val game: Core) : Screen {
                     drawPixmap(pixmap, it.x.toInt(), it.y.toInt(), change, it.setGravity + 1)
                 }
                 stageSelectImage.add(pixmap)
-//                stageSelectImageTexture.add(Texture(pixmap))
-//                stageSelectImageTexture[stageSelectImageTexture.size-1].draw(pixmap, 0, 0)
-//                pixmap.dispose()
             } else {
                 dispose()
                 game.screen = StageSelect(game)
@@ -254,10 +201,6 @@ class StageSelect(private val game: Core) : Screen {
     private var loadingString: String = "loading"
 
     override fun render(delta: Float) {
-        stageList.forEach {
-            if (it.first.isPressed) game.screen = PlayScreen(game, it.second)
-        }
-
         spriteBatch.begin()
         Gdx.gl.glClearColor(0.7f, 0.9f, 0.3f, 0f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
@@ -287,7 +230,7 @@ class StageSelect(private val game: Core) : Screen {
                 }
             }
         }
-        for (it in (stageSelectImageTexture.size)..(stageSelectFile.size - 1)) {
+        for (it in stageSelectImageTexture.size until stageSelectFile.size) {
             spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
             loadingTime += (Gdx.graphics.deltaTime * 1000.0f / (stageSelectFile.size - stageSelectImageTexture.size)).toInt()
             loadingTime %= 1000
@@ -307,8 +250,6 @@ class StageSelect(private val game: Core) : Screen {
 
         spriteBatch.end()
 
-//        stage.act(Gdx.graphics.deltaTime)
-//        stage.draw()
     }
 
     private fun touch() {
@@ -336,7 +277,6 @@ class StageSelect(private val game: Core) : Screen {
                 }
             }
         }
-//        Gdx.app.log("touch", "${isTap}, ${checkTap}, ${firstTouch}")
     }
 
     override fun resize(width: Int, height: Int) {

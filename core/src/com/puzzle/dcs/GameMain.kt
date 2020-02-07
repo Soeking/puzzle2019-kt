@@ -13,15 +13,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 
 class GameMain(private val game: Core) : Screen {
-    private var stage: Stage
-    private val batch: SpriteBatch
-    private val font: BitmapFont
+    private var stage: Stage = Stage()
+    private val batch: SpriteBatch = SpriteBatch()
+    private val font: BitmapFont = BitmapFont()
     private val button: ImageButton
 
     init {
-        stage = Stage()
-        batch = SpriteBatch()
-        font = BitmapFont()
         font.color = Color.BLACK
         font.data.setScale(10f)
         button = ImageButton(TextureRegionDrawable(TextureRegion(Texture(Gdx.files.internal("UI/play.png")))))
