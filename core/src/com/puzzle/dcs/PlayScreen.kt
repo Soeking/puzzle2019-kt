@@ -979,6 +979,19 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             world.destroyBody(it)
         }
         world.destroyBody(playerBody)
+        bitmapFont.dispose()
+        bitmapFont2.dispose()
+        bitmapFont3.dispose()
+        tex.forEach {
+            it.dispose()
+        }
+        jtex.forEach {
+            it.dispose()
+        }
+        ltex.forEach {
+            it.dispose()
+        }
+        laserTouchedPix.dispose()
     }
 
     override fun pause() {

@@ -299,6 +299,17 @@ class StageSelect(private val game: Core) : Screen {
         stage.dispose()
         spriteBatch.dispose()
         sound.dispose()
+        wall.dispose()
+        square.dispose()
+        triangle.dispose()
+        ladder.dispose()
+        player.dispose()
+        goal.dispose()
+        change.dispose()
+        frame.dispose()
+        frameTexture.dispose()
+        frame2.dispose()
+        frameTexture2.dispose()
     }
 
     override fun dispose() {
