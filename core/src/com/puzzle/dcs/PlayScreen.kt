@@ -89,7 +89,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val bitmapFont2: BitmapFont
     private val bitmapFont3: BitmapFont
 
-    private var moveButton: Array<Pixmap>//Pixmap
+    private var moveButton: Array<Pixmap>
     private var tex: Array<Texture>
     private var jumpButton: Array<Pixmap>
     private var jtex: Array<Texture>
@@ -431,7 +431,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(1f, 1f, 1f, 0f)
+        Gdx.gl.glClearColor(0.31f, 0.19f, 0.75f, 0.2f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.contactList.forEach {
             collisionAction(it.fixtureA.body, it.fixtureB.body)
