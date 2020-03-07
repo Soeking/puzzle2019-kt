@@ -336,7 +336,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ltouchtex = Texture(laserTouchedPix)
 
         touchCoordinate.fill(null)
-        callback = RayCastCallback { fixture, point, normal, fraction ->
+        callback = RayCastCallback { fixture, _, _, fraction ->
             laserFixture = fixture
             fraction
         }
