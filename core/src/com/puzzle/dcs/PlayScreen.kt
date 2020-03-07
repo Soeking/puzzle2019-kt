@@ -34,7 +34,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 20f
+    private val gridSize2 = min(Gdx.graphics.width / 20f, Gdx.graphics.height * 4f / 45f)
     private val halfGrid2 = gridSize2 / 2.0f
     private val backgroundSize = Gdx.graphics.width / 1.0f
     private val halfBackGround = backgroundSize / 2.0f
