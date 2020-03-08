@@ -459,9 +459,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         camera.update()
         world.step(1 / 45f, 8, 3)
 
-        if (game.screen != this) {
-            remove()
-        }
+//        if (game.screen != this) {
+//            remove()
+//        }
     }
 
     private fun collisionAction(a: Body, b: Body) {
@@ -977,38 +977,39 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun hide() {
-        stage.dispose()
-        spriteBatch.dispose()
-        world.destroyBody(goalBody)
-        joints.forEach {
-            world.destroyJoint(it)
-        }
-        wallBodies.forEach {
-            world.destroyBody(it)
-        }
-        squareBodies.forEach {
-            world.destroyBody(it)
-        }
-        triangleBodies.forEach {
-            world.destroyBody(it)
-        }
-        ladderBodies.forEach {
-            world.destroyBody(it)
-        }
-        world.destroyBody(playerBody)
-        bitmapFont.dispose()
-        bitmapFont2.dispose()
-        bitmapFont3.dispose()
-        tex.forEach {
-            it.dispose()
-        }
-        jtex.forEach {
-            it.dispose()
-        }
-        ltex.forEach {
-            it.dispose()
-        }
-        laserTouchedPix.dispose()
+        remove()
+//        stage.dispose()
+//        spriteBatch.dispose()
+//        world.destroyBody(goalBody)
+//        joints.forEach {
+//            world.destroyJoint(it)
+//        }
+//        wallBodies.forEach {
+//            world.destroyBody(it)
+//        }
+//        squareBodies.forEach {
+//            world.destroyBody(it)
+//        }
+//        triangleBodies.forEach {
+//            world.destroyBody(it)
+//        }
+//        ladderBodies.forEach {
+//            world.destroyBody(it)
+//        }
+//        world.destroyBody(playerBody)
+//        bitmapFont.dispose()
+//        bitmapFont2.dispose()
+//        bitmapFont3.dispose()
+//        tex.forEach {
+//            it.dispose()
+//        }
+//        jtex.forEach {
+//            it.dispose()
+//        }
+//        ltex.forEach {
+//            it.dispose()
+//        }
+//        laserTouchedPix.dispose()
     }
 
     override fun pause() {
@@ -1023,6 +1024,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun remove() {
+        stage.dispose()
         joints.forEach {
             world.destroyJoint(it)
         }
@@ -1030,6 +1032,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             for (i in (0..it.fixtureList.size - 1)) {
                 it.destroyFixture(it.fixtureList[i])
             }
+            it.fixtureList.clear()
             world.destroyBody(it)
         }
         wallBodies.clear()
@@ -1037,6 +1040,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             for (i in (0..it.fixtureList.size - 1)) {
                 it.destroyFixture(it.fixtureList[i])
             }
+            it.fixtureList.clear()
             world.destroyBody(it)
         }
         squareBodies.clear()
@@ -1044,6 +1048,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             for (i in (0..it.fixtureList.size - 1)) {
                 it.destroyFixture(it.fixtureList[i])
             }
+            it.fixtureList.clear()
             world.destroyBody(it)
         }
         triangleBodies.clear()
@@ -1051,6 +1056,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             for (i in (0..it.fixtureList.size - 1)) {
                 it.destroyFixture(it.fixtureList[i])
             }
+            it.fixtureList.clear()
             world.destroyBody(it)
         }
         ladderBodies.clear()
@@ -1058,6 +1064,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             for (i in (0..it.fixtureList.size - 1)) {
                 it.destroyFixture(it.fixtureList[i])
             }
+            it.fixtureList.clear()
             world.destroyBody(it)
         }
         changeBodies.clear()

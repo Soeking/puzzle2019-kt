@@ -333,9 +333,9 @@ class StageSelect(private val game: Core) : Screen {
         }
 
         spriteBatch.end()
-        if (game.screen != this) {
-            remove()
-        }
+//        if (game.screen != this) {
+//            remove()
+//        }
     }
 
     private fun touch() {
@@ -382,20 +382,21 @@ class StageSelect(private val game: Core) : Screen {
     }
 
     override fun hide() {
-        stage.dispose()
-        spriteBatch.dispose()
-        sound.dispose()
-        wallPixmap.dispose()
-        squarePixmap.dispose()
-        trianglePixmap.dispose()
-        ladderPixmap.dispose()
-        playerPixmap.dispose()
-        goalPixmap.dispose()
-        changePixmap.dispose()
-        frame.dispose()
-        frameTexture.dispose()
-        frame2.dispose()
-        frameTexture2.dispose()
+        remove()
+//        stage.dispose()
+//        spriteBatch.dispose()
+//        sound.dispose()
+//        wallPixmap.dispose()
+//        squarePixmap.dispose()
+//        trianglePixmap.dispose()
+//        ladderPixmap.dispose()
+//        playerPixmap.dispose()
+//        goalPixmap.dispose()
+//        changePixmap.dispose()
+//        frame.dispose()
+//        frameTexture.dispose()
+//        frame2.dispose()
+//        frameTexture2.dispose()
     }
 
     override fun dispose() {
@@ -405,6 +406,7 @@ class StageSelect(private val game: Core) : Screen {
     }
 
     private fun remove() {
+        stage.dispose()
         wallPixmap.dispose()
         squarePixmap.dispose()
         trianglePixmap.dispose()
@@ -426,6 +428,10 @@ class StageSelect(private val game: Core) : Screen {
         stageSelectFileDisplay.clear()
         spriteBatch.dispose()
         sound.dispose()
+        frame.dispose()
+        frameTexture.dispose()
+        frame2.dispose()
+        frameTexture2.dispose()
 
         alreadyRemoved = true
     }
