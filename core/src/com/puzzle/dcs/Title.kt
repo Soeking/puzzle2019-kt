@@ -81,12 +81,22 @@ class Title(private val game: Core) : Screen {
         } else {
             titleMilliseconds += (Gdx.graphics.deltaTime * 1000.0f).toInt()
         }
-        if(titleMilliseconds >= 3500){
+        if (titleMilliseconds >= 3500) {
             titleMilliseconds -= 1000
             colorR = Random().nextFloat()
             colorG = Random().nextFloat()
             colorB = Random().nextFloat()
         }
+        //Gdx.app.log("times", "${titleMilliseconds}")
+
+        if (game.screen != this) {
+            remove()
+        }
+    }
+
+    private fun remove() {
+        batch.dispose()
+        font.dispose()
     }
 
     override fun show() {
@@ -106,8 +116,7 @@ class Title(private val game: Core) : Screen {
     }
 
     override fun dispose() {
-        batch.dispose()
-        font.dispose()
+
     }
 
     override fun pause() {

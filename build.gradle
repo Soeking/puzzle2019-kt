@@ -20,9 +20,9 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '1.0'
+    version = '0.0000000000000000000000000000001'
     ext {
-        appName = "puzzleDCS"
+        appName = "Invert Room"
         gdxVersion = '1.9.9'
         roboVMVersion = '2.3.7'
         box2DLightsVersion = '1.4'
