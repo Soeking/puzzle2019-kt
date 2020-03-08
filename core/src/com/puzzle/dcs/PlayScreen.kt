@@ -1178,9 +1178,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             bitmapFont3.dispose()
 //        Gdx.app.log("finalize", "PlayScreen font is disposed")
             for (it in 0..1) {
-                moveButton[it].dispose()
-                jumpButton[it].dispose()
-                laserButton[it].dispose()
+//                moveButton[it].dispose()
+//                jumpButton[it].dispose()
+//                laserButton[it].dispose()
                 tex[it].textureData.disposePixmap()
                 tex[it].dispose()
                 jtex[it].textureData.disposePixmap()
