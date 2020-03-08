@@ -276,6 +276,7 @@ class StageSelect(private val game: Core) : Screen {
 //                    game.screen = LoadingDisplay(game, stageSelectFile[it].name())
 //                    game.screen = StageSelect(game)
                     game.screen = Loading(game, stageSelectFile[it].name())
+                    break
                 }
             }
         }
@@ -316,6 +317,7 @@ class StageSelect(private val game: Core) : Screen {
 //                    game.screen = LoadingDisplay(game, stageSelectFile[it].name())
 //                    game.screen = StageSelect(game)
                     game.screen = Loading(game, stageSelectFile[it].name())
+                    break
                 }
             }
         }
