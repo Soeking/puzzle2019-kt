@@ -11,8 +11,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.google.gson.Gson
 import java.lang.Exception
@@ -38,13 +36,6 @@ class StageSelect(private val game: Core) : Screen {
     private val playerPixmap: Pixmap
     private val goalPixmap: Pixmap
     private val changePixmap: Pixmap
-//    private val wall: Texture
-//    private val square: Texture
-//    private val triangle: Texture
-//    private val ladder: Texture
-//    private val player: Texture
-//    private val goal: Texture
-//    private val change: Texture
     private val onePixel: Int
     private val previewPixel: Int
     private val fontGenerator: FreeTypeFontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/meiryo.ttc"))
@@ -64,10 +55,9 @@ class StageSelect(private val game: Core) : Screen {
 
     private val sound: Sound
 
-    private val cachePath: String
+    private val cachePath: String = Gdx.files.absolute("${Gdx.files.local("").file().parent}/cache/").path()
 
     init {
-        cachePath = Gdx.files.absolute("${Gdx.files.local("").file().parent}/cache/").path()
 
         // create fonts
         val param = FreeTypeFontGenerator.FreeTypeFontParameter()
@@ -87,15 +77,6 @@ class StageSelect(private val game: Core) : Screen {
         onePixel = (Gdx.graphics.height / 5.0 / previewWidthAndHeight * 2.0).toInt()
         previewPixel = (Gdx.graphics.height / 5.0 * 2).toInt()
 
-//<<<<<<< HEAD
-//        wall = Texture(Gdx.files.internal("images/puzzle cube.png"))
-//        square = Texture(Gdx.files.internal("images/puzzle cubepattern.png"))
-//        triangle = Texture(Gdx.files.internal("images/puzzle cubepatternT.png"))
-//        ladder = Texture(Gdx.files.internal("images/ladder.png"))
-//        player = Texture(Gdx.files.internal("images/player.png"))
-//        goal = Texture(Gdx.files.internal("images/warphole.png"))
-//        change = Texture(Gdx.files.internal("images/change.png"))
-//=======
         wallPixmap = preparePixmap("images/puzzle cube.png")
         squarePixmap = preparePixmap("images/puzzle cubepattern.png")
         trianglePixmap = preparePixmap("images/puzzle cubepatternT.png")
@@ -103,7 +84,6 @@ class StageSelect(private val game: Core) : Screen {
         playerPixmap = preparePixmap("images/player.png")
         goalPixmap = preparePixmap("images/warphole.png")
         changePixmap = preparePixmap("images/change.png")
-//>>>>>>> memory
 
         val files = Gdx.files.internal("stages/").list()
 
@@ -122,7 +102,7 @@ class StageSelect(private val game: Core) : Screen {
         isTap = false
         checkTap = true
 
-        val th = createPreviewThread(this)
+        val th = CreatePreviewThread(this)
         th.start()
 
         //stage preview end
@@ -156,26 +136,17 @@ class StageSelect(private val game: Core) : Screen {
     }
 
     private fun preparePixmap(textureName: String): Pixmap {
-//        return PixmapIO.readCIM(Gdx.files.internal(textureName))
-        var texture: Texture = Texture(Gdx.files.internal(textureName))
+        val texture = Texture(Gdx.files.internal(textureName))
         texture.textureData.prepare()
-        var pixmap: Pixmap = texture.textureData.consumePixmap();
+        val pixmap = texture.textureData.consumePixmap()
         texture.textureData.disposePixmap()
         texture.dispose()
         return pixmap
     }
 
-    class createPreviewThread(private val stageselect: StageSelect) : Thread() {
+    class CreatePreviewThread(private val stageselect: StageSelect) : Thread() {
         override fun run() {
             stageselect.createPreview()
-
-//            stageselect.wallPixmap.dispose()
-//            stageselect.squarePixmap.dispose()
-//            stageselect.trianglePixmap.dispose()
-//            stageselect.ladderPixmap.dispose()
-//            stageselect.playerPixmap.dispose()
-//            stageselect.goalPixmap.dispose()
-//            stageselect.changePixmap.dispose()
 
             Gdx.app.log("thread", "createPreviewThread is dead")
 
@@ -272,31 +243,13 @@ class StageSelect(private val game: Core) : Screen {
                     isTap = false
                     firstTouch = null
                     StageLoaded = false
-//                    game.screen = PlayScreen(game, stageSelectFile[it].name())
-//                    game.screen = LoadingDisplay(game, stageSelectFile[it].name())
-//                    game.screen = StageSelect(game)
                     game.screen = Loading(game, stageSelectFile[it].name())
                     break
                 }
             }
         }
-//<<<<<<< HEAD
         for (it in stageSelectImageTexture.size until stageSelectFile.size) {
             spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
-//=======
-//        for (it in (stageSelectImageTexture.size)..(stageSelectFile.size - 1)) {
-//            if (isTap && firstTouch != null) {
-//                if (firstTouch!!.x in (previewPixel * (it / 2).toFloat() + stageSelectX)..(previewPixel * (it / 2).toFloat() + stageSelectX + previewPixel) && firstTouch!!.y in (previewPixel - previewPixel * (it % 2).toFloat())..(previewPixel - previewPixel * (it % 2).toFloat() + previewPixel)) {
-//                    sound.play()
-//                    spriteBatch.draw(frameTexture2, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
-//                } else {
-//                    spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
-//                }
-//            } else {
-//                spriteBatch.draw(frameTexture, previewPixel * (it / 2).toFloat() + stageSelectX, previewPixel - previewPixel * (it % 2).toFloat())
-//            }
-//
-//>>>>>>> memory
 
             loadingTime += (Gdx.graphics.deltaTime * 1000.0f / (stageSelectFile.size - stageSelectImageTexture.size)).toInt()
             loadingTime %= 1000
@@ -313,9 +266,6 @@ class StageSelect(private val game: Core) : Screen {
                     isTap = false
                     firstTouch = null
                     StageLoaded = false
-//                    game.screen = PlayScreen(game, stageSelectFile[it].name())
-//                    game.screen = LoadingDisplay(game, stageSelectFile[it].name())
-//                    game.screen = StageSelect(game)
                     game.screen = Loading(game, stageSelectFile[it].name())
                     break
                 }
@@ -335,9 +285,6 @@ class StageSelect(private val game: Core) : Screen {
         }
 
         spriteBatch.end()
-//        if (game.screen != this) {
-//            remove()
-//        }
     }
 
     private fun touch() {
@@ -385,26 +332,9 @@ class StageSelect(private val game: Core) : Screen {
 
     override fun hide() {
         remove()
-//        stage.dispose()
-//        spriteBatch.dispose()
-//        sound.dispose()
-//        wallPixmap.dispose()
-//        squarePixmap.dispose()
-//        trianglePixmap.dispose()
-//        ladderPixmap.dispose()
-//        playerPixmap.dispose()
-//        goalPixmap.dispose()
-//        changePixmap.dispose()
-//        frame.dispose()
-//        frameTexture.dispose()
-//        frame2.dispose()
-//        frameTexture2.dispose()
     }
 
     override fun dispose() {
-//        sound.dispose()
-//        spriteBatch.dispose()
-//        stage.dispose()
     }
 
     private fun remove() {
@@ -438,7 +368,7 @@ class StageSelect(private val game: Core) : Screen {
         alreadyRemoved = true
     }
 
-    private var alreadyRemoved: Boolean = false;
+    private var alreadyRemoved: Boolean = false
 
     protected fun finalize() {
         Gdx.app.log("finalize", "StageSelect is disposed")

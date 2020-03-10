@@ -11,21 +11,19 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.Thread.sleep
+import kotlin.math.*
 
 class Loading(private val game: Core, private val fileName: String) : Screen {
     private val spriteBatch = SpriteBatch()
     private lateinit var stage: PlayScreen
-    private val playerSprite: Sprite
-    private val gridSize: Float
+    private val playerSprite: Sprite = Sprite(Texture(Gdx.files.internal("images/player.png")))
+    private val gridSize: Float = Gdx.graphics.width / 10.0f
 
     private var loadFinish: Boolean = false
     private var loadstarttime: Long = System.currentTimeMillis()
     private var loadendtime: Long = 0
 
     init {
-        playerSprite = Sprite(Texture(Gdx.files.internal("images/player.png")))
-
-        gridSize = Gdx.graphics.width / 10.0f
 
         playerSprite.setOrigin(0.0f, 0.0f)
         playerSprite.setScale(gridSize / playerSprite.width / 1.5f)
@@ -39,15 +37,15 @@ class Loading(private val game: Core, private val fileName: String) : Screen {
             GlobalScope.launch {
                 GlobalScope.launch {
                     while (!loadFinish || System.currentTimeMillis() - loadendtime < 1000) {
-                        var first = System.currentTimeMillis() - loadstarttime
-                        var end = System.currentTimeMillis() - loadendtime
+                        val first = System.currentTimeMillis() - loadstarttime
+                        val end = System.currentTimeMillis() - loadendtime
                         GlobalScope.launch(Dispatchers.Unconfined) {
                             Gdx.app.postRunnable {
                                 if (first < 1000) {
-                                    Gdx.gl.glClearColor(Math.min(1.0f, first / 1000.0f), Math.min(0.5f, first / 2000.0f), Math.min(0.5f, first / 2000.0f), 1.0f)
+                                    Gdx.gl.glClearColor(min(1.0f, first / 1000.0f), min(0.5f, first / 2000.0f), min(0.5f, first / 2000.0f), 1.0f)
                                     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
                                 } else if (end < 1000) {
-                                    Gdx.gl.glClearColor(Math.max(0.0f, 1.0f - end / 1000.0f), Math.max(0.0f, 0.5f - end / 2000.0f), Math.max(0.0f, 0.5f - end / 2000.0f), 1.0f)
+                                    Gdx.gl.glClearColor(max(0.0f, 1.0f - end / 1000.0f), max(0.0f, 0.5f - end / 2000.0f), max(0.0f, 0.5f - end / 2000.0f), 1.0f)
                                     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
                                 } else {
                                     Gdx.gl.glClearColor(1.0f, 0.5f, 0.5f, 1.0f)
@@ -97,7 +95,7 @@ class Loading(private val game: Core, private val fileName: String) : Screen {
     }
 
     override fun hide() {
-
+        spriteBatch.dispose()
     }
 
     override fun dispose() {

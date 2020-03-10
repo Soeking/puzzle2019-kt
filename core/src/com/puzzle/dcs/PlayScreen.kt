@@ -110,10 +110,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private val deadLine: Array<Int>
 
-    private val runtime: Runtime
+    private val runtime = Runtime.getRuntime()
 
     init {
-        runtime = Runtime.getRuntime()
 
         Box2D.init()
         camera = OrthographicCamera(50.0f, 50.0f / Gdx.graphics.width.toFloat() * Gdx.graphics.height.toFloat())
@@ -978,38 +977,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     override fun hide() {
         remove()
-//        stage.dispose()
-//        spriteBatch.dispose()
-//        world.destroyBody(goalBody)
-//        joints.forEach {
-//            world.destroyJoint(it)
-//        }
-//        wallBodies.forEach {
-//            world.destroyBody(it)
-//        }
-//        squareBodies.forEach {
-//            world.destroyBody(it)
-//        }
-//        triangleBodies.forEach {
-//            world.destroyBody(it)
-//        }
-//        ladderBodies.forEach {
-//            world.destroyBody(it)
-//        }
-//        world.destroyBody(playerBody)
-//        bitmapFont.dispose()
-//        bitmapFont2.dispose()
-//        bitmapFont3.dispose()
-//        tex.forEach {
-//            it.dispose()
-//        }
-//        jtex.forEach {
-//            it.dispose()
-//        }
-//        ltex.forEach {
-//            it.dispose()
-//        }
-//        laserTouchedPix.dispose()
     }
 
     override fun pause() {
@@ -1029,7 +996,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             world.destroyJoint(it)
         }
         wallBodies.forEach {
-            for (i in (0..it.fixtureList.size - 1)) {
+            for (i in (0 until it.fixtureList.size)) {
                 it.destroyFixture(it.fixtureList[i])
             }
             it.fixtureList.clear()
@@ -1037,7 +1004,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         wallBodies.clear()
         squareBodies.forEach {
-            for (i in (0..it.fixtureList.size - 1)) {
+            for (i in (0 until it.fixtureList.size)) {
                 it.destroyFixture(it.fixtureList[i])
             }
             it.fixtureList.clear()
@@ -1045,7 +1012,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         squareBodies.clear()
         triangleBodies.forEach {
-            for (i in (0..it.fixtureList.size - 1)) {
+            for (i in (0 until it.fixtureList.size)) {
                 it.destroyFixture(it.fixtureList[i])
             }
             it.fixtureList.clear()
@@ -1053,7 +1020,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         triangleBodies.clear()
         ladderBodies.forEach {
-            for (i in (0..it.fixtureList.size - 1)) {
+            for (i in (0 until it.fixtureList.size)) {
                 it.destroyFixture(it.fixtureList[i])
             }
             it.fixtureList.clear()
@@ -1061,18 +1028,18 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         ladderBodies.clear()
         changeBodies.forEach {
-            for (i in (0..it.fixtureList.size - 1)) {
+            for (i in (0 until it.fixtureList.size)) {
                 it.destroyFixture(it.fixtureList[i])
             }
             it.fixtureList.clear()
             world.destroyBody(it)
         }
         changeBodies.clear()
-        for (i in (0..playerBody.fixtureList.size - 1)) {
+        for (i in (0 until playerBody.fixtureList.size)) {
             playerBody.destroyFixture(playerBody.fixtureList[i])
         }
         world.destroyBody(playerBody)
-        for (i in (0..goalBody.fixtureList.size - 1)) {
+        for (i in (0 until goalBody.fixtureList.size)) {
             goalBody.destroyFixture(goalBody.fixtureList[i])
         }
         world.destroyBody(goalBody)
@@ -1085,9 +1052,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         bitmapFont2.dispose()
         bitmapFont3.dispose()
         for (it in 0..1) {
-            moveButton[it].dispose()
-            jumpButton[it].dispose()
-            laserButton[it].dispose()
             tex[it].textureData.disposePixmap()
             tex[it].dispose()
             jtex[it].textureData.disposePixmap()
@@ -1102,73 +1066,57 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         alreadyRemoved = true
     }
 
-    private var alreadyRemoved: Boolean = false;
+    private var alreadyRemoved: Boolean = false
 
     protected fun finalize() {
-//        Gdx.app.log("finalize", "PlayScreen is disposed")
         if (!alreadyRemoved) {
             joints.forEach {
                 world.destroyJoint(it)
             }
-//        Gdx.app.log("finalize", "PlayScreen joint is disposed")
             wallBodies.forEach {
-                for (i in (0..it.fixtureList.size - 1)) {
+                for (i in (0 until it.fixtureList.size)) {
                     it.destroyFixture(it.fixtureList[i])
                 }
                 world.destroyBody(it)
             }
-//        Gdx.app.log("finalize", "PlayScreen wall is disposed")
             wallBodies.clear()
             squareBodies.forEach {
-                for (i in (0..it.fixtureList.size - 1)) {
+                for (i in (0 until it.fixtureList.size)) {
                     it.destroyFixture(it.fixtureList[i])
                 }
                 world.destroyBody(it)
             }
-//        Gdx.app.log("finalize", "PlayScreen square is disposed")
             squareBodies.clear()
             triangleBodies.forEach {
-                for (i in (0..it.fixtureList.size - 1)) {
+                for (i in (0 until it.fixtureList.size)) {
                     it.destroyFixture(it.fixtureList[i])
                 }
                 world.destroyBody(it)
             }
-//        Gdx.app.log("finalize", "PlayScreen triangle is disposed")
             triangleBodies.clear()
             ladderBodies.forEach {
-                for (i in (0..it.fixtureList.size - 1)) {
+                for (i in (0 until it.fixtureList.size)) {
                     it.destroyFixture(it.fixtureList[i])
                 }
                 world.destroyBody(it)
             }
-//        Gdx.app.log("finalize", "PlayScreen ladder is disposed")
             ladderBodies.clear()
             changeBodies.forEach {
-                for (i in (0..it.fixtureList.size - 1)) {
+                for (i in (0 until it.fixtureList.size)) {
                     it.destroyFixture(it.fixtureList[i])
                 }
                 world.destroyBody(it)
             }
-//        Gdx.app.log("finalize", "PlayScreen change is disposed")
             changeBodies.clear()
-            for (i in (0..playerBody.fixtureList.size - 1)) {
+            for (i in (0 until playerBody.fixtureList.size)) {
                 playerBody.destroyFixture(playerBody.fixtureList[i])
             }
             world.destroyBody(playerBody)
-//        Gdx.app.log("finalize", "PlayScreen player is disposed")
-            for (i in (0..goalBody.fixtureList.size - 1)) {
+            for (i in (0 until goalBody.fixtureList.size)) {
                 goalBody.destroyFixture(goalBody.fixtureList[i])
             }
             world.destroyBody(goalBody)
-//        Gdx.app.log("finalize", "PlayScreen goal is disposed")
             world.dispose()
-//        Gdx.app.log("finalize", "PlayScreen world is disposed")
-//        circleShape.dispose()
-//        boxShape.dispose()
-//        ladderShape.dispose()
-//        triangleShape.dispose()
-//        goalShape.dispose()
-//        Gdx.app.log("finalize", "PlayScreen shape is disposed")
             spriteBatch.dispose()
             fontGenerator.dispose()
             fontGenerator2.dispose()
@@ -1176,11 +1124,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             bitmapFont.dispose()
             bitmapFont2.dispose()
             bitmapFont3.dispose()
-//        Gdx.app.log("finalize", "PlayScreen font is disposed")
             for (it in 0..1) {
-//                moveButton[it].dispose()
-//                jumpButton[it].dispose()
-//                laserButton[it].dispose()
                 tex[it].textureData.disposePixmap()
                 tex[it].dispose()
                 jtex[it].textureData.disposePixmap()
@@ -1191,7 +1135,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             laserTouchedPix.dispose()
             ltouchtex.textureData.disposePixmap()
             ltouchtex.dispose()
-//        Gdx.app.log("finalize", "PlayScreen button is disposed")
         }
     }
 }
