@@ -2,20 +2,17 @@ package com.puzzle.dcs
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import kotlin.concurrent.thread
 
 class LoadingDisplay(private val game: Core, private val fileName: String) : Screen {
     private val spriteBatch = SpriteBatch()
     private lateinit var stage: PlayScreen
-    private val playerSprite: Sprite
-    private val gridSize: Float
+    private val playerSprite = Sprite(Texture(Gdx.files.internal("images/player.png")))
+    private val gridSize = Gdx.graphics.width / 10.0f
 
     private var first: Int = 0
     private var f: Boolean = true
@@ -23,23 +20,15 @@ class LoadingDisplay(private val game: Core, private val fileName: String) : Scr
     private var ff: Boolean = false
 
     init {
-//        MakeStage(game, fileName, this).start()
-//        stage = PlayScreen(game, fileName)
-        playerSprite = Sprite(Texture(Gdx.files.internal("images/player.png")))
-
-        gridSize = Gdx.graphics.width / 10.0f
-
         playerSprite.setOrigin(0.0f, 0.0f)
         playerSprite.setScale(gridSize / playerSprite.width / 1.5f)
         playerSprite.setOrigin(playerSprite.width / 2.0f, playerSprite.height / 2.0f)
-        drawLoading(game, fileName, this).start()
+        DrawLoading(game, fileName, this).start()
         MakeStage(game, fileName, this).start()
-//        stage = PlayScreen(game, fileName)
     }
 
     class MakeStage(private val game: Core, private val fileName: String, private val dis: LoadingDisplay) : Thread() {
         override fun run() {
-//            while (dis.first - dis.finish < 1000)
             sleep(1000)
             Gdx.app.postRunnable {
                 dis.stageInit()
@@ -48,7 +37,7 @@ class LoadingDisplay(private val game: Core, private val fileName: String) : Scr
         }
     }
 
-    class drawLoading(private val game: Core, private val fileName: String, private val dis: LoadingDisplay) : Thread() {
+    class DrawLoading(private val game: Core, private val fileName: String, private val dis: LoadingDisplay) : Thread() {
         override fun run() {
             while (dis.first - dis.finish < 1000 || dis.finish == 0) {
                 Gdx.app.postRunnable {
@@ -59,9 +48,6 @@ class LoadingDisplay(private val game: Core, private val fileName: String) : Scr
                         dis.ff = true
                     } else {
                         Gdx.gl.glClearColor(Math.max(0.0f, 1.0f - (dis.first - dis.finish) / 1000.0f), Math.max(0.0f, 0.5f - (dis.first - dis.finish) / 2000.0f), Math.max(0.0f, 0.5f - (dis.first - dis.finish) / 2000.0f), 1.0f)
-//                        if (dis.first - dis.finish >= 1000) {
-//                            if (dis.stage != null) game.screen = dis.stage
-//                        }
                     }
                     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
                 }
@@ -107,7 +93,7 @@ class LoadingDisplay(private val game: Core, private val fileName: String) : Scr
 //        game.screen = stage
     }
 
-    private fun Draw() {
+    private fun draw() {
         if (!StageLoaded || first <= 1000) Gdx.gl.glClearColor(Math.min(1.0f, first / 1000.0f), Math.min(0.5f, first / 2000.0f), Math.min(0.5f, first / 2000.0f), 1.0f)
         else if (!ff) {
             Gdx.gl.glClearColor(Math.min(1.0f, first / 1000.0f), Math.min(0.5f, first / 2000.0f), Math.min(0.5f, first / 2000.0f), 1.0f)

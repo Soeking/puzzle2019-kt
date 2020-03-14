@@ -24,7 +24,6 @@ class Loading(private val game: Core, private val fileName: String) : Screen {
     private var loadendtime: Long = 0
 
     init {
-
         playerSprite.setOrigin(0.0f, 0.0f)
         playerSprite.setScale(gridSize / playerSprite.width / 1.5f)
         playerSprite.setOrigin(playerSprite.width / 2.0f, playerSprite.height / 2.0f)
@@ -95,7 +94,7 @@ class Loading(private val game: Core, private val fileName: String) : Screen {
     }
 
     override fun hide() {
-        spriteBatch.dispose()
+
     }
 
     override fun dispose() {
