@@ -47,7 +47,9 @@ class GameMain(private val game: Core) : Screen {
     }
 
     override fun hide() {
-
+        batch.dispose()
+        stage.dispose()
+        font.dispose()
     }
 
     override fun pause() {
@@ -65,5 +67,6 @@ class GameMain(private val game: Core) : Screen {
     override fun dispose() {
         batch.dispose()
         stage.dispose()
+        font.dispose()
     }
 }

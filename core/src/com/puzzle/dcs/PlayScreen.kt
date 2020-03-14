@@ -3,6 +3,7 @@ package com.puzzle.dcs
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -34,7 +35,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = Gdx.graphics.width / 20f
+    private val gridSize2 = min(Gdx.graphics.width / 20f, Gdx.graphics.height * 4f / 45f)
     private val halfGrid2 = gridSize2 / 2.0f
     private val backgroundSize = Gdx.graphics.width / 1.0f
     private val halfBackGround = backgroundSize / 2.0f
@@ -89,7 +90,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val bitmapFont2: BitmapFont
     private val bitmapFont3: BitmapFont
 
-    private var moveButton: Array<Pixmap>//Pixmap
+    private var moveButton: Array<Pixmap>
     private var tex: Array<Texture>
     private var jumpButton: Array<Pixmap>
     private var jtex: Array<Texture>
@@ -109,7 +110,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private val deadLine: Array<Int>
 
+    private val runtime = Runtime.getRuntime()
+
     init {
+
         Box2D.init()
         camera = OrthographicCamera(50.0f, 50.0f / Gdx.graphics.width.toFloat() * Gdx.graphics.height.toFloat())
         camera.translate(25.0f, 25.0f / Gdx.graphics.width.toFloat() * Gdx.graphics.height)
@@ -336,7 +340,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ltouchtex = Texture(laserTouchedPix)
 
         touchCoordinate.fill(null)
-        callback = RayCastCallback { fixture, point, normal, fraction ->
+        callback = RayCastCallback { fixture, _, _, fraction ->
             laserFixture = fixture
             fraction
         }
@@ -350,12 +354,15 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ThreadEnabled = true
         val th = DrawButtonThread(this)
         th.start()
+        //ボタン君ここまで
 
         circleShape.dispose()
         boxShape.dispose()
         ladderShape.dispose()
         triangleShape.dispose()
         goalShape.dispose()
+
+        StageLoaded = true
     }
 
     private fun setDeadLine(X: Int, Y: Int) {
@@ -368,7 +375,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             override fun beginContact(contact: Contact?) {
                 contact?.let {
                     if (contact.fixtureA.body == playerBody && contact.fixtureB.body.userData is Ladder) ladderAction()
-                    if (contact.fixtureB.body == playerBody && contact.fixtureA.body.userData is Ladder) ladderAction()
+                    else if (contact.fixtureB.body == playerBody && contact.fixtureA.body.userData is Ladder) ladderAction()
                 }
             }
 
@@ -431,7 +438,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(1f, 1f, 1f, 0f)
+        Gdx.gl.glClearColor(0.31f, 0.19f, 0.75f, 0.2f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.contactList.forEach {
             collisionAction(it.fixtureA.body, it.fixtureB.body)
@@ -442,6 +449,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         drawSprites()
         drawButton()
         checkFalled()
+        bitmapFont.draw(spriteBatch, "Max: ${runtime.maxMemory() / 1024}[KB]\nTotal: ${runtime.totalMemory() / 1024}[KB]\nFree: ${runtime.freeMemory() / 1024}[KB]\nUsed: ${(runtime.totalMemory() - runtime.freeMemory()) / 1024}[KB]", 0.0f, Gdx.graphics.height - 10.0f)
         spriteBatch.end()
 
         isTouchBlock = false
@@ -449,6 +457,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
+
+//        if (game.screen != this) {
+//            remove()
+//        }
     }
 
     private fun collisionAction(a: Body, b: Body) {
@@ -652,7 +664,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     var jumpTouched: Int = -1
     var coordinate: Vector2 = Vector2(0.0f, 0.0f)
     var dis: Float = 0.0f
-    var laserTouched: Int = -1
+    var laserTouched: Int = -2
     var firstLaser: Vector2 = Vector2(0.0f, 0.0f)
     var ldis: Float = 0.0f
     var a: Boolean = false
@@ -754,10 +766,14 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 } catch (e: Exception) {
                     e.stackTrace
                 }
+
+//                Gdx.app.log("thread", "DrawButtonThread is arriving")
             }
             screen.moveButton.forEach { it.dispose() }
             screen.jumpButton.forEach { it.dispose() }
             screen.laserButton.forEach { it.dispose() }
+
+            Gdx.app.log("thread", "DrawButtonThread is dead")
         }
     }
 
@@ -960,25 +976,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun hide() {
-        stage.dispose()
-        spriteBatch.dispose()
-        world.destroyBody(goalBody)
-        joints.forEach {
-            world.destroyJoint(it)
-        }
-        wallBodies.forEach {
-            world.destroyBody(it)
-        }
-        squareBodies.forEach {
-            world.destroyBody(it)
-        }
-        triangleBodies.forEach {
-            world.destroyBody(it)
-        }
-        ladderBodies.forEach {
-            world.destroyBody(it)
-        }
-        world.destroyBody(playerBody)
+        remove()
     }
 
     override fun pause() {
@@ -990,6 +988,153 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun dispose() {
+    }
 
+    private fun remove() {
+        stage.dispose()
+        joints.forEach {
+            world.destroyJoint(it)
+        }
+        wallBodies.forEach {
+            for (i in (0 until it.fixtureList.size)) {
+                it.destroyFixture(it.fixtureList[i])
+            }
+            it.fixtureList.clear()
+            world.destroyBody(it)
+        }
+        wallBodies.clear()
+        squareBodies.forEach {
+            for (i in (0 until it.fixtureList.size)) {
+                it.destroyFixture(it.fixtureList[i])
+            }
+            it.fixtureList.clear()
+            world.destroyBody(it)
+        }
+        squareBodies.clear()
+        triangleBodies.forEach {
+            for (i in (0 until it.fixtureList.size)) {
+                it.destroyFixture(it.fixtureList[i])
+            }
+            it.fixtureList.clear()
+            world.destroyBody(it)
+        }
+        triangleBodies.clear()
+        ladderBodies.forEach {
+            for (i in (0 until it.fixtureList.size)) {
+                it.destroyFixture(it.fixtureList[i])
+            }
+            it.fixtureList.clear()
+            world.destroyBody(it)
+        }
+        ladderBodies.clear()
+        changeBodies.forEach {
+            for (i in (0 until it.fixtureList.size)) {
+                it.destroyFixture(it.fixtureList[i])
+            }
+            it.fixtureList.clear()
+            world.destroyBody(it)
+        }
+        changeBodies.clear()
+        for (i in (0 until playerBody.fixtureList.size)) {
+            playerBody.destroyFixture(playerBody.fixtureList[i])
+        }
+        world.destroyBody(playerBody)
+        for (i in (0 until goalBody.fixtureList.size)) {
+            goalBody.destroyFixture(goalBody.fixtureList[i])
+        }
+        world.destroyBody(goalBody)
+        world.dispose()
+        spriteBatch.dispose()
+        fontGenerator.dispose()
+        fontGenerator2.dispose()
+        fontGenerator3.dispose()
+        bitmapFont.dispose()
+        bitmapFont2.dispose()
+        bitmapFont3.dispose()
+        for (it in 0..1) {
+            tex[it].textureData.disposePixmap()
+            tex[it].dispose()
+            jtex[it].textureData.disposePixmap()
+            jtex[it].dispose()
+            ltex[it].textureData.disposePixmap()
+            ltex[it].dispose()
+        }
+        laserTouchedPix.dispose()
+        ltouchtex.textureData.disposePixmap()
+        ltouchtex.dispose()
+
+        alreadyRemoved = true
+    }
+
+    private var alreadyRemoved: Boolean = false
+
+    protected fun finalize() {
+        if (!alreadyRemoved) {
+            joints.forEach {
+                world.destroyJoint(it)
+            }
+            wallBodies.forEach {
+                for (i in (0 until it.fixtureList.size)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+            wallBodies.clear()
+            squareBodies.forEach {
+                for (i in (0 until it.fixtureList.size)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+            squareBodies.clear()
+            triangleBodies.forEach {
+                for (i in (0 until it.fixtureList.size)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+            triangleBodies.clear()
+            ladderBodies.forEach {
+                for (i in (0 until it.fixtureList.size)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+            ladderBodies.clear()
+            changeBodies.forEach {
+                for (i in (0 until it.fixtureList.size)) {
+                    it.destroyFixture(it.fixtureList[i])
+                }
+                world.destroyBody(it)
+            }
+            changeBodies.clear()
+            for (i in (0 until playerBody.fixtureList.size)) {
+                playerBody.destroyFixture(playerBody.fixtureList[i])
+            }
+            world.destroyBody(playerBody)
+            for (i in (0 until goalBody.fixtureList.size)) {
+                goalBody.destroyFixture(goalBody.fixtureList[i])
+            }
+            world.destroyBody(goalBody)
+            world.dispose()
+            spriteBatch.dispose()
+            fontGenerator.dispose()
+            fontGenerator2.dispose()
+            fontGenerator3.dispose()
+            bitmapFont.dispose()
+            bitmapFont2.dispose()
+            bitmapFont3.dispose()
+            for (it in 0..1) {
+                tex[it].textureData.disposePixmap()
+                tex[it].dispose()
+                jtex[it].textureData.disposePixmap()
+                jtex[it].dispose()
+                ltex[it].textureData.disposePixmap()
+                ltex[it].dispose()
+            }
+            laserTouchedPix.dispose()
+            ltouchtex.textureData.disposePixmap()
+            ltouchtex.dispose()
+        }
     }
 }
