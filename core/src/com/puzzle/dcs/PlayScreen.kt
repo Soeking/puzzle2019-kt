@@ -50,6 +50,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerSprite: Sprite
     private val goalSprite: Sprite
     private val changeSprite: Sprite
+    private val pauseSprite: Sprite
     private val backgroundSprite: Sprite
     private val playerDef = BodyDef()
     private val dynamicDef = BodyDef()
@@ -132,6 +133,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         goalSprite = Sprite(Texture(Gdx.files.internal("images/warphole.png")))
         changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
         backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle haikei4.png")))
+        pauseSprite = Sprite(Texture(Gdx.files.internal("images/stop.png")))
 
         wallSprite.setOrigin(0.0f, 0.0f)
         wallSprite.setScale(gridSize2 / wallSprite.width)
@@ -164,6 +166,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         backgroundSprite.setOrigin(0.0f, 0.0f)
         backgroundSprite.setScale(backgroundSize / goalSprite.width)
         backgroundSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
+
+        pauseSprite.setOrigin(0.0f, 0.0f)
+        pauseSprite.setScale(50.0f)
+        pauseSprite.setOrigin(pauseSprite.width / 2.0f, pauseSprite.height / 2.0f)
 
         playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.StaticBody
