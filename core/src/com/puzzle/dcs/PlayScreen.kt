@@ -3,6 +3,7 @@ package com.puzzle.dcs
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.*
@@ -112,6 +113,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val deadLine: Array<Int>
 
     private val runtime = Runtime.getRuntime()
+
+    private val sound: Music
+    private var SoundID: Long = -1
 
     init {
 
@@ -368,12 +372,33 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         triangleShape.dispose()
         goalShape.dispose()
 
+        sound = Gdx.audio.newMusic(Gdx.files.internal("sounds/R()75_loop.ogg"))
+
         StageLoaded = true
     }
 
     private fun setDeadLine(X: Int, Y: Int) {
         deadLine[0] = max(deadLine[0], X + gridSize.toInt() * 5)
         deadLine[1] = max(deadLine[1], Y + gridSize.toInt() * 5)
+    }
+
+    private fun playSound() {
+        if (SoundID == -1L) {
+            Gdx.app.log("SOUND", "play sound")
+            SoundID = 0
+            sound.play();
+            sound.volume = 0.125f
+            sound.isLooping = true
+        } else {
+        }
+    }
+
+    private fun stopSound() {
+        if (SoundID == -1L) {
+        } else {
+            Gdx.app.log("SOUND", "stop sound")
+            sound.stop()
+        }
     }
 
     private fun createCollision() {
@@ -444,6 +469,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun render(delta: Float) {
+        playSound()
         Gdx.gl.glClearColor(0.31f, 0.19f, 0.75f, 0.2f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.contactList.forEach {
@@ -953,6 +979,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun changeStageSelect() {
+        stopSound()
         ThreadEnabled = false
         game.screen = StageSelect(game)
     }
@@ -1068,6 +1095,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         laserTouchedPix.dispose()
         ltouchtex.textureData.disposePixmap()
         ltouchtex.dispose()
+        sound.dispose()
 
         alreadyRemoved = true
     }
@@ -1141,6 +1169,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             laserTouchedPix.dispose()
             ltouchtex.textureData.disposePixmap()
             ltouchtex.dispose()
+            sound.dispose()
         }
     }
 }
