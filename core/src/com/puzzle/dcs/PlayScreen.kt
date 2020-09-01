@@ -3,6 +3,7 @@ package com.puzzle.dcs
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.*
@@ -50,6 +51,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerSprite: Sprite
     private val goalSprite: Sprite
     private val changeSprite: Sprite
+    private val pauseSprite: Sprite
     private val backgroundSprite: Sprite
     private val playerDef = BodyDef()
     private val dynamicDef = BodyDef()
@@ -112,6 +114,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private val runtime = Runtime.getRuntime()
 
+    private val sound: Music
+    private var SoundID: Long = -1
+
     init {
 
         Box2D.init()
@@ -132,6 +137,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         goalSprite = Sprite(Texture(Gdx.files.internal("images/warphole.png")))
         changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
         backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle haikei4.png")))
+        pauseSprite = Sprite(Texture(Gdx.files.internal("images/stop.png")))
 
         wallSprite.setOrigin(0.0f, 0.0f)
         wallSprite.setScale(gridSize2 / wallSprite.width)
@@ -164,6 +170,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         backgroundSprite.setOrigin(0.0f, 0.0f)
         backgroundSprite.setScale(backgroundSize / goalSprite.width)
         backgroundSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
+
+        pauseSprite.setOrigin(0.0f, 0.0f)
+        pauseSprite.setScale(50.0f)
+        pauseSprite.setOrigin(pauseSprite.width / 2.0f, pauseSprite.height / 2.0f)
 
         playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.StaticBody
@@ -362,12 +372,33 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         triangleShape.dispose()
         goalShape.dispose()
 
+        sound = Gdx.audio.newMusic(Gdx.files.internal("sounds/R()75_loop.ogg"))
+
         StageLoaded = true
     }
 
     private fun setDeadLine(X: Int, Y: Int) {
         deadLine[0] = max(deadLine[0], X + gridSize.toInt() * 5)
         deadLine[1] = max(deadLine[1], Y + gridSize.toInt() * 5)
+    }
+
+    private fun playSound() {
+        if (SoundID == -1L) {
+            Gdx.app.log("SOUND", "play sound")
+            SoundID = 0
+            sound.play();
+            sound.volume = 0.125f
+            sound.isLooping = true
+        } else {
+        }
+    }
+
+    private fun stopSound() {
+        if (SoundID == -1L) {
+        } else {
+            Gdx.app.log("SOUND", "stop sound")
+            sound.stop()
+        }
     }
 
     private fun createCollision() {
@@ -438,6 +469,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     override fun render(delta: Float) {
+        playSound()
         Gdx.gl.glClearColor(0.31f, 0.19f, 0.75f, 0.2f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         world.contactList.forEach {
@@ -947,6 +979,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun changeStageSelect() {
+        stopSound()
         ThreadEnabled = false
         game.screen = StageSelect(game)
     }
@@ -1062,6 +1095,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         laserTouchedPix.dispose()
         ltouchtex.textureData.disposePixmap()
         ltouchtex.dispose()
+        sound.dispose()
 
         alreadyRemoved = true
     }
@@ -1135,6 +1169,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             laserTouchedPix.dispose()
             ltouchtex.textureData.disposePixmap()
             ltouchtex.dispose()
+            sound.dispose()
         }
     }
 }
