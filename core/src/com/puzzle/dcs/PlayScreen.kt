@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.audio.Music
-import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -21,7 +20,8 @@ import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.RayCastCallback
 import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
-import com.puzzle.dcs.type.Gravity
+import com.puzzle.dcs.Core.Companion.gridSize2
+import com.puzzle.dcs.Core.Companion.halfGrid2
 import com.puzzle.dcs.type.*
 import com.puzzle.dcs.util.*
 
@@ -36,8 +36,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val gridSize2 = min(Gdx.graphics.width / 20f, Gdx.graphics.height * 4f / 45f)
-    private val halfGrid2 = gridSize2 / 2.0f
     private val backgroundSize = Gdx.graphics.width / 1.0f
     private val halfBackGround = backgroundSize / 2.0f
     private val fixtureGrid = halfGrid * 0.91f
