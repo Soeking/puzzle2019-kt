@@ -8,9 +8,9 @@ import com.puzzle.dcs.Core
 class Square : MovableBlock() {
     companion object {
         val sprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepattern.png"))).apply {
-            setOrigin(0.0f, 0.0f)
+            setOrigin(0f, 0f)
             setScale(Core.gridSize2 / width)
-            setOrigin(width / 2.0f, height / 2.0f)
+            setOrigin(width / 2f, height / 2f)
         }
     }
 

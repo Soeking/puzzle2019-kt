@@ -36,19 +36,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val playerSpeed = 0.5f
     private val gridSize = 5.0f
     private val halfGrid = gridSize / 2.0f
-    private val backgroundSize = Gdx.graphics.width / 1.0f
+    private val backgroundSize = Gdx.graphics.width
     private val halfBackGround = backgroundSize / 2.0f
     private val fixtureGrid = halfGrid * 0.91f
 
     private val world: World
     private val renderer: Box2DDebugRenderer
-    private val wallSprite: Sprite
-    private val squareSprite: Sprite
-    private val triangleSprite: Sprite
-    private val ladderSprite: Sprite
-    private val playerSprite: Sprite
-    private val goalSprite: Sprite
-    private val changeSprite: Sprite
     private val pauseSprite: Sprite
     private val backgroundSprite: Sprite
     private val playerDef = BodyDef()
@@ -127,43 +120,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         stageName = fileName
 
         file = Gdx.files.internal("stages/$fileName")
-        wallSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cube.png")))
-        squareSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepattern.png")))
-        triangleSprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepatternT.png")))
-        ladderSprite = Sprite(Texture(Gdx.files.internal("images/ladder.png")))
-        playerSprite = Sprite(Texture(Gdx.files.internal("images/player.png")))
-        goalSprite = Sprite(Texture(Gdx.files.internal("images/warphole.png")))
-        changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png")))
         backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle haikei4.png")))
         pauseSprite = Sprite(Texture(Gdx.files.internal("images/stop.png")))
-
-        wallSprite.setOrigin(0.0f, 0.0f)
-        wallSprite.setScale(gridSize2 / wallSprite.width)
-        wallSprite.setOrigin(wallSprite.width / 2.0f, wallSprite.height / 2.0f)
-
-        squareSprite.setOrigin(0.0f, 0.0f)
-        squareSprite.setScale(gridSize2 / squareSprite.width)
-        squareSprite.setOrigin(squareSprite.width / 2.0f, squareSprite.height / 2.0f)
-
-        changeSprite.setOrigin(0.0f, 0.0f)
-        changeSprite.setScale(gridSize2 / changeSprite.width)
-        changeSprite.setOrigin(changeSprite.width / 2.0f, changeSprite.height / 2.0f)
-
-        triangleSprite.setOrigin(0.0f, 0.0f)
-        triangleSprite.setScale(gridSize2 / triangleSprite.width)
-        triangleSprite.setOrigin(triangleSprite.width / 2.0f, triangleSprite.height / 2.0f)
-
-        ladderSprite.setOrigin(0f, 0f)
-        ladderSprite.setScale(gridSize2 / ladderSprite.width)
-        ladderSprite.setOrigin(ladderSprite.width / 2.0f, ladderSprite.height / 2.0f)
-
-        playerSprite.setOrigin(0.0f, 0.0f)
-        playerSprite.setScale(gridSize2 / playerSprite.width / 1.5f)
-        playerSprite.setOrigin(playerSprite.width / 2.0f, playerSprite.height / 2.0f)
-
-        goalSprite.setOrigin(0.0f, 0.0f)
-        goalSprite.setScale(gridSize2 / goalSprite.width)
-        goalSprite.setOrigin(goalSprite.width / 2.0f, goalSprite.height / 2.0f)
 
         backgroundSprite.setOrigin(0.0f, 0.0f)
         backgroundSprite.setScale(backgroundSize / goalSprite.width)

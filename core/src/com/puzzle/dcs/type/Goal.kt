@@ -5,18 +5,16 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.puzzle.dcs.Core
 
-class GravityChange : MovableBlock() {
-    var setGravity = 3
-
+class Goal:Block() {
     companion object {
-        val sprite = Sprite(Texture(Gdx.files.internal("images/change.png"))).apply {
+        val sprite = Sprite(Texture(Gdx.files.internal("images/warphole.png"))).apply {
             setOrigin(0f, 0f)
             setScale(Core.gridSize2 / width)
             setOrigin(width / 2f, height / 2f)
         }
     }
 
-    override fun getSprite(): Sprite {
+    override fun getSprite():Sprite {
         return sprite
     }
 }

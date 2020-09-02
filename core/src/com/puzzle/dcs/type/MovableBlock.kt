@@ -7,7 +7,7 @@ open class MovableBlock : Block() {
     var gravity = 0
     var rotate = 3
 
-    open fun getSprite(): Sprite {
+    override fun getSprite(): Sprite {
         return Sprite()
     }
 }
