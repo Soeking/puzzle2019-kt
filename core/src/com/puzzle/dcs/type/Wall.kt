@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.puzzle.dcs.Core
 
-class Wall:Block() {
+class Wall : Block() {
     companion object {
         val sprite = Sprite(Texture(Gdx.files.internal("images/puzzle cube.png"))).apply {
             setOrigin(0f, 0f)
@@ -14,7 +14,7 @@ class Wall:Block() {
         }
     }
 
-    override fun getSprite():Sprite {
+    override fun getSprite(): Sprite {
         return sprite
     }
 }

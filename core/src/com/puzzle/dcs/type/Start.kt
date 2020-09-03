@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.puzzle.dcs.Core
 
 class Start:Block() {
+    var gravity = 0
+
     companion object {
         val sprite = Sprite(Texture(Gdx.files.internal("images/player.png"))).apply {
             setOrigin(0f, 0f)

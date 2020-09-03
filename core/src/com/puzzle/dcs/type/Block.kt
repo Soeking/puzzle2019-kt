@@ -2,7 +2,7 @@ package com.puzzle.dcs.type
 
 import com.badlogic.gdx.graphics.g2d.Sprite
 
-open class Block() {
+open class Block {
     var x: Float = 0f
     var y: Float = 0f
 
