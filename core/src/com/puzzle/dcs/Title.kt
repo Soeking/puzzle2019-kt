@@ -48,6 +48,8 @@ class Title(private val game: Core) : Screen {
         first = true
 
         titleMilliseconds = 0
+        Core.gridSize2 = min(Gdx.graphics.width / 20f, Gdx.graphics.height * 4f / 45f)
+        Core.gridSize2 / 2.0f
     }
 
     override fun render(delta: Float) {

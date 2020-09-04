@@ -96,8 +96,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var moveGravityGroup: Int
     private var spriteAlpha: Float
 
-    private val stageName: String
-
     private var ladderTouchCount: Int
 
     private val deadLine: Array<Int>
@@ -114,8 +112,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         world = World(Vector2(0f, -gravityValue), true)
         renderer = Box2DDebugRenderer()
         createCollision()
-
-        stageName = fileName
 
         file = Gdx.files.internal("stages/$fileName")
         backgroundSprite = Sprite(Texture(Gdx.files.internal("images/puzzle haikei4.png"))).apply {
@@ -166,7 +162,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
         } else {
-            dispose()
+            remove()
             game.screen = StageSelect(game)
         }
 
