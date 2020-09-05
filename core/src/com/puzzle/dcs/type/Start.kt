@@ -5,18 +5,26 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.puzzle.dcs.Core
 
-class Start:Block() {
+class Start : Block() {
     var gravity = 0
 
     companion object {
-        val sprite = Sprite(Texture(Gdx.files.internal("images/player.png"))).apply {
+        var sprite = Sprite(Texture(Gdx.files.internal("images/player.png"))).apply {
             setOrigin(0f, 0f)
             setScale(Core.gridSize2 / width / 1.5f)
             setOrigin(width / 2f, height / 2f)
         }
+
+        fun update() {
+            sprite = Sprite(Texture(Gdx.files.internal("images/player.png"))).apply {
+                setOrigin(0f, 0f)
+                setScale(Core.gridSize2 / width / 1.5f)
+                setOrigin(width / 2f, height / 2f)
+            }
+        }
     }
 
-    override fun getSprite():Sprite {
+    override fun getSprite(): Sprite {
         return sprite
     }
 }

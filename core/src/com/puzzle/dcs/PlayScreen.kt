@@ -23,8 +23,6 @@ import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
 import com.puzzle.dcs.Core.Companion.gridSize2
 import com.puzzle.dcs.Core.Companion.halfGrid2
 import com.puzzle.dcs.type.*
-import com.puzzle.dcs.type.Goal
-import com.puzzle.dcs.type.GravityChange
 import com.puzzle.dcs.util.*
 
 class PlayScreen(private val game: Core, fileName: String) : Screen {
@@ -75,10 +73,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var touchGravity = mutableListOf<Int>()
     private var isStatic = 2
 
-    private val fontGenerator: FreeTypeFontGenerator
     private val fontGenerator2: FreeTypeFontGenerator
     private val fontGenerator3: FreeTypeFontGenerator
-    private val bitmapFont: BitmapFont
     private val bitmapFont2: BitmapFont
     private val bitmapFont3: BitmapFont
 
@@ -99,8 +95,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var ladderTouchCount: Int
 
     private val deadLine: Array<Int>
-
-    private val runtime = Runtime.getRuntime()
 
     private val sound: Music
     private var soundID: Long = -1
@@ -124,6 +118,13 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             setScale(50.0f)
             setOrigin(width / 2.0f, height / 2.0f)
         }
+        Wall.update()
+        Square.update()
+        Triangle.update()
+        GravityChange.update()
+        Ladder.update()
+        Start.update()
+        Goal.update()
 
         playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.StaticBody
@@ -257,13 +258,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         /**↓ここからデバッグ用*/
 
         //フォント生成
-        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Black.ttf"))
         fontGenerator2 = FreeTypeFontGenerator(Gdx.files.internal("fonts/meiryo.ttc"))
         val param = FreeTypeFontGenerator.FreeTypeFontParameter()
         param.size = 25
         param.color = Color.RED
         param.incremental = true
-        bitmapFont = fontGenerator.generateFont(param)
         val param2 = FreeTypeFontGenerator.FreeTypeFontParameter()
         param2.size = 64
         param2.color = Color.GREEN
@@ -427,7 +426,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         drawSprites()
         drawButton()
         checkFalled()
-        bitmapFont.draw(spriteBatch, "Max: ${runtime.maxMemory() / 1024}[KB]\nTotal: ${runtime.totalMemory() / 1024}[KB]\nFree: ${runtime.freeMemory() / 1024}[KB]\nUsed: ${(runtime.totalMemory() - runtime.freeMemory()) / 1024}[KB]", 0.0f, Gdx.graphics.height - 10.0f)
         spriteBatch.end()
 
         isTouchBlock = false
@@ -435,10 +433,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         touchGravity.clear()
         camera.update()
         world.step(1 / 45f, 8, 3)
-
-//        if (game.screen != this) {
-//            remove()
-//        }
     }
 
     private fun collisionAction(a: Body, b: Body) {
@@ -813,7 +807,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
     }
 
-    private fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float) = sqrt(Math.pow(x1 - x2.toDouble(), 2.0) + Math.pow(y1 - y2.toDouble(), 2.0)).toFloat()
+    private fun calcDistance(x1: Float, y1: Float, x2: Float, y2: Float) = sqrt((x1 - x2.toDouble()).pow(2.0) + (y1 - y2.toDouble()).pow(2.0)).toFloat()
 
     private fun drawBackground() {
         repeat(9) {
@@ -949,14 +943,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         world.destroyBody(goalBody)
         world.dispose()
         spriteBatch.dispose()
-        fontGenerator.dispose()
         fontGenerator2.dispose()
         fontGenerator3.dispose()
-        bitmapFont.dispose()
         bitmapFont2.dispose()
         bitmapFont3.dispose()
         for (it in 0..1) {
-            tex[it].textureData.disposePixmap()
+                                       tex[it].textureData.disposePixmap()
             tex[it].dispose()
             jtex[it].textureData.disposePixmap()
             jtex[it].dispose()

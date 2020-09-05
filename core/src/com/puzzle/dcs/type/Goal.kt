@@ -9,10 +9,18 @@ class Goal:Block() {
     var gravity = 0
 
     companion object {
-        val sprite = Sprite(Texture(Gdx.files.internal("images/warphole.png"))).apply {
+        var sprite = Sprite(Texture(Gdx.files.internal("images/warphole.png"))).apply {
             setOrigin(0f, 0f)
             setScale(Core.gridSize2 / width)
             setOrigin(width / 2f, height / 2f)
+        }
+
+        fun update() {
+            sprite = Sprite(Texture(Gdx.files.internal("images/warphole.png"))).apply {
+                setOrigin(0f, 0f)
+                setScale(Core.gridSize2 / width)
+                setOrigin(width / 2f, height / 2f)
+            }
         }
     }
 

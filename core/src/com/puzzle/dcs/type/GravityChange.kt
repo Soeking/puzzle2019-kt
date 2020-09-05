@@ -9,15 +9,28 @@ class GravityChange : MovableBlock() {
     var setGravity = 3
 
     companion object {
-        val sprite = Sprite(Texture(Gdx.files.internal("images/puzzle cube.png"))).apply {
+        var sprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepattern.png"))).apply {
             setOrigin(0f, 0f)
             setScale(Core.gridSize2 / width)
             setOrigin(width / 2f, height / 2f)
         }
-        val changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png"))).apply {
+        var changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png"))).apply {
             setOrigin(0f, 0f)
             setScale(Core.gridSize2 / width)
             setOrigin(width / 2f, height / 2f)
+        }
+
+        fun update() {
+            sprite = Sprite(Texture(Gdx.files.internal("images/puzzle cubepattern.png"))).apply {
+                setOrigin(0f, 0f)
+                setScale(Core.gridSize2 / width)
+                setOrigin(width / 2f, height / 2f)
+            }
+            changeSprite = Sprite(Texture(Gdx.files.internal("images/change.png"))).apply {
+                setOrigin(0f, 0f)
+                setScale(Core.gridSize2 / width)
+                setOrigin(width / 2f, height / 2f)
+            }
         }
     }
 
