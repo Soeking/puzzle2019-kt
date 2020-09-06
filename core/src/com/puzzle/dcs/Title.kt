@@ -97,6 +97,10 @@ class Title(private val game: Core) : Screen {
     }
 
     private fun remove() {
+        fontGenerator.dispose()
+        titleImage.texture.dispose()
+        font.dispose()
+        bitmapFont.dispose()
         batch.dispose()
         font.dispose()
     }

@@ -913,6 +913,24 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun remove() {
+        stageData.square.forEach {
+            it.getSprite().texture.dispose()
+        }
+        stageData.triangle.forEach {
+            it.getSprite().texture.dispose()
+        }
+        stageData.wall.forEach {
+            it.getSprite().texture.dispose()
+        }
+        stageData.ladder.forEach {
+            it.getSprite().texture.dispose()
+        }
+        stageData.start.let {
+            it.getSprite().texture.dispose()
+        }
+        stageData.goal.let {
+            it.getSprite().texture.dispose()
+        }
         stage.dispose()
         joints.forEach {
             world.destroyJoint(it)
@@ -922,6 +940,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 it.destroyFixture(it.fixtureList[i])
             }
             it.fixtureList.clear()
+            (it.userData as Block).getSprite().texture.dispose()
             world.destroyBody(it)
         }
         wallBodies.clear()
@@ -930,18 +949,22 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 it.destroyFixture(it.fixtureList[i])
             }
             it.fixtureList.clear()
+            (it.userData as Block).getSprite().texture.dispose()
             world.destroyBody(it)
         }
         bodies.clear()
         for (i in 0 until playerBody.fixtureList.size) {
             playerBody.destroyFixture(playerBody.fixtureList[i])
+            (playerBody.userData as Block).getSprite().texture.dispose()
         }
         world.destroyBody(playerBody)
         for (i in 0 until goalBody.fixtureList.size) {
             goalBody.destroyFixture(goalBody.fixtureList[i])
+            (goalBody.userData as Block).getSprite().texture.dispose()
         }
         world.destroyBody(goalBody)
         world.dispose()
+        renderer.dispose()
         spriteBatch.dispose()
         fontGenerator2.dispose()
         fontGenerator3.dispose()
@@ -959,6 +982,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ltouchtex.textureData.disposePixmap()
         ltouchtex.dispose()
         sound.dispose()
+        pauseSprite.texture.dispose()
+        backgroundSprite.texture.dispose()
 
         alreadyRemoved = true
     }

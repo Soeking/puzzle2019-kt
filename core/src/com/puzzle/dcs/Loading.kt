@@ -61,7 +61,6 @@ class Loading(private val game: Core, private val fileName: String) : Screen {
                         sleep(16);
                     }
                     game.screen = stage
-                    spriteBatch.dispose()
                 }
 
                 GlobalScope.launch(Dispatchers.Unconfined) {
@@ -94,10 +93,25 @@ class Loading(private val game: Core, private val fileName: String) : Screen {
     }
 
     override fun hide() {
-
+        remove()
     }
 
     override fun dispose() {
 
+    }
+
+    private var alreadyRemoved: Boolean = false
+
+    private fun remove() {
+        stage.dispose()
+        spriteBatch.dispose()
+        playerSprite.texture.dispose()
+    }
+
+    protected fun finalize() {
+        Gdx.app.log("finalize", "Loading is disposed")
+        if (!alreadyRemoved) {
+            remove()
+        }
     }
 }

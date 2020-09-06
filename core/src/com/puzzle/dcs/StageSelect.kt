@@ -351,6 +351,10 @@ class StageSelect(private val game: Core) : Screen {
         fontGenerator2.dispose()
         bitmapFont.dispose()
         bitmapFont2.dispose()
+        stageSelectImage.forEach {
+            if (!it.isDisposed)
+                it.dispose()
+        }
         stageSelectImage.clear()
         stageSelectImageTexture.forEach {
             it.textureData.disposePixmap()
@@ -374,27 +378,7 @@ class StageSelect(private val game: Core) : Screen {
     protected fun finalize() {
         Gdx.app.log("finalize", "StageSelect is disposed")
         if (!alreadyRemoved) {
-            wallPixmap.dispose()
-            squarePixmap.dispose()
-            trianglePixmap.dispose()
-            ladderPixmap.dispose()
-            playerPixmap.dispose()
-            goalPixmap.dispose()
-            changePixmap.dispose()
-            fontGenerator.dispose()
-            fontGenerator2.dispose()
-            bitmapFont.dispose()
-            bitmapFont2.dispose()
-            stageSelectImage.clear()
-            stageSelectImageTexture.forEach {
-                it.textureData.disposePixmap()
-                it.dispose()
-            }
-            stageSelectImageTexture.clear()
-            stageSelectFile.clear()
-            stageSelectFileDisplay.clear()
-            spriteBatch.dispose()
-            sound.dispose()
+            remove()
         }
     }
 }
