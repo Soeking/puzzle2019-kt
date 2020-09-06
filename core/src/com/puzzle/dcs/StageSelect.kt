@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.google.gson.Gson
+import com.puzzle.dcs.type.StageData
 import java.lang.Exception
 import kotlin.math.max
 import kotlin.math.min
