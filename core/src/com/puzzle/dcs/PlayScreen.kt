@@ -78,7 +78,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val bitmapFont2: BitmapFont
     private val bitmapFont3: BitmapFont
 
-//    private var threadEnabled: Boolean = true
+    //    private var threadEnabled: Boolean = true
     private var moveButton: Array<Pixmap>
     private var tex: Array<Texture>
     private var jumpButton: Array<Pixmap>
@@ -94,6 +94,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var spriteAlpha: Float
 
     private var ladderTouchCount: Int
+    private var ladderTouched: Array<Body?> = arrayOfNulls(4)
 
     private val deadLine: Array<Int>
 
@@ -355,18 +356,28 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         world.setContactListener(object : ContactListener {
             override fun beginContact(contact: Contact?) {
                 contact?.let {
-                    if (contact.fixtureA.body == playerBody && contact.fixtureB.body.userData is Ladder) ladderAction()
-                    else if (contact.fixtureB.body == playerBody && contact.fixtureA.body.userData is Ladder) ladderAction()
+                    if (contact.fixtureA.body == playerBody && contact.fixtureB.body.userData is Ladder) ladderAction(contact.fixtureB.body)
+                    else if (contact.fixtureB.body == playerBody && contact.fixtureA.body.userData is Ladder) ladderAction(contact.fixtureA.body)
+//                    Gdx.app.log("collision", contact.fixtureA.body.userData.toString() + " " + contact.fixtureB.body.userData.toString())
                 }
             }
 
             override fun endContact(contact: Contact?) {
                 contact?.let {
                     if (contact.fixtureA.body.userData is Ladder || contact.fixtureB.body.userData is Ladder) {
+                        for (i in 0..3) {
+                            if (ladderTouched[i] == contact.fixtureA.body || ladderTouched[i] == contact.fixtureB.body)
+                                ladderTouched[i] = null
+                        }
                         ladderTouchCount--
+//                        Gdx.app.log("collision", "endContact: " + ladderTouchCount)
                     }
                     if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) {
                         isLand = false
+                        ladderTouched.forEach {
+                            if (it != null)
+                                ladderTouchCount = 1
+                        }
                         if (ladderTouchCount <= 0) {
                             playerBody.gravityScale = 1f
                             playerBody.linearDamping = 0.6f
@@ -515,10 +526,17 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
     }
 
-    private fun ladderAction() {
+    private fun ladderAction(touchedLadder: Body) {
         ladderTouchCount++
+        for (i in 0..3) {
+            if (ladderTouched[i] == null) {
+                ladderTouched[i] = touchedLadder
+                break
+            }
+        }
         playerBody.gravityScale = 0f
         playerBody.linearDamping = 2f
+//        Gdx.app.log("collision", "startContact: " + ladderTouchCount)
     }
 
     private fun changeGravity(switch: GravityChange) {
