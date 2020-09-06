@@ -918,7 +918,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             world.destroyJoint(it)
         }
         wallBodies.forEach {
-            for (i in (0 until it.fixtureList.size)) {
+            for (i in 0 until it.fixtureList.size) {
                 it.destroyFixture(it.fixtureList[i])
             }
             it.fixtureList.clear()
@@ -926,18 +926,18 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         wallBodies.clear()
         bodies.forEach {
-            for (i in (0 until it.fixtureList.size)) {
+            for (i in 0 until it.fixtureList.size) {
                 it.destroyFixture(it.fixtureList[i])
             }
             it.fixtureList.clear()
             world.destroyBody(it)
         }
         bodies.clear()
-        for (i in (0 until playerBody.fixtureList.size)) {
+        for (i in 0 until playerBody.fixtureList.size) {
             playerBody.destroyFixture(playerBody.fixtureList[i])
         }
         world.destroyBody(playerBody)
-        for (i in (0 until goalBody.fixtureList.size)) {
+        for (i in 0 until goalBody.fixtureList.size) {
             goalBody.destroyFixture(goalBody.fixtureList[i])
         }
         world.destroyBody(goalBody)
@@ -948,7 +948,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         bitmapFont2.dispose()
         bitmapFont3.dispose()
         for (it in 0..1) {
-                                       tex[it].textureData.disposePixmap()
+            tex[it].textureData.disposePixmap()
             tex[it].dispose()
             jtex[it].textureData.disposePixmap()
             jtex[it].dispose()
