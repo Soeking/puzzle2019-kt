@@ -369,11 +369,11 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                             if (ladderTouched[i] == contact.fixtureA.body || ladderTouched[i] == contact.fixtureB.body)
                                 ladderTouched[i] = null
                         }
-                        ladderTouchCount--
 //                        Gdx.app.log("collision", "endContact: " + ladderTouchCount)
                     }
                     if (contact.fixtureA.body == playerBody || contact.fixtureB.body == playerBody) {
                         isLand = false
+                        ladderTouchCount = 0
                         ladderTouched.forEach {
                             if (it != null)
                                 ladderTouchCount = 1
@@ -527,7 +527,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun ladderAction(touchedLadder: Body) {
-        ladderTouchCount++
         for (i in 0..3) {
             if (ladderTouched[i] == null) {
                 ladderTouched[i] = touchedLadder
