@@ -925,6 +925,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         stageData.ladder.forEach {
             it.getSprite().texture.dispose()
         }
+        stageData.gravityChange.forEach {
+            it.getSprite().texture.dispose()
+        }
         stageData.start.let {
             it.getSprite().texture.dispose()
         }
@@ -962,6 +965,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             goalBody.destroyFixture(goalBody.fixtureList[i])
             (goalBody.userData as Block).getSprite().texture.dispose()
         }
+        pauseSprite.texture.dispose()
+        backgroundSprite.texture.dispose()
         world.destroyBody(goalBody)
         world.dispose()
         renderer.dispose()
@@ -982,8 +987,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         ltouchtex.textureData.disposePixmap()
         ltouchtex.dispose()
         sound.dispose()
-        pauseSprite.texture.dispose()
-        backgroundSprite.texture.dispose()
 
         alreadyRemoved = true
     }
