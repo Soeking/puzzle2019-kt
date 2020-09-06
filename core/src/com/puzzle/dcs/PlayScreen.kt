@@ -614,7 +614,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     var b: Int = 0
     var laser: Vector2 = Vector2(0.0f, 0.0f)
     var alpha: Float = 0.0f
-    var isDead: Boolean = false
 
     class DrawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
@@ -715,7 +714,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             screen.jumpButton.forEach { it.dispose() }
             screen.laserButton.forEach { it.dispose() }
             Gdx.app.log("thread", "DrawButtonThread is dead")
-            screen.isDead = true
         }
     }
 
@@ -870,9 +868,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun changeStageSelect() {
         stopSound()
         threadEnabled = false
-        while(!isDead){
-            Thread.sleep(1)
-        }
         game.screen = StageSelect(game)
     }
 
