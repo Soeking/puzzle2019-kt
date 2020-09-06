@@ -78,6 +78,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val bitmapFont2: BitmapFont
     private val bitmapFont3: BitmapFont
 
+//    private var threadEnabled: Boolean = true
     private var moveButton: Array<Pixmap>
     private var tex: Array<Texture>
     private var jumpButton: Array<Pixmap>
@@ -310,7 +311,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
         ladderTouchCount = 0
 
-        ThreadEnabled = true
+        threadEnabled = true
         val th = DrawButtonThread(this)
         th.start()
         //ボタン君ここまで
@@ -613,12 +614,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     var b: Int = 0
     var laser: Vector2 = Vector2(0.0f, 0.0f)
     var alpha: Float = 0.0f
+    var isDead: Boolean = false
 
     class DrawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
-            while (ThreadEnabled) {
+            while (threadEnabled) {
                 try {
-
                     screen.moveButton[1 - screen.b].apply {
                         setColor(0.0f, 0.0f, 0.0f, 0.0f)
                         fill()
@@ -701,21 +702,20 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     }
 
                     screen.a = false
-                    while (!screen.a) {
+                    while (!screen.a && threadEnabled) {
                         sleep(1)
                     }
-                    super.run()
                 } catch (e: Exception) {
                     e.stackTrace
                 }
 
-//                Gdx.app.log("thread", "DrawButtonThread is arriving")
+//                Gdx.app.log("thread", "DrawButtonThread is arriving : " + threadEnabled)
             }
             screen.moveButton.forEach { it.dispose() }
             screen.jumpButton.forEach { it.dispose() }
             screen.laserButton.forEach { it.dispose() }
-
             Gdx.app.log("thread", "DrawButtonThread is dead")
+            screen.isDead = true
         }
     }
 
@@ -869,7 +869,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
 
     private fun changeStageSelect() {
         stopSound()
-        ThreadEnabled = false
+        threadEnabled = false
+        while(!isDead){
+            Thread.sleep(1)
+        }
         game.screen = StageSelect(game)
     }
 
@@ -994,6 +997,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var alreadyRemoved: Boolean = false
 
     protected fun finalize() {
+        Gdx.app.log("finalize", "PlayScreen is disposed")
         if (!alreadyRemoved) {
             remove()
         }

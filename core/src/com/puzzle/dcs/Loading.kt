@@ -106,6 +106,7 @@ class Loading(private val game: Core, private val fileName: String) : Screen {
         stage.dispose()
         spriteBatch.dispose()
         playerSprite.texture.dispose()
+        alreadyRemoved = true
     }
 
     protected fun finalize() {

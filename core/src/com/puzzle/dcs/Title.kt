@@ -90,10 +90,6 @@ class Title(private val game: Core) : Screen {
             colorB = Random().nextFloat()
         }
         //Gdx.app.log("times", "${titleMilliseconds}")
-
-        if (game.screen != this) {
-            remove()
-        }
     }
 
     private fun remove() {
@@ -103,6 +99,7 @@ class Title(private val game: Core) : Screen {
         bitmapFont.dispose()
         batch.dispose()
         font.dispose()
+        alreadyRemoved = true
     }
 
     override fun show() {
@@ -110,7 +107,7 @@ class Title(private val game: Core) : Screen {
     }
 
     override fun hide() {
-
+        remove()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -127,5 +124,14 @@ class Title(private val game: Core) : Screen {
 
     override fun pause() {
 
+    }
+
+    private var alreadyRemoved: Boolean = false
+
+    protected fun finalize() {
+        Gdx.app.log("finalize", "Title is disposed")
+        if (!alreadyRemoved) {
+            remove()
+        }
     }
 }
