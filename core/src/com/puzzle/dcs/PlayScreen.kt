@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.google.gson.Gson
@@ -626,6 +627,12 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     var dis: Float = 0.0f
     var laserTouched: Int = -2
     var firstLaser: Vector2 = Vector2(0.0f, 0.0f)
+    var isZoom: Boolean = false
+    var ZoomTouched: Array<Int> = arrayOf(-1, -1)
+    var Zoom: Array<Vector2> = arrayOf(Vector2(0.0f, 0.0f), Vector2(0.0f, 0.0f))
+    var Centre: Vector2 = Vector2(0.0f, 0.0f)
+    var ZoomDistance: Float = 0.0f
+    var oldCameraPosition: Vector3 = Vector3(0.0f, 0.0f, 0.0f)
     var ldis: Float = 0.0f
     var a: Boolean = false
     var b: Int = 0
@@ -739,16 +746,33 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private fun drawButton() {
         for (i in 0..4) {
             if (touchCoordinate[i] == null) continue
-            if (touched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton[b].width / 2.0f, moveButton[b].width / 2.0f) < moveButton[b].width / 2.0f) {
+            if (touched == -1 && laserTouched != i && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, moveButton[b].width / 2.0f, moveButton[b].width / 2.0f) < moveButton[b].width / 2.0f) {
                 touched = i
                 coordinate.x = touchCoordinate[touched]!!.x
                 coordinate.y = touchCoordinate[touched]!!.y
-            } else if (jumpTouched == -1 && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton[b].width / 2.0f, jumpButton[b].width / 2.0f) < jumpButton[b].width / 4.0f) {
+            } else if (jumpTouched == -1 && laserTouched != i && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton[b].width / 2.0f, jumpButton[b].width / 2.0f) < jumpButton[b].width / 4.0f) {
                 jumpTouched = i
-            } else if (touched != i && jumpTouched != i && laserTouched < 0) {
+            } else if (touched != i && jumpTouched != i && laserTouched < 0 && !isZoom) {
+                Gdx.app.log("touch", "LASER")
                 laserTouched = i
                 firstLaser.x = touchCoordinate[i]!!.x
                 firstLaser.y = touchCoordinate[i]!!.y
+            } else if (touched != i && jumpTouched != i && laserTouched >= 0 && laserTouched != i && !isZoom) {
+                Gdx.app.log("touch", "ZOOM")
+                isZoom = true
+                ZoomTouched[0] = laserTouched
+                ZoomTouched[1] = i
+                Zoom[0].x = firstLaser.x
+                Zoom[0].y = firstLaser.y
+                Zoom[1].x = touchCoordinate[ZoomTouched[1]]!!.x
+                Zoom[1].y = touchCoordinate[ZoomTouched[1]]!!.y
+                Centre.x = (Zoom[0].x + Zoom[1].x) / 2
+                Centre.y = (Zoom[0].y + Zoom[1].y) / 2
+                ZoomDistance = calcDistance(Zoom[0].x, Zoom[0].y, Zoom[1].x, Zoom[1].y)
+                oldCameraPosition.x = camera.position.x
+                oldCameraPosition.y = camera.position.y
+                oldCameraPosition.z = camera.position.z
+                laserTouched = -2
             }
         }
 
@@ -763,6 +787,17 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             laserTouched = -2
             world.rayCast(callback, playerBody.position, laser.sub(Vector2(Gdx.graphics.width / 2.0f, -Gdx.graphics.height / 2.0f)).add(playerBody.position))
             touchTime = 0
+        }
+        if (isZoom) {
+            if (touchCoordinate[ZoomTouched[0]] == null || touchCoordinate[ZoomTouched[1]] == null)
+                isZoom = false
+            else {
+                var x1 = Centre.x - (touchCoordinate[ZoomTouched[0]]!!.x + touchCoordinate[ZoomTouched[1]]!!.x) / 2
+                var y1 = Centre.y - (touchCoordinate[ZoomTouched[0]]!!.y + touchCoordinate[ZoomTouched[1]]!!.y) / 2
+                var z1 = ZoomDistance - calcDistance(touchCoordinate[ZoomTouched[0]]!!.x, touchCoordinate[ZoomTouched[0]]!!.y, touchCoordinate[ZoomTouched[1]]!!.x, touchCoordinate[ZoomTouched[1]]!!.y)
+                camera.position.set(oldCameraPosition.x + x1, oldCameraPosition.y + y1, oldCameraPosition.z + z1)
+                Gdx.app.log("touch", "Camera " + camera.position)
+            }
         }
 
         tex[0].draw(moveButton[b], 0, 0)
