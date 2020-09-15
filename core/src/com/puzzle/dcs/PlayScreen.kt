@@ -84,6 +84,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var jumpButton: Array<Pixmap>
     private var jtex: Array<Texture>
     private var laserButton: Array<Pixmap>
+    private var pauseButton: Array<Pixmap>
     private var ltex: Array<Texture>
     private var callback: RayCastCallback
     private var laserFixture: Fixture? = null
@@ -283,6 +284,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         moveButton = arrayOf(Pixmap(Gdx.graphics.width / 5, Gdx.graphics.width / 5, Pixmap.Format.RGBA4444), Pixmap(Gdx.graphics.width / 5, Gdx.graphics.width / 5, Pixmap.Format.RGBA4444))
         jumpButton = arrayOf(Pixmap(Gdx.graphics.width / 5, Gdx.graphics.width / 5, Pixmap.Format.RGBA4444), Pixmap(Gdx.graphics.width / 5, Gdx.graphics.width / 5, Pixmap.Format.RGBA4444))
         laserButton = arrayOf(Pixmap(Gdx.graphics.width, Gdx.graphics.height, Pixmap.Format.RGBA4444), Pixmap(Gdx.graphics.width, Gdx.graphics.height, Pixmap.Format.RGBA4444))
+        pauseButton = arrayOf(Pixmap(Gdx.graphics.width / 5, Gdx.graphics.width / 5, Pixmap.Format.RGBA4444), Pixmap(Gdx.graphics.width / 5, Gdx.graphics.width / 5, Pixmap.Format.RGBA4444))
         repeat(2) {
             moveButton[it].setColor(0.0f, 0.0f, 0.0f, 0.0f)
             moveButton[it].fill()
@@ -290,6 +292,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             jumpButton[it].fill()
             laserButton[it].setColor(0.0f, 0.0f, 0.0f, 0.0f)
             laserButton[it].fill()
+            pauseButton[it].setColor(0.0f, 0.0f, 0.0f, 0.0f)
+            pauseButton[it].fill()
         }
         tex = arrayOf(Texture(moveButton[0]), Texture(moveButton[1]))
         jtex = arrayOf(Texture(jumpButton[0]), Texture(jumpButton[1]))
