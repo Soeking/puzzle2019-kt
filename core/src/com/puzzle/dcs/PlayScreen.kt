@@ -96,7 +96,6 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     //pauseButton関連
     private var pauseButton: Array<Pixmap>
     private var pauseTexture: Texture
-    private var myTexture: Texture
     private var myTextureRegion: TextureRegion
     private var myTexRegionDrawable: TextureRegionDrawable
     private var button : ImageButton
@@ -143,7 +142,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         pauseTexture = Texture(Gdx.files.internal("images/stop.png"))
         myTextureRegion = TextureRegion(pauseTexture)
         myTexRegionDrawable = TextureRegionDrawable(myTextureRegion)
-
+        button = ImageButton(myTexRegionDrawable)
         //pause button initialize end
 
         playerDef.type = BodyDef.BodyType.DynamicBody
