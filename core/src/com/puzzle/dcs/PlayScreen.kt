@@ -787,7 +787,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         if (laserTouched == -1 && laserFixture == null) {
             laserTouched = -2
-            if (ldis != 0.0f) world.rayCast(callback, playerBody.position, laser.sub(Vector2(Gdx.graphics.width / 2.0f, -Gdx.graphics.height / 2.0f)).add(playerBody.position))
+            world.rayCast(callback, playerBody.position, laser.sub(Vector2(Gdx.graphics.width / 2.0f, -Gdx.graphics.height / 2.0f)).add(playerBody.position))
             touchTime = 0
         }
         if (isZoom) {
@@ -834,20 +834,21 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                     laser.y = touchCoordinate[laserTouched]!!.y
                 } else if (laserTouched == -1) {
                     laserTouched = -2
-                    when (atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI) {
-                        in -135.0..-45.0 -> {
-                            moveBlocks(laserFixture!!.body.userData as MovableBlock, Gravity.EAST.dir)
+                    if (firstLaser.x - laser.x + firstLaser.y - laser.y != 0.0f)
+                        when (atan2(firstLaser.x - laser.x.toDouble(), firstLaser.y - laser.y.toDouble()) * 180.0 / Math.PI) {
+                            in -135.0..-45.0 -> {
+                                moveBlocks(laserFixture!!.body.userData as MovableBlock, Gravity.EAST.dir)
+                            }
+                            in -45.0..45.0 -> {
+                                moveBlocks(laserFixture!!.body.userData as MovableBlock, Gravity.SOUTH.dir)
+                            }
+                            in 45.0..135.0 -> {
+                                moveBlocks(laserFixture!!.body.userData as MovableBlock, Gravity.WEST.dir)
+                            }
+                            else -> {
+                                moveBlocks(laserFixture!!.body.userData as MovableBlock, Gravity.NORTH.dir)
+                            }
                         }
-                        in -45.0..45.0 -> {
-                            moveBlocks(laserFixture!!.body.userData as MovableBlock, Gravity.SOUTH.dir)
-                        }
-                        in 45.0..135.0 -> {
-                            moveBlocks(laserFixture!!.body.userData as MovableBlock, Gravity.WEST.dir)
-                        }
-                        else -> {
-                            moveBlocks(laserFixture!!.body.userData as MovableBlock, Gravity.NORTH.dir)
-                        }
-                    }
                     spriteAlpha = 1.0f
                     laserFixture = null
                 }
