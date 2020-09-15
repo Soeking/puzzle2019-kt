@@ -9,21 +9,23 @@ import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.*
-import com.badlogic.gdx.scenes.scene2d.Stage
-import com.google.gson.Gson
-import com.badlogic.gdx.physics.box2d.FixtureDef
-import kotlin.math.*
-import com.badlogic.gdx.physics.box2d.Fixture
-import com.badlogic.gdx.physics.box2d.RayCastCallback
 import com.badlogic.gdx.physics.box2d.joints.DistanceJoint
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.google.gson.Gson
 import com.puzzle.dcs.Core.Companion.gridSize2
 import com.puzzle.dcs.Core.Companion.halfGrid2
 import com.puzzle.dcs.type.*
-import com.puzzle.dcs.util.*
+import com.puzzle.dcs.util.isEven
+import com.puzzle.dcs.util.isOdd
+import kotlin.math.*
+
 
 class PlayScreen(private val game: Core, fileName: String) : Screen {
     private val camera: OrthographicCamera
@@ -84,12 +86,20 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var jumpButton: Array<Pixmap>
     private var jtex: Array<Texture>
     private var laserButton: Array<Pixmap>
-    private var pauseButton: Array<Pixmap>
+
     private var ltex: Array<Texture>
     private var callback: RayCastCallback
     private var laserFixture: Fixture? = null
     private var laserTouchedPix: Pixmap
     private var ltouchtex: Texture
+
+    //pauseButton関連
+    private var pauseButton: Array<Pixmap>
+    private var pauseTexture: Texture
+    private var myTexture: Texture
+    private var myTextureRegion: TextureRegion
+    private var myTexRegionDrawable: TextureRegionDrawable
+    private var button : ImageButton
 
     private var moveGravityGroup: Int
     private var spriteAlpha: Float
@@ -129,6 +139,13 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         Start.update()
         Goal.update()
 
+        //pause button variant initialize
+        pauseTexture = Texture(Gdx.files.internal("images/stop.png"))
+        myTextureRegion = TextureRegion(pauseTexture)
+        myTexRegionDrawable = TextureRegionDrawable(myTextureRegion)
+
+        //pause button initialize end
+
         playerDef.type = BodyDef.BodyType.DynamicBody
         dynamicDef.type = BodyDef.BodyType.StaticBody
         staticDef.type = BodyDef.BodyType.StaticBody
@@ -162,6 +179,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         triangleFixtureDef.restitution = 0.3f
         goalFixtureDef.shape = goalShape
         goalFixtureDef.isSensor = true
+
 
         if (file.exists()) {
             stageData = json.fromJson(file.readString(), StageData::class.java)
@@ -755,6 +773,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 firstLaser.y = touchCoordinate[i]!!.y
             }
         }
+
+
+
 
         if (touched != -1) {
             playerBody.applyLinearImpulse(playerSpeed * (coordinate.x - moveButton[1 - b].width / 2.0f) / (moveButton[1 - b].width / 4.0f), playerSpeed * (coordinate.y - moveButton[1 - b].width / 2.0f) / (moveButton[1 - b].width / 4.0f), playerBody.position.x, playerBody.position.y, true)
