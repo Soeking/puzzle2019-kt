@@ -872,7 +872,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     private var isClear: Boolean = false
 
     private fun onGoal(a: Body, b: Body) {
-        if ((a.userData as Start).gravity == (b.userData as Goal).gravity) {
+        if ((a.userData as Start).gravity == (b.userData as Goal).gravity && isLand) {
             isClear = true
             //playerBody.linearDamping = 4.3f
         }
