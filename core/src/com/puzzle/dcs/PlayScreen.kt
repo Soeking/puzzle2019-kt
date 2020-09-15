@@ -787,7 +787,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         }
         if (laserTouched == -1 && laserFixture == null) {
             laserTouched = -2
-            world.rayCast(callback, playerBody.position, laser.sub(Vector2(Gdx.graphics.width / 2.0f, -Gdx.graphics.height / 2.0f)).add(playerBody.position))
+            if (ldis != 0.0f) world.rayCast(callback, playerBody.position, laser.sub(Vector2(Gdx.graphics.width / 2.0f, -Gdx.graphics.height / 2.0f)).add(playerBody.position))
             touchTime = 0
         }
         if (isZoom) {
