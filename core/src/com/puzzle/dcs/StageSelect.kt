@@ -296,7 +296,7 @@ class StageSelect(private val game: Core) : Screen {
             }
             if (firstTouch != null) {
                 if (checkTap) {
-                    if (!(firstTouch!!.x - touchCoordinate[0]!!.x in -2.0f..2.0f && firstTouch!!.y - touchCoordinate[0]!!.y in -2.0f..2.0f)) {
+                    if (!(firstTouch!!.x - touchCoordinate[0]!!.x in -5.0f..5.0f && firstTouch!!.y - touchCoordinate[0]!!.y in -5.0f..5.0f)) {
                         checkTap = false
                     }
                 } else {
