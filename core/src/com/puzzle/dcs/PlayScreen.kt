@@ -633,11 +633,13 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     var Centre: Vector2 = Vector2(0.0f, 0.0f)
     var ZoomDistance: Float = 0.0f
     var oldCameraPosition: Vector3 = Vector3(0.0f, 0.0f, 0.0f)
+    var CameraPosition: Vector3 = Vector3(0.0f, 0.0f, 0.0f)
     var ldis: Float = 0.0f
     var a: Boolean = false
     var b: Int = 0
     var laser: Vector2 = Vector2(0.0f, 0.0f)
     var alpha: Float = 0.0f
+    var gridSize2_div_gridSize = gridSize2 / gridSize
 
     class DrawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
@@ -700,7 +702,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                             screen.ldis = screen.calcDistance(touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x, -(touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y), 0.0f, 0.0f)
                             if (screen.ldis == 0.0f) {
                                 repeat(4) {
-                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + cos(it * Math.PI / 2.0).toInt(), Gdx.graphics.height / 2 + sin(it * Math.PI / 2.0).toInt(),
+                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + cos(it * Math.PI / 2.0).toInt(),
+                                            Gdx.graphics.height / 2 + sin(it * Math.PI / 2.0).toInt(),
                                             (Gdx.graphics.width / 2) + cos(it * Math.PI / 2.0).toInt(),
                                             (Gdx.graphics.height / 2) + sin(it * Math.PI / 2.0).toInt())
                                 }
@@ -708,9 +711,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                                 screen.laser.x = (touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x) / screen.ldis * Gdx.graphics.width / 10 + Gdx.graphics.width / 2
                                 screen.laser.y = (touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y) / screen.ldis * Gdx.graphics.width / 10 - Gdx.graphics.height / 2
                                 repeat(4) {
-                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + cos(it * Math.PI / 2.0).toInt(), Gdx.graphics.height / 2 + sin(it * Math.PI / 2.0).toInt(),
-                                            screen.laser.x.toInt() + cos(it * Math.PI / 2.0).toInt(),
-                                            -screen.laser.y.toInt() + sin(it * Math.PI / 2.0).toInt())
+                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + cos(it * Math.PI / 2.0).toInt() - (screen.CameraPosition.x * screen.gridSize2_div_gridSize).toInt(),
+                                            Gdx.graphics.height / 2 + sin(it * Math.PI / 2.0).toInt() + (screen.CameraPosition.y * screen.gridSize2_div_gridSize).toInt(),
+                                            screen.laser.x.toInt() + cos(it * Math.PI / 2.0).toInt() - (screen.CameraPosition.x * screen.gridSize2_div_gridSize).toInt(),
+                                            -screen.laser.y.toInt() + sin(it * Math.PI / 2.0).toInt() + (screen.CameraPosition.y * screen.gridSize2_div_gridSize).toInt())
                                 }
 
                             }
@@ -753,12 +757,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             } else if (jumpTouched == -1 && laserTouched != i && calcDistance(touchCoordinate[i]!!.x, touchCoordinate[i]!!.y, Gdx.graphics.width - jumpButton[b].width / 2.0f, jumpButton[b].width / 2.0f) < jumpButton[b].width / 4.0f) {
                 jumpTouched = i
             } else if (touched != i && jumpTouched != i && laserTouched < 0 && !isZoom) {
-                Gdx.app.log("touch", "LASER")
                 laserTouched = i
                 firstLaser.x = touchCoordinate[i]!!.x
                 firstLaser.y = touchCoordinate[i]!!.y
             } else if (touched != i && jumpTouched != i && laserTouched >= 0 && laserTouched != i && !isZoom) {
-                Gdx.app.log("touch", "ZOOM")
                 isZoom = true
                 ZoomTouched[0] = laserTouched
                 ZoomTouched[1] = i
@@ -769,9 +771,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 Centre.x = (Zoom[0].x + Zoom[1].x) / 2
                 Centre.y = (Zoom[0].y + Zoom[1].y) / 2
                 ZoomDistance = calcDistance(Zoom[0].x, Zoom[0].y, Zoom[1].x, Zoom[1].y)
-                oldCameraPosition.x = camera.position.x
-                oldCameraPosition.y = camera.position.y
-                oldCameraPosition.z = camera.position.z
+                oldCameraPosition.x = CameraPosition.x
+                oldCameraPosition.y = CameraPosition.y
+                oldCameraPosition.z = CameraPosition.z
                 laserTouched = -2
             }
         }
@@ -795,8 +797,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 var x1 = Centre.x - (touchCoordinate[ZoomTouched[0]]!!.x + touchCoordinate[ZoomTouched[1]]!!.x) / 2
                 var y1 = Centre.y - (touchCoordinate[ZoomTouched[0]]!!.y + touchCoordinate[ZoomTouched[1]]!!.y) / 2
                 var z1 = ZoomDistance - calcDistance(touchCoordinate[ZoomTouched[0]]!!.x, touchCoordinate[ZoomTouched[0]]!!.y, touchCoordinate[ZoomTouched[1]]!!.x, touchCoordinate[ZoomTouched[1]]!!.y)
-                camera.position.set(oldCameraPosition.x + x1, oldCameraPosition.y + y1, oldCameraPosition.z + z1)
-                Gdx.app.log("touch", "Camera " + camera.position)
+                CameraPosition.x = oldCameraPosition.x + x1 / gridSize2_div_gridSize
+                CameraPosition.y = oldCameraPosition.y + y1 / gridSize2_div_gridSize
+                CameraPosition.z = oldCameraPosition.z + z1 / gridSize2_div_gridSize
             }
         }
 
@@ -875,8 +878,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun drawSprites() {
-        val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize   //playerを真ん中に表示するための何か
-        val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize  //同上
+        val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize + CameraPosition.x  //playerを真ん中に表示するための何か
+        val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize + CameraPosition.y //同上
         bodies.forEach {
             drawMain((it.userData as MovableBlock).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as MovableBlock).rotate, (it.userData as MovableBlock).gravityID)
             if (it.userData is GravityChange)
@@ -894,7 +897,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun drawMain(sprite: Sprite, playerX: Float, playerY: Float, x: Float, y: Float, angle: Float, rotate: Int, gravityGroup: Int) {
-        sprite.setPosition((x - playerX) * gridSize2 / gridSize - sprite.width / 2f + halfGrid2, (y - playerY) * gridSize2 / gridSize - sprite.height / 2f + halfGrid2)
+        sprite.setPosition((x - playerX) * gridSize2_div_gridSize - sprite.width / 2f + halfGrid2, (y - playerY) * gridSize2_div_gridSize - sprite.height / 2f + halfGrid2)
         sprite.rotation = angle / PI.toFloat() * 180f + rotate * 90f
         if (moveGravityGroup != -1) {
             if (gravityGroup == moveGravityGroup) sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, spriteAlpha)
