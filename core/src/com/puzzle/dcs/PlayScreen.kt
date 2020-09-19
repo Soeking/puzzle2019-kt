@@ -644,6 +644,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     var displayHalfGrid2 = halfGrid2
     var lastZoomTouch: Long = 0L
     var zoomResetFlag: Boolean = false
+    var zoomResetTime: Long = 250L //millisecond
 
     class DrawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
@@ -766,7 +767,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 firstLaser.y = touchCoordinate[i]!!.y
             } else if (touched != i && jumpTouched != i && laserTouched >= 0 && laserTouched != i && !isZoom) {
                 isZoom = true
-                if (System.currentTimeMillis() - lastZoomTouch < 500)
+                if (System.currentTimeMillis() - lastZoomTouch < zoomResetTime)
                     zoomResetFlag = true
                 lastZoomTouch = System.currentTimeMillis()
                 ZoomTouched[0] = laserTouched
@@ -910,7 +911,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, 0, -2, 1.0f)
         }
         playerBody.let {
-            drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Start).gravity + 1, -2, 0.75f)
+            drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Start).gravity + 1, -2, 0.666f)
         }
         goalBody.let {
             drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Goal).gravity + 1, -2, 1.0f)
