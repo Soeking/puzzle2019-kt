@@ -632,14 +632,18 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     var Zoom: Array<Vector2> = arrayOf(Vector2(0.0f, 0.0f), Vector2(0.0f, 0.0f))
     var Centre: Vector2 = Vector2(0.0f, 0.0f)
     var ZoomDistance: Float = 0.0f
-    var oldCameraPosition: Vector3 = Vector3(0.0f, 0.0f, 0.0f)
-    var CameraPosition: Vector3 = Vector3(0.0f, 0.0f, 0.0f)
+    var oldCameraPosition: Vector3 = Vector3(0.0f, 0.0f, 1.0f)
+    var CameraPosition: Vector3 = Vector3(0.0f, 0.0f, 1.0f)
     var ldis: Float = 0.0f
     var a: Boolean = false
     var b: Int = 0
     var laser: Vector2 = Vector2(0.0f, 0.0f)
     var alpha: Float = 0.0f
     var gridSize2_div_gridSize = gridSize2 / gridSize
+    var displayGridSize2 = gridSize2
+    var displayHalfGrid2 = halfGrid2
+    var lastZoomTouch: Long = 0L
+    var zoomResetFlag: Boolean = false
 
     class DrawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
@@ -762,6 +766,9 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 firstLaser.y = touchCoordinate[i]!!.y
             } else if (touched != i && jumpTouched != i && laserTouched >= 0 && laserTouched != i && !isZoom) {
                 isZoom = true
+                if (System.currentTimeMillis() - lastZoomTouch < 500)
+                    zoomResetFlag = true
+                lastZoomTouch = System.currentTimeMillis()
                 ZoomTouched[0] = laserTouched
                 ZoomTouched[1] = i
                 Zoom[0].x = firstLaser.x
@@ -791,15 +798,28 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             touchTime = 0
         }
         if (isZoom) {
-            if (touchCoordinate[ZoomTouched[0]] == null || touchCoordinate[ZoomTouched[1]] == null)
+            if (touchCoordinate[ZoomTouched[0]] == null || touchCoordinate[ZoomTouched[1]] == null) {
                 isZoom = false
-            else {
+                if (zoomResetFlag) {
+                    zoomResetFlag = false
+                    CameraPosition.x = 0.0f;
+                    CameraPosition.y = 0.0f;
+                    CameraPosition.z = 1.0f;
+                    displayGridSize2 = gridSize2
+                    displayHalfGrid2 = halfGrid2
+                    gridSize2_div_gridSize = gridSize2 / gridSize
+                    isZoom = true
+                }
+            } else {
                 var x1 = Centre.x - (touchCoordinate[ZoomTouched[0]]!!.x + touchCoordinate[ZoomTouched[1]]!!.x) / 2
                 var y1 = Centre.y - (touchCoordinate[ZoomTouched[0]]!!.y + touchCoordinate[ZoomTouched[1]]!!.y) / 2
-                var z1 = ZoomDistance - calcDistance(touchCoordinate[ZoomTouched[0]]!!.x, touchCoordinate[ZoomTouched[0]]!!.y, touchCoordinate[ZoomTouched[1]]!!.x, touchCoordinate[ZoomTouched[1]]!!.y)
+                var z1 = calcDistance(touchCoordinate[ZoomTouched[0]]!!.x, touchCoordinate[ZoomTouched[0]]!!.y, touchCoordinate[ZoomTouched[1]]!!.x, touchCoordinate[ZoomTouched[1]]!!.y) / ZoomDistance
                 CameraPosition.x = oldCameraPosition.x + x1 / gridSize2_div_gridSize
                 CameraPosition.y = oldCameraPosition.y + y1 / gridSize2_div_gridSize
-                CameraPosition.z = oldCameraPosition.z + z1 / gridSize2_div_gridSize
+                CameraPosition.z = oldCameraPosition.z * z1
+                displayGridSize2 = gridSize2 * CameraPosition.z
+                displayHalfGrid2 = displayGridSize2 / 2.0f
+                gridSize2_div_gridSize = displayGridSize2 / gridSize
             }
         }
 
@@ -879,27 +899,28 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun drawSprites() {
-        val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / gridSize2 * gridSize + CameraPosition.x  //playerを真ん中に表示するための何か
-        val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / gridSize2 * gridSize + CameraPosition.y //同上
+        val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / displayGridSize2 * gridSize + CameraPosition.x  //playerを真ん中に表示するための何か
+        val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / displayGridSize2 * gridSize + CameraPosition.y //同上
         bodies.forEach {
-            drawMain((it.userData as MovableBlock).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as MovableBlock).rotate, (it.userData as MovableBlock).gravityID)
+            drawMain((it.userData as MovableBlock).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as MovableBlock).rotate, (it.userData as MovableBlock).gravityID, 1.0f)
             if (it.userData is GravityChange)
-                drawMain(GravityChange.changeSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as GravityChange).setGravity + 1, (it.userData as GravityChange).gravityID)
+                drawMain(GravityChange.changeSprite, playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as GravityChange).setGravity + 1, (it.userData as GravityChange).gravityID, 1.0f)
         }
         wallBodies.forEach {
-            drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, 0, -2)
+            drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, 0, -2, 1.0f)
         }
         playerBody.let {
-            drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Start).gravity + 1, -2)
+            drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Start).gravity + 1, -2, 0.75f)
         }
         goalBody.let {
-            drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Goal).gravity + 1, -2)
+            drawMain((it.userData as Block).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as Goal).gravity + 1, -2, 1.0f)
         }
     }
 
-    private fun drawMain(sprite: Sprite, playerX: Float, playerY: Float, x: Float, y: Float, angle: Float, rotate: Int, gravityGroup: Int) {
-        sprite.setPosition((x - playerX) * gridSize2_div_gridSize - sprite.width / 2f + halfGrid2, (y - playerY) * gridSize2_div_gridSize - sprite.height / 2f + halfGrid2)
+    private fun drawMain(sprite: Sprite, playerX: Float, playerY: Float, x: Float, y: Float, angle: Float, rotate: Int, gravityGroup: Int, scale: Float) {
+        sprite.setPosition((x - playerX) * gridSize2_div_gridSize - sprite.width / 2f + displayHalfGrid2, (y - playerY) * gridSize2_div_gridSize - sprite.height / 2f + displayHalfGrid2)
         sprite.rotation = angle / PI.toFloat() * 180f + rotate * 90f
+        if (isZoom) sprite.setScale(displayGridSize2 / sprite.width * scale)
         if (moveGravityGroup != -1) {
             if (gravityGroup == moveGravityGroup) sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, spriteAlpha)
             else sprite.setColor(sprite.color.r, sprite.color.g, sprite.color.b, 1.0f)
