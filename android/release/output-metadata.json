@@ -12,9 +12,9 @@
       "filters": [],
       "properties": [],
       "versionCode": 1,
-      "versionName": "0.0000000000000000000000000000001",
+      "versionName": "0.0.2",
       "enabled": true,
-      "outputFile": "android-release.apk"
+      "outputFile": "InvertRoom.apk"
     }
   ]
 }

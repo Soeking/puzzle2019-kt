@@ -21,12 +21,20 @@ android {
         minSdkVersion 9
         targetSdkVersion 28
         versionCode 1
-        versionName "0.0000000000000000000000000000002"
+        versionName "0.0.2"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    applicationVariants.all { variant ->
+        if (variant.buildType.name != "release") {
+            return
+        }
+        variant.outputs.all {
+            outputFileName = "InvertRoom.apk"
         }
     }
 }
