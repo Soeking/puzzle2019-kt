@@ -338,7 +338,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
         if (soundID == -1L) {
             Gdx.app.log("SOUND", "play sound")
             soundID = 0
-            sound.play();
+            sound.play()
             sound.volume = 0.125f
             sound.isLooping = true
         } else {
@@ -627,24 +627,24 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     var dis: Float = 0.0f
     var laserTouched: Int = -2
     var firstLaser: Vector2 = Vector2(0.0f, 0.0f)
-    var isZoom: Boolean = false
-    var ZoomTouched: Array<Int> = arrayOf(-1, -1)
-    var Zoom: Array<Vector2> = arrayOf(Vector2(0.0f, 0.0f), Vector2(0.0f, 0.0f))
-    var Centre: Vector2 = Vector2(0.0f, 0.0f)
-    var ZoomDistance: Float = 0.0f
-    var oldCameraPosition: Vector3 = Vector3(0.0f, 0.0f, 1.0f)
-    var CameraPosition: Vector3 = Vector3(0.0f, 0.0f, 1.0f)
+    private var isZoom: Boolean = false
+    private var zoomTouched: Array<Int> = arrayOf(-1, -1)
+    private var zoom: Array<Vector2> = arrayOf(Vector2(0.0f, 0.0f), Vector2(0.0f, 0.0f))
+    private var centre: Vector2 = Vector2(0.0f, 0.0f)
+    private var zoomDistance: Float = 0.0f
+    private var oldCameraPosition: Vector3 = Vector3(0.0f, 0.0f, 1.0f)
+    var cameraPosition: Vector3 = Vector3(0.0f, 0.0f, 1.0f)
     var ldis: Float = 0.0f
     var a: Boolean = false
     var b: Int = 0
     var laser: Vector2 = Vector2(0.0f, 0.0f)
     var alpha: Float = 0.0f
-    var gridSize2_div_gridSize = gridSize2 / gridSize
-    var displayGridSize2 = gridSize2
-    var displayHalfGrid2 = halfGrid2
-    var lastZoomTouch: Long = 0L
-    var zoomResetFlag: Boolean = false
-    var zoomResetTime: Long = 250L //millisecond
+    var gridSize2DivGridSize = gridSize2 / gridSize
+    private var displayGridSize2 = gridSize2
+    private var displayHalfGrid2 = halfGrid2
+    private var lastZoomTouch: Long = 0L
+    private var zoomResetFlag: Boolean = false
+    private var zoomResetTime: Long = 250L //millisecond
 
     class DrawButtonThread(private val screen: PlayScreen) : Thread() {
         override fun run() {
@@ -716,10 +716,10 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                                 screen.laser.x = (touchCoordinate[screen.laserTouched]!!.x - screen.firstLaser.x) / screen.ldis * Gdx.graphics.width / 10 + Gdx.graphics.width / 2
                                 screen.laser.y = (touchCoordinate[screen.laserTouched]!!.y - screen.firstLaser.y) / screen.ldis * Gdx.graphics.width / 10 - Gdx.graphics.height / 2
                                 repeat(4) {
-                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + cos(it * Math.PI / 2.0).toInt() - (screen.CameraPosition.x * screen.gridSize2_div_gridSize).toInt(),
-                                            Gdx.graphics.height / 2 + sin(it * Math.PI / 2.0).toInt() + (screen.CameraPosition.y * screen.gridSize2_div_gridSize).toInt(),
-                                            screen.laser.x.toInt() + cos(it * Math.PI / 2.0).toInt() - (screen.CameraPosition.x * screen.gridSize2_div_gridSize).toInt(),
-                                            -screen.laser.y.toInt() + sin(it * Math.PI / 2.0).toInt() + (screen.CameraPosition.y * screen.gridSize2_div_gridSize).toInt())
+                                    screen.laserButton[1 - screen.b].drawLine(Gdx.graphics.width / 2 + cos(it * Math.PI / 2.0).toInt() - (screen.cameraPosition.x * screen.gridSize2DivGridSize).toInt(),
+                                            Gdx.graphics.height / 2 + sin(it * Math.PI / 2.0).toInt() + (screen.cameraPosition.y * screen.gridSize2DivGridSize).toInt(),
+                                            screen.laser.x.toInt() + cos(it * Math.PI / 2.0).toInt() - (screen.cameraPosition.x * screen.gridSize2DivGridSize).toInt(),
+                                            -screen.laser.y.toInt() + sin(it * Math.PI / 2.0).toInt() + (screen.cameraPosition.y * screen.gridSize2DivGridSize).toInt())
                                 }
 
                             }
@@ -770,18 +770,18 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
                 if (System.currentTimeMillis() - lastZoomTouch < zoomResetTime)
                     zoomResetFlag = true
                 lastZoomTouch = System.currentTimeMillis()
-                ZoomTouched[0] = laserTouched
-                ZoomTouched[1] = i
-                Zoom[0].x = firstLaser.x
-                Zoom[0].y = firstLaser.y
-                Zoom[1].x = touchCoordinate[ZoomTouched[1]]!!.x
-                Zoom[1].y = touchCoordinate[ZoomTouched[1]]!!.y
-                Centre.x = (Zoom[0].x + Zoom[1].x) / 2
-                Centre.y = (Zoom[0].y + Zoom[1].y) / 2
-                ZoomDistance = calcDistance(Zoom[0].x, Zoom[0].y, Zoom[1].x, Zoom[1].y)
-                oldCameraPosition.x = CameraPosition.x
-                oldCameraPosition.y = CameraPosition.y
-                oldCameraPosition.z = CameraPosition.z
+                zoomTouched[0] = laserTouched
+                zoomTouched[1] = i
+                zoom[0].x = firstLaser.x
+                zoom[0].y = firstLaser.y
+                zoom[1].x = touchCoordinate[zoomTouched[1]]!!.x
+                zoom[1].y = touchCoordinate[zoomTouched[1]]!!.y
+                centre.x = (zoom[0].x + zoom[1].x) / 2
+                centre.y = (zoom[0].y + zoom[1].y) / 2
+                zoomDistance = calcDistance(zoom[0].x, zoom[0].y, zoom[1].x, zoom[1].y)
+                oldCameraPosition.x = cameraPosition.x
+                oldCameraPosition.y = cameraPosition.y
+                oldCameraPosition.z = cameraPosition.z
                 laserTouched = -2
             }
         }
@@ -799,28 +799,28 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
             touchTime = 0
         }
         if (isZoom) {
-            if (touchCoordinate[ZoomTouched[0]] == null || touchCoordinate[ZoomTouched[1]] == null) {
+            if (touchCoordinate[zoomTouched[0]] == null || touchCoordinate[zoomTouched[1]] == null) {
                 isZoom = false
                 if (zoomResetFlag) {
                     zoomResetFlag = false
-                    CameraPosition.x = 0.0f;
-                    CameraPosition.y = 0.0f;
-                    CameraPosition.z = 1.0f;
+                    cameraPosition.x = 0.0f
+                    cameraPosition.y = 0.0f
+                    cameraPosition.z = 1.0f
                     displayGridSize2 = gridSize2
                     displayHalfGrid2 = halfGrid2
-                    gridSize2_div_gridSize = gridSize2 / gridSize
+                    gridSize2DivGridSize = gridSize2 / gridSize
                     isZoom = true
                 }
             } else {
-                var x1 = Centre.x - (touchCoordinate[ZoomTouched[0]]!!.x + touchCoordinate[ZoomTouched[1]]!!.x) / 2
-                var y1 = Centre.y - (touchCoordinate[ZoomTouched[0]]!!.y + touchCoordinate[ZoomTouched[1]]!!.y) / 2
-                var z1 = calcDistance(touchCoordinate[ZoomTouched[0]]!!.x, touchCoordinate[ZoomTouched[0]]!!.y, touchCoordinate[ZoomTouched[1]]!!.x, touchCoordinate[ZoomTouched[1]]!!.y) / ZoomDistance
-                CameraPosition.x = oldCameraPosition.x + x1 / gridSize2_div_gridSize
-                CameraPosition.y = oldCameraPosition.y + y1 / gridSize2_div_gridSize
-                CameraPosition.z = oldCameraPosition.z * z1
-                displayGridSize2 = gridSize2 * CameraPosition.z
+                val x1 = centre.x - (touchCoordinate[zoomTouched[0]]!!.x + touchCoordinate[zoomTouched[1]]!!.x) / 2
+                val y1 = centre.y - (touchCoordinate[zoomTouched[0]]!!.y + touchCoordinate[zoomTouched[1]]!!.y) / 2
+                val z1 = calcDistance(touchCoordinate[zoomTouched[0]]!!.x, touchCoordinate[zoomTouched[0]]!!.y, touchCoordinate[zoomTouched[1]]!!.x, touchCoordinate[zoomTouched[1]]!!.y) / zoomDistance
+                cameraPosition.x = oldCameraPosition.x + x1 / gridSize2DivGridSize
+                cameraPosition.y = oldCameraPosition.y + y1 / gridSize2DivGridSize
+                cameraPosition.z = oldCameraPosition.z * z1
+                displayGridSize2 = gridSize2 * cameraPosition.z
                 displayHalfGrid2 = displayGridSize2 / 2.0f
-                gridSize2_div_gridSize = displayGridSize2 / gridSize
+                gridSize2DivGridSize = displayGridSize2 / gridSize
             }
         }
 
@@ -900,8 +900,8 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun drawSprites() {
-        val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / displayGridSize2 * gridSize + CameraPosition.x  //playerを真ん中に表示するための何か
-        val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / displayGridSize2 * gridSize + CameraPosition.y //同上
+        val playerX = halfGrid + playerBody.position.x - Gdx.graphics.width / 2.0f / displayGridSize2 * gridSize + cameraPosition.x  //playerを真ん中に表示するための何か
+        val playerY = halfGrid + playerBody.position.y - Gdx.graphics.height / 2.0f / displayGridSize2 * gridSize + cameraPosition.y //同上
         bodies.forEach {
             drawMain((it.userData as MovableBlock).getSprite(), playerX, playerY, it.position.x, it.position.y, it.angle, (it.userData as MovableBlock).rotate, (it.userData as MovableBlock).gravityID, 1.0f)
             if (it.userData is GravityChange)
@@ -919,7 +919,7 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun drawMain(sprite: Sprite, playerX: Float, playerY: Float, x: Float, y: Float, angle: Float, rotate: Int, gravityGroup: Int, scale: Float) {
-        sprite.setPosition((x - playerX) * gridSize2_div_gridSize - sprite.width / 2f + displayHalfGrid2, (y - playerY) * gridSize2_div_gridSize - sprite.height / 2f + displayHalfGrid2)
+        sprite.setPosition((x - playerX) * gridSize2DivGridSize - sprite.width / 2f + displayHalfGrid2, (y - playerY) * gridSize2DivGridSize - sprite.height / 2f + displayHalfGrid2)
         sprite.rotation = angle / PI.toFloat() * 180f + rotate * 90f
         if (isZoom) sprite.setScale(displayGridSize2 / sprite.width * scale)
         if (moveGravityGroup != -1) {
@@ -989,26 +989,24 @@ class PlayScreen(private val game: Core, fileName: String) : Screen {
     }
 
     private fun remove() {
-        stageData.square.forEach {
-            it.getSprite().texture.dispose()
-        }
-        stageData.triangle.forEach {
-            it.getSprite().texture.dispose()
-        }
-        stageData.wall.forEach {
-            it.getSprite().texture.dispose()
-        }
-        stageData.ladder.forEach {
-            it.getSprite().texture.dispose()
-        }
-        stageData.gravityChange.forEach {
-            it.getSprite().texture.dispose()
-        }
-        stageData.start.let {
-            it.getSprite().texture.dispose()
-        }
-        stageData.goal.let {
-            it.getSprite().texture.dispose()
+        stageData.apply {
+            square.forEach {
+                it.getSprite().texture.dispose()
+            }
+            triangle.forEach {
+                it.getSprite().texture.dispose()
+            }
+            wall.forEach {
+                it.getSprite().texture.dispose()
+            }
+            ladder.forEach {
+                it.getSprite().texture.dispose()
+            }
+            gravityChange.forEach {
+                it.getSprite().texture.dispose()
+            }
+            start.getSprite().texture.dispose()
+            goal.getSprite().texture.dispose()
         }
         stage.dispose()
         joints.forEach {
