@@ -296,7 +296,7 @@ class StageSelect(private val game: Core) : Screen {
             }
             if (firstTouch != null) {
                 if (checkTap) {
-                    if (!(firstTouch!!.x - touchCoordinate[0]!!.x in -2.0f..2.0f && firstTouch!!.y - touchCoordinate[0]!!.y in -2.0f..2.0f)) {
+                    if (!(firstTouch!!.x - touchCoordinate[0]!!.x in -5.0f..5.0f && firstTouch!!.y - touchCoordinate[0]!!.y in -5.0f..5.0f)) {
                         checkTap = false
                     }
                 } else {
@@ -351,6 +351,10 @@ class StageSelect(private val game: Core) : Screen {
         fontGenerator2.dispose()
         bitmapFont.dispose()
         bitmapFont2.dispose()
+        stageSelectImage.forEach {
+            if (!it.isDisposed)
+                it.dispose()
+        }
         stageSelectImage.clear()
         stageSelectImageTexture.forEach {
             it.textureData.disposePixmap()
@@ -374,27 +378,7 @@ class StageSelect(private val game: Core) : Screen {
     protected fun finalize() {
         Gdx.app.log("finalize", "StageSelect is disposed")
         if (!alreadyRemoved) {
-            wallPixmap.dispose()
-            squarePixmap.dispose()
-            trianglePixmap.dispose()
-            ladderPixmap.dispose()
-            playerPixmap.dispose()
-            goalPixmap.dispose()
-            changePixmap.dispose()
-            fontGenerator.dispose()
-            fontGenerator2.dispose()
-            bitmapFont.dispose()
-            bitmapFont2.dispose()
-            stageSelectImage.clear()
-            stageSelectImageTexture.forEach {
-                it.textureData.disposePixmap()
-                it.dispose()
-            }
-            stageSelectImageTexture.clear()
-            stageSelectFile.clear()
-            stageSelectFileDisplay.clear()
-            spriteBatch.dispose()
-            sound.dispose()
+            remove()
         }
     }
 }

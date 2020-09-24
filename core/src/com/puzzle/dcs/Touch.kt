@@ -5,7 +5,7 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.math.Vector2
 
 public var touchCoordinate: Array<Vector2?> = arrayOfNulls(5)
-public var ThreadEnabled: Boolean = false
+public var threadEnabled: Boolean = false
 public var StageLoaded = false
 
 class Touch : InputProcessor {

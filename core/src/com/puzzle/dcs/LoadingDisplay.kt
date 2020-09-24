@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import kotlin.concurrent.thread
 
+// このクラスは使用されていません。ロード画面についてはLoading.ktが使用されています。
+
 class LoadingDisplay(private val game: Core, private val fileName: String) : Screen {
     private val spriteBatch = SpriteBatch()
     private lateinit var stage: PlayScreen

@@ -19,10 +19,15 @@ class Title(private val game: Core) : Screen {
     private var titleMilliseconds: Int
     private val fontGenerator: FreeTypeFontGenerator
     private val bitmapFont: BitmapFont
+    private val fontGenerator2: FreeTypeFontGenerator
+    private val bitmapFont2: BitmapFont
     private var first: Boolean
     private var colorR: Float
     private var colorG: Float
     private var colorB: Float
+    private val version: String = "0.0000000000000000000000000000002"
+    private var center1: Float = Gdx.graphics.width / 2.0f
+    private var center2: Float = 0.0f
 
     init {
         font.color = Color.WHITE
@@ -40,6 +45,13 @@ class Title(private val game: Core) : Screen {
         param.color = Color.RED
         param.incremental = true
         bitmapFont = fontGenerator.generateFont(param)
+
+        fontGenerator2 = FreeTypeFontGenerator(Gdx.files.internal("fonts/meiryo.ttc"))
+        val param2 = FreeTypeFontGenerator.FreeTypeFontParameter()
+        param2.size = Gdx.graphics.width / 100
+        param2.color = Color.BLUE
+        param2.incremental = true
+        bitmapFont2 = fontGenerator2.generateFont(param2)
 
         colorR = 0.1f
         colorG = 0.25f
@@ -72,7 +84,9 @@ class Title(private val game: Core) : Screen {
             titleImage.setScale(min(xSize, ySize))
             titleImage.setColor(titleImage.color.r, titleImage.color.g, titleImage.color.b, 1.0f)
             titleImage.draw(batch)
-            if (titleMilliseconds % 1000 < 500) bitmapFont.draw(batch, "tap screen to start game", Gdx.graphics.width / 4.0f, Gdx.graphics.height / 4.0f)
+            if (titleMilliseconds % 1000 < 500)
+                center1 = bitmapFont.draw(batch, "tap screen to start game", Gdx.graphics.width / 2.0f - center1 / 2.0f, Gdx.graphics.height / 4.0f).width
+            center2 = bitmapFont2.draw(batch, "Version: $version", Gdx.graphics.width - center2, bitmapFont2.lineHeight).width
         }
 
         batch.end()
@@ -90,15 +104,17 @@ class Title(private val game: Core) : Screen {
             colorB = Random().nextFloat()
         }
         //Gdx.app.log("times", "${titleMilliseconds}")
-
-        if (game.screen != this) {
-            remove()
-        }
     }
 
     private fun remove() {
-        batch.dispose()
+        fontGenerator.dispose()
+        fontGenerator2.dispose()
+        titleImage.texture.dispose()
         font.dispose()
+        bitmapFont.dispose()
+        bitmapFont2.dispose()
+        batch.dispose()
+        alreadyRemoved = true
     }
 
     override fun show() {
@@ -106,7 +122,7 @@ class Title(private val game: Core) : Screen {
     }
 
     override fun hide() {
-
+        remove()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -123,5 +139,14 @@ class Title(private val game: Core) : Screen {
 
     override fun pause() {
 
+    }
+
+    private var alreadyRemoved: Boolean = false
+
+    protected fun finalize() {
+        Gdx.app.log("finalize", "Title is disposed")
+        if (!alreadyRemoved) {
+            remove()
+        }
     }
 }
